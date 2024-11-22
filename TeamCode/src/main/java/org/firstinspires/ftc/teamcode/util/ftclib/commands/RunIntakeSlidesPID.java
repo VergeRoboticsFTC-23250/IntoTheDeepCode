@@ -4,10 +4,10 @@ import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.IntakeSlides;
 
-public class RunIntakeSlidePID extends CommandBase {
-    private IntakeSlides intakeSlides;
+public class RunIntakeSlidesPID extends CommandBase {
+    private final IntakeSlides intakeSlides;
 
-    public RunIntakeSlidePID(IntakeSlides intakeSlides) {
+    public RunIntakeSlidesPID(IntakeSlides intakeSlides) {
         this.intakeSlides = intakeSlides;
         addRequirements(intakeSlides);
         intakeSlides.resetPID();
