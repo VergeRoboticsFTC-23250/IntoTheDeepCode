@@ -20,5 +20,6 @@ public class TeleOp extends CommandOpMode {
 
         intakeSlides = new IntakeSlides(hardwareMap, telemetry);
         intakeSlides.setDefaultCommand(new RunIntakeSlidePID(intakeSlides));
+
     }
 }
