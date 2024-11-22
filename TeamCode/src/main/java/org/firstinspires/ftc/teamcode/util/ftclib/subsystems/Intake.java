@@ -19,6 +19,8 @@ public class Intake extends SubsystemBase {
         dropL = hMap.get(ServoEx.class, "dropdownL");
         dropR = hMap.get(ServoEx.class, "dropdownR");
         spintake = hMap.get(DcMotorEx.class, "spintake");
+        raise();
+        spin(0);
     }
 
     public void drop(){
