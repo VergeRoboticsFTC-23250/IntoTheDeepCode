@@ -10,10 +10,11 @@ public class RunIntakeSlidePID extends CommandBase {
     public RunIntakeSlidePID(IntakeSlides intakeSlides) {
         this.intakeSlides = intakeSlides;
         addRequirements(intakeSlides);
+        intakeSlides.resetPID();
     }
 
     @Override
     public void execute() {
-        intakeSlides.logPos();
+        intakeSlides.updatePID();
     }
 }
