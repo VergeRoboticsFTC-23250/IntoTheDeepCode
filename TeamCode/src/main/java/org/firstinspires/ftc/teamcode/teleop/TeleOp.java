@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.OuttakeSlides;
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp
 public class TeleOp extends CommandOpMode {
     public static int t1 = 300;
-    public static int t2= 300;
+    public static int t2= 600;
     private IntakeSlides intakeSlides;
     private OuttakeSlides outtakeSlides;
     private Intake intake;
