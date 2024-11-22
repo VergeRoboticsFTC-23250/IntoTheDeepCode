@@ -56,6 +56,11 @@ public class TeleOp extends CommandOpMode {
         toolOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> intake.spin(1));
         toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> intake.spin(-1));
 
-
+        new Trigger(() -> true).whileActiveContinuous(
+                () -> {
+                    intakeSlides.setPower(toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - toolOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+                    intakeSlides.setTargetPos(intakeSlides.getPos());
+                }
+        );
     }
 }
