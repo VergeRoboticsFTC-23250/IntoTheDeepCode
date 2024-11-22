@@ -5,19 +5,20 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Intake extends SubsystemBase {
     public static double dropPos = 1;
     public static double raisePos = 0;
-    ServoEx dropL;
-    ServoEx dropR;
+    Servo dropL;
+    Servo dropR;
 
     DcMotorEx spintake;
 
     public Intake(HardwareMap hMap){
-        dropL = hMap.get(ServoEx.class, "dropdownL");
-        dropR = hMap.get(ServoEx.class, "dropdownR");
+        dropL = hMap.get(Servo.class, "dropdownL");
+        dropR = hMap.get(Servo.class, "dropdownR");
         spintake = hMap.get(DcMotorEx.class, "spintake");
         raise();
         spin(0);
