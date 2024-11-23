@@ -42,7 +42,7 @@ public class AngleOffsetPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         Rect roi = new Rect(
-            new Point(input.cols() * .05, input.rows() * .05),
+            new Point(input.cols() * .05, input.rows() * .15),
             new Point(input.cols() * .95, input.rows() * .85)
         );
         Mat hsv = new Mat();
