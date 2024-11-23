@@ -16,7 +16,7 @@ public class HomeIntakeSlides extends CommandBase {
 
     @Override
     public void execute() {
-        intakeSlides.setPower(-1);
+        intakeSlides.setPower(-0.5);
     }
 
     @Override

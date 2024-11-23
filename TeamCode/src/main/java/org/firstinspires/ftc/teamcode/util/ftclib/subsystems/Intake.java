@@ -36,4 +36,8 @@ public class Intake extends SubsystemBase {
     public void spin(double power){
         spintake.setPower(power);
     }
+
+    public void stop(){
+        spintake.setPower(0);
+    }
 }

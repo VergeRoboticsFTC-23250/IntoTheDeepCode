@@ -20,6 +20,8 @@ public class IntakeSlides extends SubsystemBase {
         public double Ki = 0;
         public double Kd = 0;
     }
+    public static int maxPos = 1000;
+    public static int minPos = 0;
     public static double zeroCurrent = 4;
     public static Gains GAINS = new Gains();
     PIDController pidController = new PIDController(GAINS.Kp, GAINS.Ki, GAINS.Kd, 0);
@@ -42,12 +44,10 @@ public class IntakeSlides extends SubsystemBase {
         double power = pidController.getPower(slide.getCurrentPosition());
         slide.setPower(power);
     }
-
     public void resetEncoder(){
         slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-
     public void resetPID(){
         pidController.reset();
     }

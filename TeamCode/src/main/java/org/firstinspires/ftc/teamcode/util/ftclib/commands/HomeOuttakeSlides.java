@@ -17,7 +17,7 @@ public class HomeOuttakeSlides extends CommandBase {
 
     @Override
     public void execute() {
-        outtakeSlides.setPower(-1);
+        outtakeSlides.setPower(-.5);
     }
 
     @Override
