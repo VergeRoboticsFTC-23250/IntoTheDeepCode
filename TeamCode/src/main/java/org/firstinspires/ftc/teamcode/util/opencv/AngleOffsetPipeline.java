@@ -11,8 +11,8 @@ import java.util.List;
 public class AngleOffsetPipeline extends OpenCvPipeline {
 
 
-    private final Scalar lowerBlue = new Scalar(100, 150, 5);
-    private final Scalar upperBlue = new Scalar(140, 250, 135);
+    private final Scalar lowerBlue = new Scalar(100, 135, 5);
+    private final Scalar upperBlue = new Scalar(140, 254, 165);
 
     private final Scalar lowerRed1 = new Scalar(0, 243, 102);
     private final Scalar upperRed1 = new Scalar(10, 255, 255);
@@ -35,12 +35,15 @@ public class AngleOffsetPipeline extends OpenCvPipeline {
     public AngleOffsetPipeline(DetectionMode mode) {
         this.mode = mode;
     }
+    public AngleOffsetPipeline() {
+        this(DetectionMode.RED);
+    }
 
     @Override
     public Mat processFrame(Mat input) {
         Rect roi = new Rect(
             new Point(input.cols() * .05, input.rows() * .05),
-            new Point(input.cols() * .95, input.rows() * .7)
+            new Point(input.cols() * .95, input.rows() * .85)
         );
         Mat hsv = new Mat();
         Mat mask = new Mat();
@@ -70,8 +73,7 @@ public class AngleOffsetPipeline extends OpenCvPipeline {
         Mat hierarchy = new Mat();
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        // Find the largest contour
-        double maxArea = 0.0;
+        double maxArea = 1000.0;
         Rect largestRect = null;
         for (MatOfPoint contour : contours) {
             Rect rect = Imgproc.boundingRect(contour);
