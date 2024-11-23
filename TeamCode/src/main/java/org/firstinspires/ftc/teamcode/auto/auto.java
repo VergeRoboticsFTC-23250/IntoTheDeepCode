@@ -1,10 +1,8 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
-import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
 
-import org.firstinspires.ftc.teamcode.util.ftclib.commands.Movement;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.RunIntakeSlidesPID;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.RunOuttakeSlidesPID;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.Chassis;
@@ -40,8 +38,6 @@ public class auto extends CommandOpMode {
 
         }));
 
-//        schedule(new InstantCommand(() -> {
-//
-//        }));
+
     }
 }
