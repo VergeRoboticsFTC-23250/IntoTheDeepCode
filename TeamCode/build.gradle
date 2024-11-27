@@ -14,17 +14,15 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
-apply plugin: 'org.team11260.fast-load-plugin'
+apply plugin: 'dev.frozenmilk.sinister.sloth.Load'
 
 buildscript {
     repositories {
         mavenCentral()
-        maven {
-            url = 'https://www.matthewo.tech/maven/'
-        }
+        maven { url "https://repo.dairy.foundation/snapshots" }
     }
     dependencies {
-        classpath 'org.team11260:fast-load-plugin:0.1.2'
+        classpath "dev.frozenmilk.sinister.sloth:Load:0.0.0"
     }
 }
 
@@ -40,20 +38,24 @@ android {
 }
 
 repositories {
-    maven {
-        url = 'https://maven.brott.dev/'
-    }
-    maven {
-        url = 'https://www.matthewo.tech/maven/'
-    }
+    maven { url = 'https://maven.brott.dev/' }
+    maven { url = 'https://www.matthewo.tech/maven/' }
+    maven { url "https://repo.dairy.foundation/releases" }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
+
     implementation 'org.ftclib.ftclib:core:2.1.1'
+
     implementation "com.acmerobotics.roadrunner:ftc:0.1.14"
     implementation "com.acmerobotics.roadrunner:core:1.0.0"
     implementation "com.acmerobotics.roadrunner:actions:1.0.0"
+
     implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
-    implementation 'org.team11260:fast-load:0.1.2'
+
+    implementation "dev.frozenmilk.dairy:Util:1.0.2"
+    implementation "dev.frozenmilk.dairy:Core:1.0.0"
+    implementation "dev.frozenmilk.dairy:Pasteurized:1.0.0"
+    implementation "dev.frozenmilk.mercurial:Mercurial:1.0.0"
 }
