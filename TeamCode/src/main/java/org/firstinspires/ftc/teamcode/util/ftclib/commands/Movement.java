@@ -18,6 +18,6 @@ public class Movement extends CommandBase {
 
     @Override
     public void execute() {
-        chassis.drive(-gamepad.getRightY(), -gamepad.getRightX(), -gamepad.getLeftX());
+        chassis.drive(gamepad.getRightY(), gamepad.getRightX(), -gamepad.getLeftX());
     }
 }

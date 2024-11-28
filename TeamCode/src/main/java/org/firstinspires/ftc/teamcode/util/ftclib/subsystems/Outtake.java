@@ -15,18 +15,18 @@ public class Outtake extends SubsystemBase {
     Servo pivot;
 
     public static double clawOpenPos = 0;
-    public static double clawClosePos = 0.4;
+    public static double clawClosePos = 0.35;
 
-    public static double armSubmirsiblePos = 0;
+    public static double armSubmirsiblePos = 0.15;
     public static double armSampleIntakePos = 0;
-    public static double armHomePos = 0.35;
+    public static double armHomePos = 0.33;
     public static double armBucketPos = 0.9;
 
     //pivot
-    public static double pivotSubmersiblePos = 0.5;
+    public static double pivotSubmersiblePos = 0.2;
     public static double pivotSampleIntakePos = 0.225;
     public static double pivotHomePos = 0.225;
-    public static double pivotBucketPos = 0.5;
+    public static double pivotBucketPos = 0.3;
 
     public Outtake(HardwareMap hMap) {
         armR = hMap.get(Servo.class, "arm1");

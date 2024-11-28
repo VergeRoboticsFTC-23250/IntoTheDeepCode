@@ -1,14 +1,18 @@
 package org.firstinspires.ftc.teamcode.util.ftclib.commands;
 import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.OuttakeSlides;
+import org.opencv.core.Mat;
 
-public class RunOuttakeSlidesPID extends CommandBase {
+public class RunOuttakeSlideToPos extends CommandBase {
     private final OuttakeSlides outtakeSlides;
+    private final int pos;
 
-    public RunOuttakeSlidesPID(OuttakeSlides outtakeSlides) {
+    public RunOuttakeSlideToPos(OuttakeSlides outtakeSlides, int pos) {
+        this.pos = pos;
         this.outtakeSlides = outtakeSlides;
         addRequirements(outtakeSlides);
         outtakeSlides.resetPID();
+        OuttakeSlides.setTargetPos(pos);
     }
 
     @Override
@@ -19,6 +23,11 @@ public class RunOuttakeSlidesPID extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return Math.abs(OuttakeSlides.getPos() - pos) < 50;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        outtakeSlides.setPower(0);
     }
 }

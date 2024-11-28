@@ -17,6 +17,14 @@ public class Chassis extends SubsystemBase {
         rr = new MecanumDrive(hMap, new Pose2d(0,0,0));
     }
 
+    public void speedSlow(){
+        isSlowed = true;
+    }
+
+    public void speedFast(){
+        isSlowed = false;
+    }
+
     public void drive(double x, double y, double z) {
         rr.setDrivePowers(new PoseVelocity2d(
                 new Vector2d(x * (isSlowed? slowSpeed : 1), y * (isSlowed? slowSpeed : 1)), z * (isSlowed? slowSpeed : 1)

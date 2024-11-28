@@ -80,6 +80,10 @@ public class TeleOp extends CommandOpMode {
 
         //driverop
 
+        driverOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(chassis::speedSlow)
+                .whenReleased(chassis::speedFast);
+
         driverOp.getGamepadButton(GamepadKeys.Button.A)
                 .toggleWhenActive(outtake::closeClaw, outtake::openClaw);
 
@@ -117,7 +121,7 @@ public class TeleOp extends CommandOpMode {
 
         driverOp.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
                 .whileActiveContinuous(new InstantCommand(() -> outtakeSlides.setPower(
-                        (OuttakeSlides.getPos() > OuttakeSlides.minPos)? (Chassis.isSlowed? -Chassis.slowSpeed : -1) : 0
+                        (OuttakeSlides.getPos() > OuttakeSlides.minPos)? (Chassis.isSlowed? -Chassis.slowSpeed : -0.75) : 0
                 ), outtakeSlides))
                 .whenInactive(new InstantCommand(() -> OuttakeSlides.setTargetPos(OuttakeSlides.getPos()),  outtakeSlides));
 

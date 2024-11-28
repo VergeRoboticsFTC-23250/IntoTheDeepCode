@@ -1,15 +1,26 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.auto;
 
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Trajectory;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.ScheduleCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.util.ftclib.commands.DriveTo;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.Movement;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.RunIntakeSlidesPID;
+import org.firstinspires.ftc.teamcode.util.ftclib.commands.RunOuttakeSlideToPos;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.RunOuttakeSlidesPID;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.Intake;
@@ -17,41 +28,50 @@ import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.OuttakeSlides;
 
-public class auto extends CommandOpMode {
+@Autonomous
+public class auto extends LinearOpMode {
     private Chassis chassis;
     private IntakeSlides intakeSlides;
     private OuttakeSlides outtakeSlides;
     private Intake intake;
     private Outtake outtake;
 
-    Trajectory runToCenter;
-
     @Override
-    public void initialize() {
+    public void runOpMode() {
         chassis = new Chassis(hardwareMap);
-
         intakeSlides = new IntakeSlides(hardwareMap, telemetry);
-        intakeSlides.setDefaultCommand(new RunIntakeSlidesPID(intakeSlides));
-        intakeSlides.resetEncoder();
-
         outtakeSlides = new OuttakeSlides(hardwareMap, telemetry);
-        outtakeSlides.setDefaultCommand(new RunOuttakeSlidesPID(outtakeSlides));
-        outtakeSlides.resetEncoder();
-
         intake = new Intake(hardwareMap);
-
         outtake = new Outtake(hardwareMap);
 
-        schedule(new InstantCommand(() -> {
-//            OuttakeSlides.setTargetPos(1000);
-            Actions.runBlocking(
-                    chassis.rr.actionBuilder(new Pose2d(-15, 62, Math.toRadians(270)))
-                            .splineTo(new Vector2d(-15, 36), Math.toRadians(270))
-                            .waitSeconds(1)
-                            .splineToConstantHeading(new Vector2d(-50, 60), Math.toRadians(270))
-                            .build()
-            )
-            ;
-        }));
+        intakeSlides.resetEncoder();
+        intakeSlides.resetPID();
+
+        outtakeSlides.resetEncoder();
+        outtakeSlides.resetPID();
+
+        //outtakeSlides.setTargetPos(1100);
+
+        outtake.setArm(Outtake.armHomePos);
+        outtake.setPivot(Outtake.pivotHomePos);
+        outtake.openClaw();
+
+        waitForStart();
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        (e) -> {
+                            outtakeSlides.updatePID();
+                            return true;
+                        },
+                        (e) -> {
+                            intakeSlides.updatePID();
+                            return true;
+                        },
+                        chassis.rr.actionBuilder(chassis.rr.pose)
+                                .strafeToLinearHeading(new Vector2d(0, -48), Math.toRadians(0))
+                                .build()
+                )
+        );
     }
 }

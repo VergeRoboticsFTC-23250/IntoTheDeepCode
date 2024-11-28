@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.util.PIDController;
 
 @Config
 public class OuttakeSlides extends SubsystemBase {
-    static DcMotorEx slideR;
-    DcMotorEx slideL;
+    public static DcMotorEx slideR;
+    public static DcMotorEx slideL;
     Telemetry telemetry;
     public static int tolerance = 100;
     public static int submirsiblePos = 0;
@@ -31,7 +31,7 @@ public class OuttakeSlides extends SubsystemBase {
     public static int minPos = 0;
     public static double zeroCurrent = 4;
     public static Gains GAINS = new Gains();
-    public static PIDController pidController = new PIDController(GAINS.Kp, GAINS.Ki, GAINS.Kd, 0);
+    public static volatile PIDController pidController = new PIDController(GAINS.Kp, GAINS.Ki, GAINS.Kd, 0);
 
     public OuttakeSlides(final HardwareMap hMap, final Telemetry telemetry){
         this.telemetry = telemetry;
@@ -43,7 +43,7 @@ public class OuttakeSlides extends SubsystemBase {
         slideL.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void setPower(double power){
+    public static void setPower(double power){
         slideR.setPower(power);
         slideR.setPower(power);
     }
@@ -52,7 +52,7 @@ public class OuttakeSlides extends SubsystemBase {
         return slideR.isOverCurrent() || slideL.isOverCurrent();
     }
 
-    public void updatePID(){
+    public static void updatePID(){
         double power = pidController.getPower(getPos());
         setPower(power);
     }
