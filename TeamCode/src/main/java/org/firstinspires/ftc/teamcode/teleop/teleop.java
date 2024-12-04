@@ -105,8 +105,8 @@ public class teleop extends CommandOpMode {
                         .toggleWhenPressed(outtake::openClaw, outtake::closeClaw);
 
         schedule(new SequentialCommandGroup(
-                new HomeVerticalSlides(vSlides),
-                new SetRobotState(vSlides, outtake, Robot.home)
+                new SetRobotState(vSlides, outtake, Robot.home),
+                new HomeVerticalSlides(vSlides)
         ));
     }
 }
