@@ -8,18 +8,19 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Intake extends SubsystemBase {
-    public static double dropPos = 1;
-    public static double raisePos = 0;
+    public static double dropPos = .945;
+    public static double homePos = 0.5;
     Servo dropL;
     Servo dropR;
-
     DcMotorEx spintake;
-
     public Intake(HardwareMap hMap){
-        dropL = hMap.get(Servo.class, "dropdownL");
         dropR = hMap.get(Servo.class, "dropdownR");
+        dropL = hMap.get(Servo.class, "dropdownL");
+        dropL.setDirection(Servo.Direction.REVERSE);
+
         spintake = hMap.get(DcMotorEx.class, "spintake");
-        raise();
+
+        home();
         spin(0);
     }
 
@@ -28,16 +29,12 @@ public class Intake extends SubsystemBase {
         dropR.setPosition(dropPos);
     }
 
-    public void raise(){
-        dropL.setPosition(raisePos);
-        dropR.setPosition(raisePos);
+    public void home(){
+        dropL.setPosition(homePos);
+        dropR.setPosition(homePos);
     }
 
     public void spin(double power){
         spintake.setPower(power);
-    }
-
-    public void stop(){
-        spintake.setPower(0);
     }
 }

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class testop extends LinearOpMode {
     public static boolean invert = false;
+    public static boolean enableS2 = true;
     public static String s1 = "arm1";
     public static String s2 = "arm2";
     public static String m = "spintake";
@@ -22,7 +23,9 @@ public class testop extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()){
             servo.setPosition(invert? -gamepad1.left_stick_y / 2 + 0.5 : gamepad1.left_stick_y / 2 + 0.5);
-            servo2.setPosition(gamepad1.left_stick_y / 2 + 0.5);
+            if(enableS2){
+                servo2.setPosition(gamepad1.left_stick_y / 2 + 0.5);
+            }
             motor.setPower(gamepad1.right_stick_y);
         }
     }
