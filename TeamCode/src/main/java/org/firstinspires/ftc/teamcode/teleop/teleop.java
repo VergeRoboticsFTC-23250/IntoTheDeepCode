@@ -101,10 +101,10 @@ public class teleop extends CommandOpMode {
                 .whenPressed(new SetRobotState(vSlides, outtake, Robot.home));
 
         tj.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                        .toggleWhenPressed(outtake::openClaw, outtake::closeClaw);
+                .toggleWhenPressed(outtake::openClaw, outtake::closeClaw);
 
         tj.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(() -> outtake.setPivot(Robot.handoff.pivotPos));
+                .whenPressed(new SetRobotState(vSlides, outtake, Robot.handoff));
 
         schedule(new SequentialCommandGroup(
                 new SetRobotState(vSlides, outtake, Robot.home),
