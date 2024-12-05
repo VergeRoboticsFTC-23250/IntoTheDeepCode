@@ -24,7 +24,7 @@ public class VerticalSlides extends SubsystemBase {
     public static double tolerance = 50;
     public static double homePower = -0.5;
     public static double homeCurrent = 2.5;
-    public static int maxPos = 1000;
+    public static int maxPos = 4000;
     public static int minPos = 0;
 
 

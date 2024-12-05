@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.util.ftclib.subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@Config
 public class Outtake extends SubsystemBase {
     Servo arm1;
     Servo arm2;
@@ -12,7 +14,7 @@ public class Outtake extends SubsystemBase {
     Servo pivot;
 
     public static double clawOpenPos = 0.5;
-    public static double clawClosePos = 1;
+    public static double clawClosePos = 0.8;
 
     public Outtake(HardwareMap hMap){
         arm1 = hMap.get(Servo.class, "arm1");

@@ -56,9 +56,9 @@ public class teleop extends CommandOpMode {
         //Horizontal Slide Code
         hSlides = new HorizontalSlides(hardwareMap);
 
-        new Trigger(() -> arvind.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0)
+        new Trigger(() -> arvind.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0)
                 .whileActiveContinuous(() -> {
-                    hSlides.setPos(arvind.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+                    hSlides.setPos(arvind.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
                 })
                 .whenInactive(hSlides::home);
 
@@ -103,6 +103,9 @@ public class teleop extends CommandOpMode {
 
         tj.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                         .toggleWhenPressed(outtake::openClaw, outtake::closeClaw);
+
+        tj.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(() -> outtake.setPivot(Robot.handoff.pivotPos));
 
         schedule(new SequentialCommandGroup(
                 new SetRobotState(vSlides, outtake, Robot.home),

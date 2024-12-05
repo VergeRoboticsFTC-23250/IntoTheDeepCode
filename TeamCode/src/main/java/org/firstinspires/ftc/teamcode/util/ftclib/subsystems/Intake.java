@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Intake extends SubsystemBase {
-    public static double dropPos = .945;
-    public static double homePos = 0.5;
+    public static double dropPos = .8;
+    public static double homePos = 0.3;
     Servo dropL;
     Servo dropR;
     DcMotorEx spintake;
