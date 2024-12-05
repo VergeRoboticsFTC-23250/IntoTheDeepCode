@@ -54,13 +54,12 @@ public class teleop extends CommandOpMode {
                 .whenReleased(() -> intake.spin(0));
 
         //Horizontal Slide Code
-        hSlides = new HorizontalSlides(hardwareMap);
+        hSlides = new HorizontalSlides(hardwareMap, telemetry);
 
-        new Trigger(() -> arvind.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0)
+        new Trigger(() -> arvind.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0 || arvind.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0)
                 .whileActiveContinuous(() -> {
-                    hSlides.setPos(arvind.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
-                })
-                .whenInactive(hSlides::home);
+                    hSlides.setIncrement(arvind.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), arvind.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
+                });
 
         //Vertical Slide Code
         vSlides = new VerticalSlides(hardwareMap);
