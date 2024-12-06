@@ -16,7 +16,7 @@ public class Outtake extends SubsystemBase {
     public static double clawOpenPos = 0.5;
     public static double clawClosePos = 0.8;
 
-    public static boolean isClawClosed;
+    public static boolean isClawClosed = false;
 
     public Outtake(HardwareMap hMap){
         arm1 = hMap.get(Servo.class, "arm1");
@@ -59,7 +59,6 @@ public class Outtake extends SubsystemBase {
     }
 
     public void toggleClaw(){
-        isClawClosed = !isClawClosed;
         if(isClawClosed){
             openClaw();
         } else{
