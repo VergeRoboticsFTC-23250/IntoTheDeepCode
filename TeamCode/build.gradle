@@ -15,19 +15,17 @@
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 apply plugin: 'dev.frozenmilk.sinister.sloth.Load'
-apply plugin: 'org.team11260.fast-load-plugin'
+//apply plugin: 'org.team11260.fast-load-plugin'
 
 buildscript {
     repositories {
         mavenCentral()
         maven { url "https://repo.dairy.foundation/snapshots" }
-        maven {
-            url = 'https://www.matthewo.tech/maven/'
-        }
+        //maven { url = 'https://www.matthewo.tech/maven/' }
     }
     dependencies {
-        classpath "dev.frozenmilk.sinister.sloth:Load:0.0.0"
-        classpath 'org.team11260:fast-load-plugin:0.1.2'
+        classpath "dev.frozenmilk.sinister.sloth:Load:0.0.2"
+        //classpath 'org.team11260:fast-load-plugin:0.1.2'
     }
 }
 
@@ -44,8 +42,9 @@ android {
 
 repositories {
     maven { url = 'https://maven.brott.dev/' }
-    maven { url = 'https://www.matthewo.tech/maven/' }
+    //maven { url = 'https://www.matthewo.tech/maven/' }
     maven { url "https://repo.dairy.foundation/releases" }
+    maven { url "https://repo.dairy.foundation/snapshots" }
 }
 
 dependencies {
@@ -60,9 +59,10 @@ dependencies {
     implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
 
     implementation "dev.frozenmilk.dairy:Util:1.0.2"
-    implementation "dev.frozenmilk.dairy:Core:1.0.0"
+    implementation "dev.frozenmilk.sinister:Sloth:0.0.1"
+    implementation "dev.frozenmilk.dairy:Core:2.0.0"
     implementation "dev.frozenmilk.dairy:Pasteurized:1.0.0"
     implementation "dev.frozenmilk.mercurial:Mercurial:1.0.0"
 
-    implementation 'org.team11260:fast-load:0.1.2'
+    //implementation 'org.team11260:fast-load:0.1.2'
 }
