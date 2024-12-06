@@ -5,6 +5,8 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.util.Robot;
+
 @Config
 public class Outtake extends SubsystemBase {
     Servo arm1;
@@ -25,6 +27,10 @@ public class Outtake extends SubsystemBase {
         gripper2 = hMap.get(Servo.class, "gripper2");
         gripper2.setDirection(Servo.Direction.REVERSE);
         pivot = hMap.get(Servo.class, "pivot");
+
+        setArm(Robot.init.armPos);
+        setPivot(Robot.init.pivotPos);
+        setIsClawOpen(Robot.init.isClawOpen);
     }
 
     public void setArm(double pos){

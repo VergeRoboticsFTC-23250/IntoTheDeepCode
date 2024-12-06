@@ -13,11 +13,9 @@ public class HorizontalSlides extends SubsystemBase {
     public static double maxPos = 0;
     Servo slideR;
     Servo slideL;
-    Telemetry telemetry;
-    public HorizontalSlides(HardwareMap hMap, Telemetry telemetry){
+    public HorizontalSlides(HardwareMap hMap){
         slideR = hMap.get(Servo.class, "slideR");
         slideL = hMap.get(Servo.class, "slideL");
-        this.telemetry = telemetry;
         home();
     }
 
@@ -30,12 +28,6 @@ public class HorizontalSlides extends SubsystemBase {
         double pos = homePos - Math.max(0, Math.min(1, p)) * Math.abs(homePos - maxPos);
         slideR.setPosition(pos);
         slideL.setPosition(pos);
-    }
-
-    public void logPos(){
-        telemetry.addData("R", slideR.getPosition());
-        telemetry.addData("L", slideL.getPosition());
-        telemetry.update();
     }
 
     public void addPos(double pos){

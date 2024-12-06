@@ -31,8 +31,6 @@ public class DriveHorizontalSlides extends CommandBase {
         deltaTime = System.currentTimeMillis() - lastTime;
         lastTime = System.currentTimeMillis();
 
-        slides.logPos();
-
         slides.addPos((gp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)) * deltaTime * speed);
     }
 

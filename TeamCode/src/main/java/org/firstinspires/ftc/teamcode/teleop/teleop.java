@@ -1,19 +1,18 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static org.firstinspires.ftc.teamcode.util.Robot.State.*;
+
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
-import org.firstinspires.ftc.teamcode.util.Robot;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.DriveHorizontalSlides;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.HomeVerticalSlides;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.Movement;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.RunVerticalSlidePID;
-import org.firstinspires.ftc.teamcode.util.ftclib.commands.SetRobotState;
+import org.firstinspires.ftc.teamcode.util.ftclib.commands.SetPositions;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.HorizontalSlides;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.Intake;
@@ -36,7 +35,7 @@ public class teleop extends CommandOpMode {
         //Initialize subsystems.
         chassis = new Chassis(hardwareMap);
         intake = new Intake(hardwareMap);
-        hSlides = new HorizontalSlides(hardwareMap, telemetry);
+        hSlides = new HorizontalSlides(hardwareMap);
         vSlides = new VerticalSlides(hardwareMap);
         outtake = new Outtake(hardwareMap);
 
@@ -47,7 +46,7 @@ public class teleop extends CommandOpMode {
 
         //Schedule initial commands.
         schedule(new SequentialCommandGroup(
-                new SetRobotState(vSlides, outtake, Robot.home),
+                new SetPositions(vSlides, outtake, HOME, telemetry),
                 new HomeVerticalSlides(vSlides)
         ));
 
@@ -92,21 +91,21 @@ public class teleop extends CommandOpMode {
 
         //Outtake Bindings
         tj.getGamepadButton(GamepadKeys.Button.Y) //triangle
-                .whenPressed(new SetRobotState(vSlides, outtake, Robot.outtakeBucket));
+                .whenPressed(new SetPositions(vSlides, outtake, OUTTAKE_BUCKET, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.X) //square
-                .whenPressed(new SetRobotState(vSlides, outtake, Robot.outtakeSubmersible));
+                .whenPressed(new SetPositions(vSlides, outtake, OUTTAKE_SUBMERSIBLE, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.B) //circle
-                .whenPressed(new SetRobotState(vSlides, outtake, Robot.intake));
+                .whenPressed(new SetPositions(vSlides, outtake, INIT, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.A) //X
-                .whenPressed(new SetRobotState(vSlides, outtake, Robot.home));
+                .whenPressed(new SetPositions(vSlides, outtake, HOME, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(outtake::toggleClaw);
 
         tj.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(new SetRobotState(vSlides, outtake, Robot.handoff));
+                .whenPressed(new SetPositions(vSlides, outtake, TRANSITION, telemetry));
     }
 }
