@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
+import org.firstinspires.ftc.teamcode.util.Robot;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.DriveHorizontalSlides;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.HomeVerticalSlides;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.Movement;
@@ -46,7 +47,7 @@ public class teleop extends CommandOpMode {
 
         //Schedule initial commands.
         schedule(new SequentialCommandGroup(
-                new SetPositions(vSlides, outtake, HOME, telemetry),
+                new SetPositions(outtake, HOME, telemetry),
                 new HomeVerticalSlides(vSlides)
         ));
 
@@ -91,21 +92,21 @@ public class teleop extends CommandOpMode {
 
         //Outtake Bindings
         tj.getGamepadButton(GamepadKeys.Button.Y) //triangle
-                .whenPressed(new SetPositions(vSlides, outtake, OUTTAKE_BUCKET, telemetry));
+                .whenPressed(Robot.GoToState(outtake, OUTTAKE_BUCKET, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.X) //square
-                .whenPressed(new SetPositions(vSlides, outtake, OUTTAKE_SUBMERSIBLE, telemetry));
+                .whenPressed(Robot.GoToState(outtake, OUTTAKE_SUBMERSIBLE, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.B) //circle
-                .whenPressed(new SetPositions(vSlides, outtake, INIT, telemetry));
+                .whenPressed(Robot.GoToState(outtake, INIT, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.A) //X
-                .whenPressed(new SetPositions(vSlides, outtake, HOME, telemetry));
+                .whenPressed(Robot.GoToState(outtake, HOME, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(outtake::toggleClaw);
 
         tj.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(new SetPositions(vSlides, outtake, TRANSITION, telemetry));
+                .whenPressed(new SetPositions(outtake, TRANSITION, telemetry));
     }
 }

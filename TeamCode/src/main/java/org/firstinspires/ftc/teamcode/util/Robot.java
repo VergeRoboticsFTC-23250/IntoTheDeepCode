@@ -1,14 +1,21 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.util.ftclib.commands.SetPositions;
+import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.VerticalSlides;
 
 import java.util.Map;
 
 @Config
 public class Robot {
-    public static State currentState = State.INIT;
+    public static volatile State currentState = State.INIT;
     public enum State {
         INIT,
         HOME,
@@ -17,23 +24,6 @@ public class Robot {
         OUTTAKE_SUBMERSIBLE_SCORE,
         OUTTAKE_BUCKET,
         TRANSITION
-    }
-    public static class StatePositions {
-        public StatePositions(double armPos, double pivotPos, boolean isClawOpen, int horizontalSlidePos, State state){
-            this.armPos = armPos;
-            this.pivotPos = pivotPos;
-            this.isClawOpen = isClawOpen;
-            this.horizontalSlidePos = horizontalSlidePos;
-            this.state = state;
-        }
-
-        public StatePositions(){}
-
-        public State state = State.INIT;
-        public double armPos = 0.25;
-        public double pivotPos = 0.7;
-        public boolean isClawOpen = true;
-        public int horizontalSlidePos = 0;
     }
 
     public static StatePositions init = new StatePositions(0.35, 0.95, true, 0, State.INIT);
@@ -44,6 +34,9 @@ public class Robot {
     public static StatePositions outtakeBucket = new StatePositions(1, .75, false, VerticalSlides.maxPos, State.OUTTAKE_BUCKET);
     public static StatePositions transition = new StatePositions(0.35, 0.95, false, 1000, State.TRANSITION);
 
+    public static long waitForClawClose = 1000;
+    public static long waitForTransition = 1000;
+
     public static Map<State, StatePositions> states = Map.of(
             State.INIT, init,
             State.HOME, home,
@@ -53,4 +46,22 @@ public class Robot {
             State.OUTTAKE_BUCKET, outtakeBucket,
             State.TRANSITION, transition
     );
+
+    public static Command GoToState(Outtake outtake, State desiredState, Telemetry telemetry){
+        telemetry.addData("State", currentState);
+        telemetry.update();
+        if(currentState != State.HOME){
+            return new SetPositions(outtake, desiredState, telemetry);
+        }else{
+            return new SequentialCommandGroup(
+                    new InstantCommand(outtake::closeClaw, outtake),
+                    new WaitCommand(waitForClawClose),
+                    new SetPositions(outtake, State.TRANSITION, telemetry),
+                    new InstantCommand(() -> Robot.currentState = State.TRANSITION),
+                    new WaitCommand(waitForTransition),
+                    new InstantCommand(() -> Robot.currentState = desiredState),
+                    new SetPositions(outtake, desiredState, telemetry)
+            ).andThen(new InstantCommand(() -> Robot.currentState = desiredState));
+        }
+    }
 }

@@ -19,12 +19,12 @@ public class VerticalSlides extends SubsystemBase {
         public double Kd = 0;
     }
     public static Gains GAINS = new Gains();
-    PIDController controllerL = new PIDController(GAINS.Kp, GAINS.Ki, GAINS.Kd, 0);
-    PIDController controllerR = new PIDController(GAINS.Kp, GAINS.Ki, GAINS.Kd, 0);
+    static PIDController controllerL = new PIDController(GAINS.Kp, GAINS.Ki, GAINS.Kd, 0);
+    static PIDController controllerR = new PIDController(GAINS.Kp, GAINS.Ki, GAINS.Kd, 0);
     public static double tolerance = 50;
     public static double homePower = -0.5;
     public static double homeCurrent = 2.5;
-    public static int maxPos = 2700;
+    public static int maxPos = 2600;
     public static int minPos = 0;
 
     public static double multiplierR = .97;
@@ -136,16 +136,16 @@ public class VerticalSlides extends SubsystemBase {
         slideL.setPower(controllerL.getPower(getPosL()));
     }
 
-    public void setTargetPos(int pos){
+    public static void setTargetPos(int pos){
         setTargetPosL(pos);
         setTargetPosR(pos);
     }
 
-    public void setTargetPosL(int pos){
+    public static void setTargetPosL(int pos){
         controllerL.setReference(Math.max(pos, 0));
     }
 
-    public void setTargetPosR(int pos){
+    public static void setTargetPosR(int pos){
         controllerR.setReference(Math.max(pos, 0));
     }
 }
