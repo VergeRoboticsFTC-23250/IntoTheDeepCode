@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.util.Robot;
+import org.firstinspires.ftc.teamcode.util.ftclib.commands.DriveHorizontalSlides;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.HomeVerticalSlides;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.Movement;
 import org.firstinspires.ftc.teamcode.util.ftclib.commands.RunVerticalSlidePID;
@@ -31,16 +33,30 @@ public class teleop extends CommandOpMode {
         GamepadEx tj = new GamepadEx(gamepad1);
         GamepadEx arvind = new GamepadEx(gamepad2);
 
-        //Chassis Code
+        //Initialize subsystems.
         chassis = new Chassis(hardwareMap);
-        chassis.setDefaultCommand(new Movement(chassis, tj));
+        intake = new Intake(hardwareMap);
+        hSlides = new HorizontalSlides(hardwareMap, telemetry);
+        vSlides = new VerticalSlides(hardwareMap);
+        outtake = new Outtake(hardwareMap);
 
+        //Set default commands.
+        chassis.setDefaultCommand(new Movement(chassis, tj));
+        vSlides.setDefaultCommand(new RunVerticalSlidePID(vSlides));
+        hSlides.setDefaultCommand(new DriveHorizontalSlides(hSlides, arvind));
+
+        //Schedule initial commands.
+        schedule(new SequentialCommandGroup(
+                new SetRobotState(vSlides, outtake, Robot.home),
+                new HomeVerticalSlides(vSlides)
+        ));
+
+        //Chassis Bindings
         tj.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(chassis::setSpeedSlow)
                 .whenReleased(chassis::setSpeedFast);
 
-        //Intake Code
-        intake = new Intake(hardwareMap);
+        //Intake Bindings
         arvind.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(intake::drop)
                 .whenReleased(intake::home);
@@ -53,18 +69,7 @@ public class teleop extends CommandOpMode {
                 .whenPressed(() -> intake.spin(0.5))
                 .whenReleased(() -> intake.spin(0));
 
-        //Horizontal Slide Code
-        hSlides = new HorizontalSlides(hardwareMap, telemetry);
-
-        new Trigger(() -> arvind.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0 || arvind.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0)
-                .whileActiveContinuous(() -> {
-                    hSlides.setIncrement(arvind.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), arvind.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
-                });
-
-        //Vertical Slide Code
-        vSlides = new VerticalSlides(hardwareMap);
-        vSlides.setDefaultCommand(new RunVerticalSlidePID(vSlides));
-
+        //Vertical Slide Bindings
         tj.getGamepadButton(GamepadKeys.Button.DPAD_UP)
                 .whileActiveContinuous(new InstantCommand(() -> {
                     vSlides.setPowerSafe(1);
@@ -85,9 +90,7 @@ public class teleop extends CommandOpMode {
                     vSlides.setTargetPosR(vSlides.getPosR());
                 }, vSlides));
 
-        //Outtake Code
-        outtake = new Outtake(hardwareMap);
-
+        //Outtake Bindings
         tj.getGamepadButton(GamepadKeys.Button.Y) //triangle
                 .whenPressed(new SetRobotState(vSlides, outtake, Robot.outtakeBucket));
 
@@ -105,10 +108,5 @@ public class teleop extends CommandOpMode {
 
         tj.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(new SetRobotState(vSlides, outtake, Robot.handoff));
-
-        schedule(new SequentialCommandGroup(
-                new SetRobotState(vSlides, outtake, Robot.home),
-                new HomeVerticalSlides(vSlides)
-        ));
     }
 }

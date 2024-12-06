@@ -24,9 +24,11 @@ public class VerticalSlides extends SubsystemBase {
     public static double tolerance = 50;
     public static double homePower = -0.5;
     public static double homeCurrent = 2.5;
-    public static int maxPos = 4000;
+    public static int maxPos = 2700;
     public static int minPos = 0;
 
+    public static double multiplierR = .97;
+    public static double multiplierL = 1;
 
     public VerticalSlides(HardwareMap hMap){
         slideR = hMap.get(DcMotorEx.class, "outtakeSR");
@@ -74,11 +76,11 @@ public class VerticalSlides extends SubsystemBase {
     }
 
     public int getPosL(){
-        return slideL.getCurrentPosition();
+        return (int)(slideL.getCurrentPosition() * multiplierL);
     }
 
     public int getPosR(){
-        return slideR.getCurrentPosition();
+        return (int)(slideR.getCurrentPosition() * multiplierR);
     }
 
     public int getPos(){

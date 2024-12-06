@@ -11,15 +11,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class HorizontalSlides extends SubsystemBase {
     public static double homePos = 0.6;
     public static double maxPos = 0;
-    public static double incrementPos = 0.00001;
-    public static double currentPos;
-    private Telemetry telemetry;
     Servo slideR;
     Servo slideL;
+    Telemetry telemetry;
     public HorizontalSlides(HardwareMap hMap, Telemetry telemetry){
         slideR = hMap.get(Servo.class, "slideR");
         slideL = hMap.get(Servo.class, "slideL");
-
         this.telemetry = telemetry;
         home();
     }
@@ -27,24 +24,22 @@ public class HorizontalSlides extends SubsystemBase {
     public void home(){
         slideR.setPosition(homePos);
         slideL.setPosition(homePos);
-        currentPos = 0;
     }
 
     public void setPos(double p) {
-        p = Math.max(0, Math.min(1, p)); // Clamp p to [0, 1]
-        double pos = homePos - p * Math.abs(homePos - maxPos);
+        double pos = homePos - Math.max(0, Math.min(1, p)) * Math.abs(homePos - maxPos);
         slideR.setPosition(pos);
         slideL.setPosition(pos);
-        currentPos = p;
     }
 
-
-    public void setIncrement(double r1, double l1) {
-        double newPos = currentPos + (incrementPos * r1 - incrementPos * l1);
-        telemetry.addData("r1", r1);
-        telemetry.addData("l1", l1);
-        telemetry.addData("newPos", newPos);
-        setPos(newPos);
+    public void logPos(){
+        telemetry.addData("R", slideR.getPosition());
+        telemetry.addData("L", slideL.getPosition());
+        telemetry.update();
     }
 
+    public void addPos(double pos){
+        slideR.setPosition(Math.min(homePos, Math.max(maxPos, slideR.getPosition() - pos)));
+        slideL.setPosition(Math.min(homePos, Math.max(maxPos, slideL.getPosition() - pos)));
+    }
 }

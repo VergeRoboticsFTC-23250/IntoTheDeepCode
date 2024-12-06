@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.acmerobotics.dashboard.config.Config;
 
+import org.firstinspires.ftc.teamcode.util.ftclib.subsystems.VerticalSlides;
+
 @Config
 public class Robot {
     public static class RobotState{
@@ -21,9 +23,9 @@ public class Robot {
 
     public static RobotState home = new RobotState();
     public static RobotState intake = new RobotState(.75, 0.75, true, 0);
-    public static RobotState outtakeSubmersible = new RobotState(0.05, 0.75, false, 2000);
-    public static RobotState outtakeSubmersibleScore = new RobotState(0.05, 0.75, false, 2000);
-    public static RobotState outtakeBucket = new RobotState(1, .75, false, 4000);
+    public static RobotState outtakeSubmersible = new RobotState(0.05, 0.75, false, 1400);
+    public static RobotState outtakeSubmersibleScore = new RobotState(0.05, 0.75, false, 1400);
+    public static RobotState outtakeBucket = new RobotState(1, .75, false, VerticalSlides.maxPos);
     public static RobotState handoff = new RobotState(0.35, 0.95, false, 1000);
 
     public static int horizontalSlidesSafePos = 500;
