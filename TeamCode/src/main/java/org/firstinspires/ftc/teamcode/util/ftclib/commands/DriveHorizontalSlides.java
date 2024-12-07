@@ -13,7 +13,7 @@ public class DriveHorizontalSlides extends CommandBase {
     GamepadEx gp;
     long lastTime = 0;
     long deltaTime = 0;
-    public static double speed = 0.001;
+    public static double speed = 0.0001;
     public DriveHorizontalSlides(HorizontalSlides slides, GamepadEx gp){
         this.slides = slides;
         this.gp = gp;
@@ -31,7 +31,7 @@ public class DriveHorizontalSlides extends CommandBase {
         deltaTime = System.currentTimeMillis() - lastTime;
         lastTime = System.currentTimeMillis();
 
-        slides.addPos((gp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)) * deltaTime * speed);
+        slides.addPos((gp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)) * deltaTime * deltaTime * speed);
     }
 
     @Override

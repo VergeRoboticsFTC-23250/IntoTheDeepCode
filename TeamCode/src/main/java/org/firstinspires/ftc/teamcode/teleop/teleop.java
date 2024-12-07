@@ -95,18 +95,29 @@ public class teleop extends CommandOpMode {
                 .whenPressed(Robot.GoToState(outtake, OUTTAKE_BUCKET, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.X) //square
-                .whenPressed(Robot.GoToState(outtake, OUTTAKE_SUBMERSIBLE, telemetry));
+                .whenPressed(Robot.GoToState(outtake, INTAKE, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.B) //circle
-                .whenPressed(Robot.GoToState(outtake, INIT, telemetry));
+                .whenPressed(Robot.GoToState(outtake, OUTTAKE_SUBMERSIBLE, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.A) //X
                 .whenPressed(Robot.GoToState(outtake, HOME, telemetry));
 
         tj.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(outtake::toggleClaw);
+                .whenPressed(new InstantCommand(() -> {
+                    if(Robot.currentState == OUTTAKE_BUCKET){
+                        outtake.toggleClaw();
+                    }else if(Robot.currentState == INTAKE){
+                        outtake.toggleClaw();
+                    }else if(Robot.currentState == OUTTAKE_SUBMERSIBLE){
+                        Robot.GoToState(outtake, OUTTAKE_SUBMERSIBLE_SCORE, telemetry).schedule();
+                    }else if(Robot.currentState == OUTTAKE_SUBMERSIBLE_SCORE){
+                        outtake.toggleClaw();
+                    }
+                }, outtake));
 
         tj.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(new SetPositions(outtake, TRANSITION, telemetry));
+                .whenPressed(chassis::setSpeedSlow)
+                .whenReleased(chassis::setSpeedFast);
     }
 }
