@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.util.Robot.State.*;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -34,7 +35,7 @@ public class teleop extends CommandOpMode {
         GamepadEx arvind = new GamepadEx(gamepad2);
 
         //Initialize subsystems.
-        chassis = new Chassis(hardwareMap);
+        chassis = new Chassis(hardwareMap, new Pose2d(0,0,0));
         intake = new Intake(hardwareMap);
         hSlides = new HorizontalSlides(hardwareMap);
         vSlides = new VerticalSlides(hardwareMap);

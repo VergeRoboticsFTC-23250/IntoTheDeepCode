@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -14,7 +15,7 @@ public class Auto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        chassis = new Chassis(hardwareMap);
+        chassis = new Chassis(hardwareMap, new Pose2d(13,60,Math.toRadians(270)));
 
         waitForStart();
 

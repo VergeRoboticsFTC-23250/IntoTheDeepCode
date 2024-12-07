@@ -14,8 +14,8 @@ public class Chassis extends SubsystemBase {
     public MecanumDrive md;
     public static boolean isSlowed = false;
     public static double slowSpeed = 0.5;
-    public Chassis(HardwareMap hMap) {
-        md = new MecanumDrive(hMap, new Pose2d(0,0,0));
+    public Chassis(HardwareMap hMap, Pose2d pose) {
+        md = new MecanumDrive(hMap, pose);
     }
 
     public void setSpeedSlow(){
