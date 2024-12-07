@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Intake extends SubsystemBase {
-    public static double dropPos = .65;
+    public static double dropPos = .7;
     public static double homePos = 0.3;
     public static double initPos = 0.1;
     Servo dropL;

@@ -144,14 +144,14 @@ public class Auto extends CommandOpMode {
                                             .strafeToLinearHeading(new Vector2d(outtakePosX,outtakePosY), Math.toRadians(outtakeHeading))
                                             .build()
                                     );}),
-                                new InstantCommand(outtake::openClaw),
-                                Robot.GoToState(outtake,Robot.State.HOME,telemetry),
-                                new WaitCommand(outtakeDelay),
-                                new InstantCommand(() -> {
-                                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
-                                            .strafeToLinearHeading(new Vector2d(secondIntakeX, secondIntakeY), Math.toRadians(secondIntakeHeading))
-                                            .build()
-                                    );})
+                                new InstantCommand(outtake::openClaw)
+//                                Robot.GoToState(outtake,Robot.State.HOME,telemetry),
+//                                new WaitCommand(outtakeDelay),
+//                                new InstantCommand(() -> {
+//                                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
+//                                            .strafeToLinearHeading(new Vector2d(secondIntakeX, secondIntakeY), Math.toRadians(secondIntakeHeading))
+//                                            .build()
+//                                    );})
                                 )
                         ),
                         new RunVerticalSlidePID(vSlides)
