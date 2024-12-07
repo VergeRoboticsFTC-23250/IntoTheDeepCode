@@ -28,9 +28,9 @@ public class Outtake extends SubsystemBase {
         gripper2.setDirection(Servo.Direction.REVERSE);
         pivot = hMap.get(Servo.class, "pivot");
 
-        setArm(Robot.init.armPos);
-        setPivot(Robot.init.pivotPos);
-        setIsClawOpen(Robot.init.isClawOpen);
+        //setArm(Robot.init.armPos);
+        //setPivot(Robot.init.pivotPos);
+        //setIsClawOpen(Robot.init.isClawOpen);
     }
 
     public void setArm(double pos){

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Intake extends SubsystemBase {
     public static double dropPos = .8;
     public static double homePos = 0.3;
+    public static double initPos = 0.1;
     Servo dropL;
     Servo dropR;
     DcMotorEx spintake;
@@ -32,6 +33,11 @@ public class Intake extends SubsystemBase {
     public void home(){
         dropL.setPosition(homePos);
         dropR.setPosition(homePos);
+    }
+
+    public void setInitPos(){
+        dropL.setPosition(initPos);
+        dropR.setPosition(initPos);
     }
 
     public void spin(double power){
