@@ -16,7 +16,7 @@ public class MeepMeepTesting {
                 .setDimensions(14.5,17)
                 .build();
 
-        plusThreeSpec(myBot);
+        plusThreeBucket(myBot);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_OFFICIAL)
                 .setDarkMode(true)

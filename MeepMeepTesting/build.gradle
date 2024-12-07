@@ -13,4 +13,13 @@ repositories {
 
 dependencies {
     implementation 'com.acmerobotics.roadrunner:MeepMeep:0.1.6'
+    implementation project(':TeamCode')
+    implementation project(':TeamCode')
+    implementation project(':TeamCode')
+    implementation project(':TeamCode')
+    implementation project(':TeamCode')
+    implementation project(':TeamCode')
+    implementation project(':TeamCode')
+    implementation project(':TeamCode')
+    implementation project(':TeamCode')
 }
