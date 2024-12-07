@@ -33,7 +33,7 @@ public class Robot {
     }
 
     public static StatePositions init = new StatePositions(0.05, 0.95, false, 0, State.INIT);
-    public static StatePositions home = new StatePositions(0.25, 0.7, true, 0, State.HOME);
+    public static StatePositions home = new StatePositions(0.25, .75, true, 0, State.HOME);
     public static StatePositions intake = new StatePositions(0.65, 0.65, true, 0, State.INTAKE);
     public static StatePositions outtakeSubmersible = new StatePositions(0.05, 0.85, false, 1000, State.OUTTAKE_SUBMERSIBLE);
     public static StatePositions outtakeSubmersibleScore = new StatePositions(0.05, 0.85, false, 1700, State.OUTTAKE_SUBMERSIBLE_SCORE);
@@ -42,6 +42,7 @@ public class Robot {
 
     public static long waitForClawClose = 250;
     public static long waitForTransition = 250;
+    public static long waitForFinish = 500;
 
     public static Map<State, StatePositions> states = Map.of(
             State.INIT, init,
@@ -64,8 +65,14 @@ public class Robot {
                         new SetPositions(outtake, State.TRANSITION, telemetry),
                         new InstantCommand(() -> Robot.currentState = State.TRANSITION),
                         new WaitCommand(waitForTransition),
-                        new InstantCommand(() -> Robot.currentState = desiredState),
-                        new SetPositions(outtake, desiredState, telemetry)
+                        new InstantCommand(() -> {
+                            outtake.setArm(states.get(desiredState).armPos);
+                            outtake.setPivot(states.get(desiredState).pivotPos);
+                            outtake.setIsClawOpen(states.get(desiredState).isClawOpen);
+                        }),
+                        new WaitCommand(waitForFinish),
+                        new InstantCommand(() -> VerticalSlides.setTargetPos(states.get(desiredState).horizontalSlidePos)),
+                        new InstantCommand(() -> Robot.currentState = desiredState)
                 ),
                 new SetPositions(outtake, desiredState, telemetry),
                 () ->

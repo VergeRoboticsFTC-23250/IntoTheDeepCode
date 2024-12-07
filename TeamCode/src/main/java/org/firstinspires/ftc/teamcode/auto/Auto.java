@@ -10,6 +10,7 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -35,12 +36,28 @@ public class Auto extends CommandOpMode {
     private HorizontalSlides hSlides;
     private VerticalSlides vSlides;
 
-    public static long outtakeDelay = 700;
-    public static long intakeDelay = 1000;
+    public static long outtakeDelay = 1300;
+    public static long intakeDelay = 2500;
 
     public static double outtakePosX = 62;
     public static double outtakePosY = 57;
     public static double outtakeHeading = 250;
+
+    public static double firstSpecX = 4;
+    public static double firstSpecY = 31;
+
+    public static double firstIntakeHeading = 270;
+    public static double firstIntakeX = 54;
+    public static double firstIntakeY = 47;
+
+    public static double secondIntakeHeading = 270;
+    public static double secondIntakeX;
+    public static double secondIntakeY;
+
+    public static double thirdIntakeHeading = 315;
+    public static double thirdIntakeX;
+    public static double thirdIntakeY;
+
     public static Action traj1;
 
     @Override
@@ -86,45 +103,59 @@ public class Auto extends CommandOpMode {
 //                .waitSeconds(outtakeDelay)
 //                .build();
 
-        schedule(new SequentialCommandGroup(
-                Robot.GoToState(outtake, Robot.State.OUTTAKE_SUBMERSIBLE, telemetry),
-                new WaitCommand(outtakeDelay),
-                new InstantCommand(() -> {
-                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
-                            .strafeTo(new Vector2d(4, 33))
-                            .build()
-                        );}),
-                new WaitCommand(outtakeDelay),
-                Robot.GoToState(outtake, Robot.State.OUTTAKE_SUBMERSIBLE_SCORE, telemetry),
-                new WaitCommand(outtakeDelay),
-                new InstantCommand(outtake::openClaw),
-                new InstantCommand(() -> {
-                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
-                            .lineToY(40)
-                            .strafeToLinearHeading(new Vector2d(54,47),Math.toRadians(250))
-                            .build()
-                    );}),
-                new InstantCommand(() -> {
-                    intake.drop();
-                    intake.spin(1);
-                    hSlides.setPos(1);
-                }),
-                Robot.GoToState(outtake, Robot.State.HOME, telemetry),
-                new WaitCommand(intakeDelay),
-                new InstantCommand(() -> {
-                    intake.home();
-                    intake.spin(0);
-                    hSlides.setPos(0);
-                }),
-                new WaitCommand(intakeDelay),
-                Robot.GoToState(outtake, Robot.State.OUTTAKE_BUCKET, telemetry),
-                new WaitCommand(outtakeDelay),
-                new InstantCommand(() -> {
-                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
-                            .strafeToLinearHeading(new Vector2d(outtakePosX,outtakePosY), Math.toRadians(outtakeHeading))
-                            .build()
-                    );}),
-                new InstantCommand(outtake::openClaw)
-        ));
+        schedule(
+                new ParallelCommandGroup(
+                        new SequentialCommandGroup(
+                                Robot.GoToState(outtake, Robot.State.OUTTAKE_SUBMERSIBLE, telemetry),
+                                new InstantCommand(intake::home),
+                                new WaitCommand(outtakeDelay),
+                                new InstantCommand(() -> {
+                                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
+                                            .strafeTo(new Vector2d(firstSpecX, firstSpecY))
+                                            .build()
+                                    );}),
+                                new WaitCommand(outtakeDelay),
+                                Robot.GoToState(outtake, Robot.State.OUTTAKE_SUBMERSIBLE_SCORE, telemetry),
+                                new WaitCommand(outtakeDelay),
+                                new InstantCommand(outtake::openClaw),
+                                new InstantCommand(() -> {
+                                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
+                                            .lineToY(40)
+                                            .strafeToLinearHeading(new Vector2d(firstIntakeX,firstIntakeY),Math.toRadians(firstIntakeHeading))
+                                            .build()
+                                    );}),
+                                new InstantCommand(() -> {
+                                    intake.drop();
+                                    intake.spin(1);
+                                    hSlides.setPos(1);
+                                }),
+                                Robot.GoToState(outtake, Robot.State.HOME, telemetry),
+                                new WaitCommand(intakeDelay),
+                                new InstantCommand(() -> {
+                                    intake.home();
+                                    intake.spin(0);
+                                    hSlides.setPos(0);
+                                }),
+                                new WaitCommand(intakeDelay),
+                                Robot.GoToState(outtake, Robot.State.OUTTAKE_BUCKET, telemetry),
+                                new WaitCommand(outtakeDelay),
+                                new InstantCommand(() -> {
+                                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
+                                            .strafeToLinearHeading(new Vector2d(outtakePosX,outtakePosY), Math.toRadians(outtakeHeading))
+                                            .build()
+                                    );}),
+                                new InstantCommand(outtake::openClaw),
+                                Robot.GoToState(outtake,Robot.State.HOME,telemetry),
+                                new WaitCommand(outtakeDelay),
+                                new InstantCommand(() -> {
+                                    Actions.runBlocking(chassis.md.actionBuilder(chassis.md.pose)
+                                            .strafeToLinearHeading(new Vector2d(secondIntakeX, secondIntakeY), Math.toRadians(secondIntakeHeading))
+                                            .build()
+                                    );})
+                                )
+                        ),
+                        new RunVerticalSlidePID(vSlides)
+                );
+
     }
 }

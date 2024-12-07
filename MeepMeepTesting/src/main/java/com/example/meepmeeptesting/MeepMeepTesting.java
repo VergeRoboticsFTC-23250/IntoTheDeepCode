@@ -27,7 +27,7 @@ public class MeepMeepTesting {
 
     public static void plusThreeBucket(RoadRunnerBotEntity myBot) {
         myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(13, 60, Math.toRadians(270)))
-                .strafeTo(new Vector2d(10, 33))
+                .strafeTo(new Vector2d(5, 33))
                 .waitSeconds(.7)
                 .lineToY(40)
                 .strafeToLinearHeading(new Vector2d(54,47),Math.toRadians(250))

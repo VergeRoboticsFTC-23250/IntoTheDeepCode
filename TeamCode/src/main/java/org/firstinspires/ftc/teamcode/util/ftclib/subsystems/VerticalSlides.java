@@ -28,7 +28,7 @@ public class VerticalSlides extends SubsystemBase {
     public static int minPos = 0;
 
     public static double multiplierR = 1;
-    public static double multiplierL = .93;
+    public static double multiplierL = 1;
 
     public VerticalSlides(HardwareMap hMap){
         slideR = hMap.get(DcMotorEx.class, "outtakeSR");
