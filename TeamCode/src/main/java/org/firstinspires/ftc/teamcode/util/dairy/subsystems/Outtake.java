@@ -64,16 +64,16 @@ public class Outtake implements Subsystem {
     public void setDependency(@NonNull Dependency<?> dependency) { this.dependency = dependency; }
 
     @Override
-    public void postUserInitHook(@NonNull Wrapper opMode) {
+    public void preUserInitHook(@NonNull Wrapper opMode) {
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
-        armR = hMap.get(Servo.class, "arm1");
-        armL = hMap.get(Servo.class, "arm2");
+//        armR = hMap.get(Servo.class, "arm1");
+//        armL = hMap.get(Servo.class, "arm2");
 
         clawR = hMap.get(Servo.class, "gripper1");
         clawL = hMap.get(Servo.class, "gripper2");
-        clawL.setDirection(Servo.Direction.REVERSE);
+        clawR.setDirection(Servo.Direction.REVERSE);
 
-        pivot = hMap.get(Servo.class, "pivot");
+//        pivot = hMap.get(Servo.class, "pivot");
 
 //        setPivot(Outtake.pivotHomePos);
 //        setArm(Outtake.armHomePos);

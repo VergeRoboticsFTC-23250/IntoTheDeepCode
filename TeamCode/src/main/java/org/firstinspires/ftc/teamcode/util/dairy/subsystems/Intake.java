@@ -50,7 +50,7 @@ public class Intake implements Subsystem {
     }
 
     @Override
-    public void postUserInitHook(@NonNull Wrapper opMode) {
+    public void preUserInitHook(@NonNull Wrapper opMode) {
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
 
         dropL = hMap.get(Servo.class, "dropdownL");
@@ -84,7 +84,8 @@ public class Intake implements Subsystem {
     public static Lambda spintake(double power){
         return new Lambda("spintake")
                 .addRequirements(INSTANCE)
-                .setExecute(() -> spin(power));
+                .setExecute(() -> spin(power))
+                .setFinish(() -> true);
     }
 
     public static Lambda raiseIntake() {

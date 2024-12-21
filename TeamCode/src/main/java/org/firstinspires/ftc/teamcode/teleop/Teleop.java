@@ -1,34 +1,36 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
+import org.firstinspires.ftc.teamcode.util.dairy.features.PIDFService;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 
+import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.util.OpModeLazyCell;
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
-import dev.frozenmilk.mercurial.commands.groups.Parallel;
-import dev.frozenmilk.mercurial.commands.groups.Sequential;
 
 @Mercurial.Attach
 @Chassis.Attach
 //@IntakeSlides.Attach
 @OuttakeSlides.Attach
-//@Intake.Attach
-//@Outtake.Attach
+@Intake.Attach
+@Outtake.Attach
 @BulkRead.Attach
 @LoopTimes.Attach
+@FeatureRegistrar.LogDependencyResolutionExceptions
 @TeleOp(name = "TeleOp")
 public class Teleop extends OpMode {
     private BoundGamepad tejas;
     private BoundGamepad arvind;
+
 
     @Override
     public void init() {
@@ -78,20 +80,32 @@ public class Teleop extends OpMode {
 //        tejas.rightBumper().onTrue(Outtake.openClaw());
 
         tejas.dpadUp()
-                .onTrue( OuttakeSlides.setVelo(1) )
-                .onFalse( OuttakeSlides.setVelo(0) );
+                .untilFalse( OuttakeSlides.setPower(1) )
+                .onFalse( OuttakeSlides.setPower(0) );
         tejas.dpadDown()
-                .onTrue( OuttakeSlides.setVelo(-1) )
-                .onFalse( OuttakeSlides.setVelo(0) );
+                .untilFalse( OuttakeSlides.setPower(-1) )
+                .onFalse( OuttakeSlides.setPower(0) );
         tejas.leftBumper()
                 .onTrue( Outtake.closeClaw() );
         tejas.rightBumper()
                 .onTrue( Outtake.openClaw() );
 
+        OuttakeSlides.setPower(tejas.rightTrigger().state() - tejas.leftTrigger().state());
+
+        tejas.x()
+                .onTrue(OuttakeSlides.setTargetPos(0));
+        tejas.triangle()
+                .onTrue(OuttakeSlides.setTargetPos(400));
+
 //        tejas.rightBumper().onTrue( Chassis.toggleSlow() );
 //
-        arvind.rightBumper().whileTrue( Intake.spintake(1) );
-        arvind.leftBumper().whileTrue( Intake.spintake(-1) );
+        arvind.rightBumper()
+                .untilFalse( Intake.spintake(1) )
+                .onFalse( Intake.spintake(0) );
+        arvind.leftBumper()
+                .untilFalse( Intake.spintake(1) )
+                .onFalse( Intake.spintake(0) );
+
 //
 //        arvind.cross().onTrue(
 //                new Sequential(
@@ -105,6 +119,6 @@ public class Teleop extends OpMode {
     @Override
     public void loop() {
         // https://github.com/Iris-TheRainbow/27971-IntoTheDeep-Teamcode/tree/main
-        telemetry.addData("sloth load",true);
+        telemetry.addData("sloth load worked",true);
     }
 }

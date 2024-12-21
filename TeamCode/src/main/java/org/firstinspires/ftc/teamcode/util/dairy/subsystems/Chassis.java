@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.roadrunner.MecanumDrive;
 
 import java.lang.annotation.ElementType;
@@ -23,12 +24,15 @@ import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
+import org.firstinspires.ftc.teamcode.util.pedroPathing.follower.Follower;
 
 public class Chassis implements Subsystem {
     public static final Chassis INSTANCE = new Chassis();
     public static MecanumDrive drivetrain;
+    public static Follower follower;
     public static boolean isSlowed = false;
     public static double slowSpeed = 0.5;
+    public static Telemetry telemetry;
     public Chassis() {}
 
     public void speedSlow(){
@@ -40,9 +44,13 @@ public class Chassis implements Subsystem {
     }
 
     public static void drive(double x, double y, double z) {
-        drivetrain.setDrivePowers(new PoseVelocity2d(
-                new Vector2d(x * (isSlowed? slowSpeed : 1), y * (isSlowed? slowSpeed : 1)), z * (isSlowed? slowSpeed : 1)
-        ));
+        follower.setTeleOpMovementVectors(
+                x * (isSlowed? slowSpeed : 1),
+                y * (isSlowed? slowSpeed : 1),
+                z * (isSlowed? slowSpeed : 1)
+        );
+        follower.update();
+        telemetry.addData("Chassis Vectors", "x: %f, y: %f, z: %f", x, y, z);
     }
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
@@ -59,10 +67,17 @@ public class Chassis implements Subsystem {
     public void setDependency(@NonNull Dependency<?> dependency) { this.dependency = dependency; }
 
     @Override
-    public void postUserInitHook(@NonNull Wrapper opMode) {
+    public void preUserInitHook(@NonNull Wrapper opMode) {
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
-        drivetrain = new MecanumDrive(hMap, new Pose2d(0,0,0));
+        telemetry = opMode.getOpMode().telemetry;
+        follower = new Follower(hMap);
+        follower.startTeleopDrive();
         setDefaultCommand(drive(Mercurial.gamepad1()));
+    }
+
+    @Override
+    public void preUserStartHook(@NonNull Wrapper opMode) {
+        follower.startTeleopDrive();
     }
 
     @Override
@@ -71,7 +86,9 @@ public class Chassis implements Subsystem {
     public static Lambda drive(BoundGamepad gamepad){
         return new Lambda("drive")
                 .addRequirements(INSTANCE)
-                .setExecute(() -> drive((double)gamepad.rightStickY().state()*0.5, (double)gamepad.rightStickX().state()*0.5, ((double)gamepad.leftStickX().state())*-0.5))
+                .setExecute(() -> {
+                    drive((double)gamepad.rightStickY().state(), (double)gamepad.rightStickX().state(), ((double)gamepad.leftStickX().state()));
+                })
                 .setFinish(() -> false);
     }
 

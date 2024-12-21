@@ -64,5 +64,8 @@ dependencies {
     implementation "dev.frozenmilk.dairy:Pasteurized:1.0.0"
     implementation "dev.frozenmilk.mercurial:Mercurial:1.0.0"
 
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.7'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.21'
+
     //implementation 'org.team11260:fast-load:0.1.2'
 }

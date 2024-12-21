@@ -34,12 +34,13 @@ public class IntakeSlides implements Subsystem {
     private static DcMotorEx extendo;
     public static Telemetry telemetry;
 
-    public static class Gains{
+    public static class Gains {
         public static double Kp = 0.01;
         public static double Ki = 0;
         public static double Kd = 0;
         public static double Kf = 0;
     }
+
     public static int maxPos = 1000;
     public static int minPos = 0;
 
@@ -65,7 +66,7 @@ public class IntakeSlides implements Subsystem {
     }
 
     @Override
-    public void postUserInitHook(@NonNull Wrapper opMode) {
+    public void preUserInitHook(@NonNull Wrapper opMode) {
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
         telemetry = opMode.getOpMode().telemetry;
 
