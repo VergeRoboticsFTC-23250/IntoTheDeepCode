@@ -1,30 +1,27 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
-import org.firstinspires.ftc.teamcode.util.dairy.features.PIDFService;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
-import dev.frozenmilk.dairy.core.util.OpModeLazyCell;
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 
 @Mercurial.Attach
-@Chassis.Attach
+//@Chassis.Attach
 //@IntakeSlides.Attach
 @OuttakeSlides.Attach
 @Intake.Attach
 @Outtake.Attach
 @BulkRead.Attach
-@LoopTimes.Attach
+//@LoopTimes.Attach
 @FeatureRegistrar.LogDependencyResolutionExceptions
 @TeleOp(name = "TeleOp")
 public class Teleop extends OpMode {
@@ -95,7 +92,7 @@ public class Teleop extends OpMode {
         tejas.x()
                 .onTrue(OuttakeSlides.setTargetPos(0));
         tejas.triangle()
-                .onTrue(OuttakeSlides.setTargetPos(400));
+                .onTrue(OuttakeSlides.setTargetPos(1000));
 
 //        tejas.rightBumper().onTrue( Chassis.toggleSlow() );
 //
@@ -119,6 +116,6 @@ public class Teleop extends OpMode {
     @Override
     public void loop() {
         // https://github.com/Iris-TheRainbow/27971-IntoTheDeep-Teamcode/tree/main
-        telemetry.addData("sloth load worked",true);
+//        telemetry.addData("sloth load worked",true);
     }
 }

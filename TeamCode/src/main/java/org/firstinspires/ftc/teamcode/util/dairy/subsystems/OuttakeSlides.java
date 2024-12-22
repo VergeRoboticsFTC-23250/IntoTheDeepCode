@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.util.dairy.features.PIDFService;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -20,9 +19,7 @@ import java.lang.annotation.Target;
 
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
-import dev.frozenmilk.dairy.core.util.OpModeLazyCell;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
-import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
@@ -37,19 +34,17 @@ public class OuttakeSlides implements Subsystem {
     public static int submirsiblePos = 0;
     public static int bucketPos = 0;
     public static int scoreSubmersiblePos = 0;
-    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
-    public static class GAINS{
-        public static double Kp = 0.0015;
-        public static double Ki = 0;
-        public static double Kd = 0;
-        public static double Kf = 0;
-    }
+//    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
+    public static double Kp = 0.00006;
+    public static double Ki = 0.0000;
+    public static double Kd = 0.0000;
+    public static double Kf = 0.0000;
     public static double minArmMoveHeight = 500;
     public static int maxPos = 2200;
     public static int minPos = 0;
     public static double currentLimit = 4;
 
-    public static PIDFController controller = new PIDFController(GAINS.Kp, GAINS.Ki, GAINS.Kd, GAINS.Kf);
+    public static PIDFController controller = new PIDFController(Kp, Ki, Kd, Kf);
 
     private OuttakeSlides() {}
 
@@ -71,9 +66,7 @@ public class OuttakeSlides implements Subsystem {
         slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         controller.setTolerance(tolerance);
 
-//        setDefaultCommand(runPID());
-
-        home().schedule();
+        setDefaultCommand(runPID());
     }
 
     @Override
@@ -94,9 +87,9 @@ public class OuttakeSlides implements Subsystem {
 
     public static Lambda setPower(double power){
         return new Lambda("set-power")
-                .addRequirements(INSTANCE)
                 .setExecute(() -> {
-                    thingy.get().setPower(power);
+                    slideL.setPower(power);
+                    slideR.setPower(power);
                 });
     }
 
@@ -115,7 +108,8 @@ public class OuttakeSlides implements Subsystem {
 
     public static Lambda setTargetPos(int pos){
         return new Lambda("set-target-pos")
-                .setInit(() -> thingy.get().setTarget(pos))
+                .setInterruptible(true)
+                .setInit(() -> controller.setSetPoint(pos))
                 .setFinish(() -> true);
     }
 
@@ -125,27 +119,31 @@ public class OuttakeSlides implements Subsystem {
     }
 
     public static double getPos(){
-        return (slideR.getCurrentPosition() + slideL.getCurrentPosition()) / 2.0;
+        return slideR.getCurrentPosition();
     }
 
-    public static void logPos(){
+    public static void logTele(){
         telemetry.addData("Slide Pos", getPos());
-        telemetry.update();
+        telemetry.addData("Slide Power", slideL.getPower());
+        telemetry.addData("Slide Setpoint", controller.getSetPoint());
+        telemetry.addData("Slide Error", controller.getPositionError());
     }
 
     public static Lambda runPID() {
         return new Lambda("outtake-pid")
-                .setInterruptible(true)
+                .setInterruptible(false)
                 .setExecute(() -> {
                     double velo = controller.calculate(getPos());
                     setPower(velo);
-                    logPos();
+                    logTele();
                 })
                 .setFinish(() -> controller.atSetPoint());
     }
 
     public static Lambda home() {
         return new Lambda("home-outtake")
-                .setExecute(() -> thingy.get().home());
+                .setInterruptible(true)
+                .setInit(() -> controller.setSetPoint(0))
+                .setFinish(() -> true);
     }
 }
