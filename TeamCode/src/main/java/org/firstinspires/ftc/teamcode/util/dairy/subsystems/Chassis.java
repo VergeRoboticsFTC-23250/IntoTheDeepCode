@@ -8,6 +8,10 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.firstinspires.ftc.teamcode.util.dairy.Robot;
+import org.firstinspires.ftc.teamcode.util.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.util.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.util.roadrunner.MecanumDrive;
 
 import java.lang.annotation.ElementType;
@@ -16,6 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
@@ -28,7 +33,6 @@ import org.firstinspires.ftc.teamcode.util.pedroPathing.follower.Follower;
 
 public class Chassis implements Subsystem {
     public static final Chassis INSTANCE = new Chassis();
-    public static MecanumDrive drivetrain;
     public static Follower follower;
     public static boolean isSlowed = false;
     public static double slowSpeed = 0.5;
@@ -71,8 +75,10 @@ public class Chassis implements Subsystem {
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
         telemetry = opMode.getOpMode().telemetry;
         follower = new Follower(hMap);
-        follower.startTeleopDrive();
-        setDefaultCommand(drive(Mercurial.gamepad1()));
+
+        Robot.init();
+
+        if (Robot.flavor == OpModeMeta.Flavor.TELEOP) drive(Mercurial.gamepad1());
     }
 
     @Override
@@ -94,6 +100,15 @@ public class Chassis implements Subsystem {
 
     public static Lambda toggleSlow() {
         return new Lambda("toggle-slow")
-                .setInit(() -> isSlowed = !isSlowed);
+                .setInit(() -> isSlowed = !isSlowed)
+                .setFinish(() -> true);
+    }
+
+    public static Lambda followPath(Path path) {
+        return new Lambda("follow-path")
+                .addRequirements(INSTANCE)
+                .setInit(() -> follower.followPath(path))
+                .setExecute(() -> follower.update())
+                .setFinish(() -> !follower.isBusy());
     }
 }

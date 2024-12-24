@@ -30,12 +30,12 @@ public class OuttakeSlides implements Subsystem {
     public static DcMotorEx slideR;
     public static DcMotorEx slideL;
     public static Telemetry telemetry;
-    public static int tolerance = 30;
+    public static int tolerance = 40;
     public static int submirsiblePos = 0;
     public static int bucketPos = 0;
     public static int scoreSubmersiblePos = 0;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
-    public static double Kp = 0.00006;
+    public static double Kp = 0.0014;
     public static double Ki = 0.0000;
     public static double Kd = 0.0000;
     public static double Kf = 0.0000;
@@ -64,6 +64,9 @@ public class OuttakeSlides implements Subsystem {
         slideL.setDirection(DcMotorSimple.Direction.REVERSE);
         slideL.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
+
+        reset();
+
         controller.setTolerance(tolerance);
 
         setDefaultCommand(runPID());
@@ -85,11 +88,15 @@ public class OuttakeSlides implements Subsystem {
         this.dependency = dependency;
     }
 
-    public static Lambda setPower(double power){
+    public static void setPower(double power){
+        slideL.setPower(power);
+        slideR.setPower(power);
+    }
+
+    public static Lambda setPowerCommand(double power){
         return new Lambda("set-power")
                 .setExecute(() -> {
-                    slideL.setPower(power);
-                    slideR.setPower(power);
+                    setPower(power);
                 });
     }
 
@@ -104,12 +111,14 @@ public class OuttakeSlides implements Subsystem {
         slideR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         controller.reset();
+        controller.setSetPoint(0);
     }
 
     public static Lambda setTargetPos(int pos){
         return new Lambda("set-target-pos")
-                .setInterruptible(true)
-                .setInit(() -> controller.setSetPoint(pos))
+                .setInit(() -> {
+                    controller.setSetPoint(pos);
+                })
                 .setFinish(() -> true);
     }
 
@@ -131,13 +140,14 @@ public class OuttakeSlides implements Subsystem {
 
     public static Lambda runPID() {
         return new Lambda("outtake-pid")
-                .setInterruptible(false)
+                .addRequirements(INSTANCE)
+                .setInterruptible(true)
                 .setExecute(() -> {
                     double velo = controller.calculate(getPos());
                     setPower(velo);
                     logTele();
                 })
-                .setFinish(() -> controller.atSetPoint());
+                .setFinish(() -> false);
     }
 
     public static Lambda home() {

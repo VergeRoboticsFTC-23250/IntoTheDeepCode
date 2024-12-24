@@ -77,11 +77,11 @@ public class Teleop extends OpMode {
 //        tejas.rightBumper().onTrue(Outtake.openClaw());
 
         tejas.dpadUp()
-                .untilFalse( OuttakeSlides.setPower(1) )
-                .onFalse( OuttakeSlides.setPower(0) );
+                .untilFalse( OuttakeSlides.setPowerCommand(1) )
+                .onFalse( OuttakeSlides.setPowerCommand(0) );
         tejas.dpadDown()
-                .untilFalse( OuttakeSlides.setPower(-1) )
-                .onFalse( OuttakeSlides.setPower(0) );
+                .untilFalse( OuttakeSlides.setPowerCommand(-1) )
+                .onFalse( OuttakeSlides.setPowerCommand(0) );
         tejas.leftBumper()
                 .onTrue( Outtake.closeClaw() );
         tejas.rightBumper()
@@ -89,7 +89,7 @@ public class Teleop extends OpMode {
 
         OuttakeSlides.setPower(tejas.rightTrigger().state() - tejas.leftTrigger().state());
 
-        tejas.x()
+        tejas.cross()
                 .onTrue(OuttakeSlides.setTargetPos(0));
         tejas.triangle()
                 .onTrue(OuttakeSlides.setTargetPos(1000));
