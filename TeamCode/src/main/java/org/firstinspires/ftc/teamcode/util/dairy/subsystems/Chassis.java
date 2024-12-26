@@ -9,9 +9,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
-import org.firstinspires.ftc.teamcode.util.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.util.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.util.roadrunner.MecanumDrive;
 
 import java.lang.annotation.ElementType;
@@ -29,7 +30,6 @@ import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
-import org.firstinspires.ftc.teamcode.util.pedroPathing.follower.Follower;
 
 public class Chassis implements Subsystem {
     public static final Chassis INSTANCE = new Chassis();
@@ -93,7 +93,24 @@ public class Chassis implements Subsystem {
         return new Lambda("drive")
                 .addRequirements(INSTANCE)
                 .setExecute(() -> {
-                    drive((double)gamepad.rightStickY().state(), (double)gamepad.rightStickX().state(), ((double)gamepad.leftStickX().state()));
+                    drive(
+                            gamepad.rightStickY().state() / Math.max(
+                                    Math.max(Math.abs(gamepad.rightStickY().state()),
+                                            Math.abs(gamepad.rightStickX().state())),
+                                    Math.max(Math.abs(gamepad.leftStickX().state()), 1)
+                            ),
+                            gamepad.rightStickX().state() / Math.max(
+                                    Math.max(Math.abs(gamepad.rightStickY().state()),
+                                            Math.abs(gamepad.rightStickX().state())),
+                                    Math.max(Math.abs(gamepad.leftStickX().state()), 1)
+                            ),
+                            gamepad.leftStickX().state() / Math.max(
+                                    Math.max(Math.abs(gamepad.rightStickY().state()),
+                                            Math.abs(gamepad.rightStickX().state())),
+                                    Math.max(Math.abs(gamepad.leftStickX().state()), 1)
+                            )
+                    );
+
                 })
                 .setFinish(() -> false);
     }
@@ -107,7 +124,15 @@ public class Chassis implements Subsystem {
     public static Lambda followPath(Path path) {
         return new Lambda("follow-path")
                 .addRequirements(INSTANCE)
-                .setInit(() -> follower.followPath(path))
+                .setInit(() -> follower.followPath(path, true))
+                .setExecute(() -> follower.update())
+                .setFinish(() -> !follower.isBusy());
+    }
+
+    public static Lambda followPathChain(PathChain chain) {
+        return new Lambda("follow-path-chain")
+                .addRequirements(INSTANCE)
+                .setInit(() -> follower.followPath(chain, true))
                 .setExecute(() -> follower.update())
                 .setFinish(() -> !follower.isBusy());
     }

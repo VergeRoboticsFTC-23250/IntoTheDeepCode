@@ -4,11 +4,9 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -22,7 +20,6 @@ import java.lang.annotation.Target;
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
-import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
@@ -82,25 +79,28 @@ public class IntakeSlides implements Subsystem {
     public static Lambda runPID(){
         return new Lambda("intake-pid")
                 .addRequirements(INSTANCE)
-                .setInterruptible(false)
                 .setExecute(() -> {
-                    double velo = controller.calculate(extendo.getCurrentPosition());
-                    extendo.setVelocity(velo);
+                    double power = controller.calculate(extendo.getCurrentPosition());
+                    extendo.setPower(power);
                 })
                 .setFinish(() -> false);
     }
 
-    public static Lambda setTargetPos(int pos){
+    public static Lambda runToPosition(int pos){
         return new Lambda("set-target-pos")
+                .setRequirements(INSTANCE)
                 .setInit(() -> controller.setSetPoint(pos))
-                .setFinish(() -> true);
+                .setExecute(() -> extendo.setPower(controller.calculate(extendo.getCurrentPosition())))
+                .setFinish(() -> controller.atSetPoint());
     }
 
     public static Lambda home() {
         return new Lambda("home-intake")
-                .setInit(() -> controller.setSetPoint(minPos))
-                .setEnd((interrupted) -> reset())
-                .setFinish(() -> isOverCurrent() && controller.atSetPoint());
+                .addRequirements(INSTANCE)
+                .setInit(() -> controller.setSetPoint(0))
+                .setExecute(() -> extendo.setPower(controller.calculate(extendo.getCurrentPosition())))
+                .setFinish(IntakeSlides::isOverCurrent)
+                .setEnd((interrupted) -> { if (!interrupted) reset(); });
     }
 
     public static boolean isOverCurrent() { return extendo.isOverCurrent(); }

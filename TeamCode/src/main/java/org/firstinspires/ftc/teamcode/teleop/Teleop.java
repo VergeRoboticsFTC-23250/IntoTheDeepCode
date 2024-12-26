@@ -15,12 +15,12 @@ import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 
 @Mercurial.Attach
-//@Chassis.Attach
+@Chassis.Attach
 //@IntakeSlides.Attach
-@OuttakeSlides.Attach
-@Intake.Attach
-@Outtake.Attach
-@BulkRead.Attach
+//@OuttakeSlides.Attach
+//@Intake.Attach
+//@Outtake.Attach
+//@BulkRead.Attach
 //@LoopTimes.Attach
 @FeatureRegistrar.LogDependencyResolutionExceptions
 @TeleOp(name = "TeleOp")
@@ -76,32 +76,32 @@ public class Teleop extends OpMode {
 //
 //        tejas.rightBumper().onTrue(Outtake.openClaw());
 
-        tejas.dpadUp()
-                .untilFalse( OuttakeSlides.setPowerCommand(1) )
-                .onFalse( OuttakeSlides.setPowerCommand(0) );
-        tejas.dpadDown()
-                .untilFalse( OuttakeSlides.setPowerCommand(-1) )
-                .onFalse( OuttakeSlides.setPowerCommand(0) );
-        tejas.leftBumper()
-                .onTrue( Outtake.closeClaw() );
-        tejas.rightBumper()
-                .onTrue( Outtake.openClaw() );
-
-        OuttakeSlides.setPower(tejas.rightTrigger().state() - tejas.leftTrigger().state());
-
-        tejas.cross()
-                .onTrue(OuttakeSlides.setTargetPos(0));
-        tejas.triangle()
-                .onTrue(OuttakeSlides.setTargetPos(1000));
+//        tejas.dpadUp()
+//                .untilFalse( OuttakeSlides.setPowerCommand(1) )
+//                .onFalse( OuttakeSlides.setPowerCommand(0) );
+//        tejas.dpadDown()
+//                .untilFalse( OuttakeSlides.setPowerCommand(-1) )
+//                .onFalse( OuttakeSlides.setPowerCommand(0) );
+//        tejas.leftBumper()
+//                .onTrue( Outtake.closeClaw() );
+//        tejas.rightBumper()
+//                .onTrue( Outtake.openClaw() );
+//
+//        OuttakeSlides.setPower(tejas.rightTrigger().state() - tejas.leftTrigger().state());
+//
+//        tejas.cross()
+//                .onTrue(OuttakeSlides.setTargetPos(0));
+//        tejas.triangle()
+//                .onTrue(OuttakeSlides.setTargetPos(1000));
 
 //        tejas.rightBumper().onTrue( Chassis.toggleSlow() );
 //
-        arvind.rightBumper()
-                .untilFalse( Intake.spintake(1) )
-                .onFalse( Intake.spintake(0) );
-        arvind.leftBumper()
-                .untilFalse( Intake.spintake(1) )
-                .onFalse( Intake.spintake(0) );
+//        arvind.rightBumper()
+//                .untilFalse( Intake.spintake(1) )
+//                .onFalse( Intake.spintake(0) );
+//        arvind.leftBumper()
+//                .untilFalse( Intake.spintake(1) )
+//                .onFalse( Intake.spintake(0) );
 
 //
 //        arvind.cross().onTrue(

@@ -114,12 +114,12 @@ public class OuttakeSlides implements Subsystem {
         controller.setSetPoint(0);
     }
 
-    public static Lambda setTargetPos(int pos){
+    public static Lambda runToPosition(int pos){
         return new Lambda("set-target-pos")
-                .setInit(() -> {
-                    controller.setSetPoint(pos);
-                })
-                .setFinish(() -> true);
+                .setRequirements(INSTANCE)
+                .setInit(() -> controller.setSetPoint(pos))
+                .setExecute(() -> setPower(controller.calculate(getPos())))
+                .setFinish(() -> controller.atSetPoint());
     }
 
     public static void logCurrent(){
@@ -141,10 +141,9 @@ public class OuttakeSlides implements Subsystem {
     public static Lambda runPID() {
         return new Lambda("outtake-pid")
                 .addRequirements(INSTANCE)
-                .setInterruptible(true)
                 .setExecute(() -> {
-                    double velo = controller.calculate(getPos());
-                    setPower(velo);
+                    double power = controller.calculate(getPos());
+                    setPower(power);
                     logTele();
                 })
                 .setFinish(() -> false);
@@ -152,8 +151,10 @@ public class OuttakeSlides implements Subsystem {
 
     public static Lambda home() {
         return new Lambda("home-outtake")
-                .setInterruptible(true)
+                .addRequirements(INSTANCE)
                 .setInit(() -> controller.setSetPoint(0))
-                .setFinish(() -> true);
+                .setExecute(() -> setPower(controller.calculate(getPos())))
+                .setFinish(OuttakeSlides::isOverCurrent)
+                .setEnd((interrupted) -> {if (!interrupted) reset();});
     }
 }
