@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.NextLock;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -32,20 +31,21 @@ public class Outtake implements Subsystem {
     public static Servo pivot;
 
     public static double clawOpenPos = 0;
-    public static double clawClosePos = 0.35;
+    public static double clawClosePos = 0.76;
 
-    public static double armSubmersiblePos = 0.15;
-    public static double armSampleIntakePos = 0;
+    public static double armSubmersiblePos = 0.0;
     public static double armHomePos = 0.33;
-    public static double armBucketPos = 0.9;
-    public static double armTransferPos = 0; // TODO
+    public static double armBucketPos = 0.8;
+    public static double armTransferPos = 0.2;
+    public static double armSpecPos = 0.5;
+    public static double armTransitionPos = 1;
 
     //pivot
-    public static double pivotSubmersiblePos = 0.2;
-    public static double pivotSampleIntakePos = 0.225;
-    public static double pivotHomePos = 0.225;
-    public static double pivotBucketPos = 0.3;
-    public static double pivotTranferPos = 0; // TODO
+    public static double pivotSubmersiblePos = 0.825;
+    public static double pivotSpecPos = 0.75;
+    public static double pivotHomePos = 0.825;
+    public static double pivotBucketPos = 0.86;
+    public static double pivotTranferPos = 0.75; // TODO
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
     @Inherited
@@ -65,12 +65,14 @@ public class Outtake implements Subsystem {
     @Override
     public void preUserInitHook(@NonNull Wrapper opMode) {
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
-        armR = hMap.get(Servo.class, "arm1");
-        armL = hMap.get(Servo.class, "arm2");
+        armR = hMap.get(Servo.class, "armR");
+        armL = hMap.get(Servo.class, "armL");
 
         claw = hMap.get(Servo.class, "claw");
 
         pivot = hMap.get(Servo.class, "pivot");
+
+        armR.setDirection(Servo.Direction.REVERSE);
 
         setPivot(Outtake.pivotHomePos);
         setArm(Outtake.armHomePos);
@@ -82,12 +84,14 @@ public class Outtake implements Subsystem {
 
     public static Lambda openClaw(){
         return new Lambda("open-claw")
+                .addRequirements(INSTANCE.claw)
                 .setInit(() -> setClaw(clawOpenPos))
                 .setFinish(() -> true);
     }
 
     public static Lambda closeClaw(){
         return new Lambda("close-claw")
+                .addRequirements(INSTANCE.claw)
                 .setExecute(() -> setClaw(clawClosePos))
                 .setFinish(() -> true);
     }
@@ -102,21 +106,15 @@ public class Outtake implements Subsystem {
 
     public static Lambda setArm(double pos){
         return new Lambda("set-arm")
-                .addRequirements(INSTANCE)
+                .addRequirements(INSTANCE.armL, INSTANCE.armR)
                 .setInit(() -> {
                     setPosition(pos);
                 });
     }
 
-    public static Lambda transfer() {
-        return new Lambda("transfer-outtake")
-                .addRequirements(INSTANCE)
-                .setInit(() -> setPosition(pivotTranferPos));
-    }
-
     public static Lambda setPivot(double pos){
         return new Lambda("set-pivot")
-                .addRequirements(INSTANCE)
+                .addRequirements(INSTANCE.pivot)
                 .setInit(() -> pivot.setPosition(pos));
     }
 }

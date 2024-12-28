@@ -40,8 +40,8 @@ public class Robot {
             IntakeSlides.minPos
     );
     public static StatePositions intake = new StatePositions(
-            Outtake.armSampleIntakePos,
-            Outtake.pivotSampleIntakePos,
+            Outtake.armSpecPos,
+            Outtake.pivotSpecPos,
             true,
             IntakeSlides.minPos
     );

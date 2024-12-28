@@ -87,16 +87,16 @@ public class TwoWheelPinpointIMULocalizer extends Localizer {
 
         hardwareMap = map;
 
-//        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-//        pinpoint.resetPosAndIMU();
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        pinpoint.resetPosAndIMU();
 
         // TODO: replace these with your encoder ports
-//        forwardEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftBack"));
-//        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "strafeEncoder"));
+        forwardEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftBack"));
+        strafeEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "strafeEncoder"));
 
         // TODO: reverse any encoders necessary
-//        forwardEncoder.setDirection(Encoder.REVERSE);
-//        strafeEncoder.setDirection(Encoder.FORWARD);
+        forwardEncoder.setDirection(Encoder.REVERSE);
+        strafeEncoder.setDirection(Encoder.FORWARD);
 
         setStartPose(setStartPose);
         timer = new NanoTimer();
