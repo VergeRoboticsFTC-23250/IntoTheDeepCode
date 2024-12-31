@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
+import com.pedropathing.pathgen.PathBuilder;
+
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 
 import java.util.Map;
+import java.util.Objects;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.mercurial.commands.Lambda;
@@ -84,13 +88,16 @@ public class Robot {
 
     public static OpModeMeta.Flavor flavor;
 
+    static PathBuilder plusThreeBlueSpec = new PathBuilder();
+
     public static void init() {
         flavor = FeatureRegistrar.getActiveOpModeWrapper().getOpModeType();
+
         stateMachine = new StateMachine<>(State.INIT)
                 .withState(State.INIT, (state, name) -> Lambda.from(
                         new Sequential(
-                                Outtake.setArm(states.get(state).armPos).with(new Wait(0.5)),
-                                Outtake.setPivot(states.get(state).pivotPos).with(new Wait(0.5)),
+                                Outtake.setArm(Objects.requireNonNull(states.get(state)).armPos).with(new Wait(0.5)),
+                                Outtake.setPivot(Objects.requireNonNull(states.get(state)).pivotPos).with(new Wait(0.5)),
                                 Outtake.closeClaw().with(new Wait(0.5)),
                                 OuttakeSlides.home(),
                                 IntakeSlides.home()
@@ -152,5 +159,9 @@ public class Robot {
                                 Outtake.closeClaw().raceWith(new Wait(0.5))
                         )
                 ));
+
+        if (flavor == OpModeMeta.Flavor.AUTONOMOUS) {
+
+        }
     }
 }

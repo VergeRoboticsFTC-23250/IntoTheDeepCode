@@ -5,13 +5,13 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.roadrunner.MecanumDrive;
 
@@ -29,6 +29,8 @@ import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.LConstants;
 import kotlin.annotation.MustBeDocumented;
 
 public class Chassis implements Subsystem {
@@ -74,12 +76,13 @@ public class Chassis implements Subsystem {
     public void preUserInitHook(@NonNull Wrapper opMode) {
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
         telemetry = opMode.getOpMode().telemetry;
-        follower = new Follower(hMap);
+        follower = new Follower(hMap, FConstants.class, LConstants.class); //TODO
 
-        Robot.init();
-
-        if (Robot.flavor == OpModeMeta.Flavor.TELEOP) drive(Mercurial.gamepad1());
+        setDefaultCommand(drive(Mercurial.gamepad1()));
     }
+
+    @Override
+    public void postUserInitHook(@NonNull Wrapper opMode) {}
 
     @Override
     public void preUserStartHook(@NonNull Wrapper opMode) {
@@ -94,23 +97,10 @@ public class Chassis implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setExecute(() -> {
                     drive(
-                            gamepad.rightStickY().state() / Math.max(
-                                    Math.max(Math.abs(gamepad.rightStickY().state()),
-                                            Math.abs(gamepad.rightStickX().state())),
-                                    Math.max(Math.abs(gamepad.leftStickX().state()), 1)
-                            ),
-                            gamepad.rightStickX().state() / Math.max(
-                                    Math.max(Math.abs(gamepad.rightStickY().state()),
-                                            Math.abs(gamepad.rightStickX().state())),
-                                    Math.max(Math.abs(gamepad.leftStickX().state()), 1)
-                            ),
-                            gamepad.leftStickX().state() / Math.max(
-                                    Math.max(Math.abs(gamepad.rightStickY().state()),
-                                            Math.abs(gamepad.rightStickX().state())),
-                                    Math.max(Math.abs(gamepad.leftStickX().state()), 1)
-                            )
+                            gamepad.leftStickY().state(),
+                            gamepad.leftStickX().state(),
+                            -gamepad.rightStickX().state()
                     );
-
                 })
                 .setFinish(() -> false);
     }
