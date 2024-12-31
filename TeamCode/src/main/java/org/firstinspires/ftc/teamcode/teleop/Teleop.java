@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
@@ -36,43 +37,19 @@ public class Teleop extends OpMode {
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
 
+        tejas.dpadUp()
+                .whileTrue(OuttakeSlides.setPowerCommand(1));
+        tejas.dpadDown()
+                .whileTrue(OuttakeSlides.setPowerCommand(-1));
+
         tejas.cross()
-                .onTrue(Lambda.from(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armHomePos),
-                                Outtake.setPivot(Outtake.pivotHomePos)
-                        )
-                ));
+                .onTrue(Robot.setState(Robot.State.HOME));
         tejas.triangle()
-                .onTrue(Lambda.from(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armSubmersiblePos),
-                                Outtake.setPivot(Outtake.pivotSubmersiblePos)
-                        )
-                ));
+                .onTrue(Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE));
         tejas.square()
-                .onTrue(Lambda.from(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armBucketPos),
-                                Outtake.setPivot(Outtake.pivotBucketPos)
-                        )
-                ));
+                .onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
         tejas.circle()
-                .onTrue(Lambda.from(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armSpecPos),
-                                Outtake.setPivot(Outtake.pivotSpecPos)
-                        )
-                ));
-        tejas.rightBumper()
-                .onTrue(Lambda.from(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armTransferPos),
-                                Outtake.setPivot(Outtake.pivotTranferPos)
-                        )
-                ));
-        tejas.leftBumper()
-                .onTrue(Outtake.setArm(Outtake.armTransitionPos));
+                .onTrue(Robot.setState(Robot.State.INTAKE));
     }
 
     @Override

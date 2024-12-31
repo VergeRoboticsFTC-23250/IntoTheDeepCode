@@ -165,4 +165,12 @@ public class Robot {
 
         }
     }
+
+    public static Lambda setState(State state) {
+        return new Lambda("set-state")
+                .setInit(() -> {
+                    stateMachine.setState(state);
+                })
+                .setFinish(() -> true);
+    }
 }
