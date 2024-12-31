@@ -30,6 +30,7 @@ public class OuttakeSlides implements Subsystem {
     public static final OuttakeSlides INSTANCE = new OuttakeSlides();
     public static DcMotorEx slideR;
     public static DcMotorEx slideL;
+    public static DcMotorEx encoder;
     public static Telemetry telemetry;
     public static int tolerance = 40;
     public static int submirsiblePos = 0;
@@ -59,6 +60,7 @@ public class OuttakeSlides implements Subsystem {
         telemetry = opMode.getOpMode().telemetry;
         slideR = hMap.get(DcMotorEx.class, "outtakeSR");
         slideL = hMap.get(DcMotorEx.class, "outtakeSL");
+        encoder = hMap.get(DcMotorEx.class, "encoder");
         slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideL.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideR.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -110,10 +112,8 @@ public class OuttakeSlides implements Subsystem {
     }
 
     public static void reset() {
-        slideL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slideR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         controller.reset();
         controller.setSetPoint(0);
@@ -133,7 +133,7 @@ public class OuttakeSlides implements Subsystem {
     }
 
     public static double getPos(){
-        return slideR.getCurrentPosition();
+        return encoder.getCurrentPosition();
     }
 
     public static void logTele(){

@@ -72,8 +72,6 @@ public class Outtake implements Subsystem {
 
         pivot = hMap.get(Servo.class, "pivot");
 
-        armR.setDirection(Servo.Direction.REVERSE);
-
         setPivot(Outtake.pivotHomePos);
         setArm(Outtake.armHomePos);
         openClaw();
