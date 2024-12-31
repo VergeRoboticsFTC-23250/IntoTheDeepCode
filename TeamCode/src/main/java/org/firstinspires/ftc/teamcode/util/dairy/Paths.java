@@ -72,32 +72,26 @@ public class Paths {
                         )
                 ),
                 createPath(
-                        new BezierCurve(
+                        new BezierLine(
                                 new Point(9.000, 24.000, Point.CARTESIAN),
-                                new Point(23.000, 71.500, Point.CARTESIAN),
                                 new Point(40.500, 68.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
-                        new BezierCurve(
+                        new BezierLine(
                                 new Point(40.500, 68.000, Point.CARTESIAN),
-                                new Point(31.500, 71.000, Point.CARTESIAN),
-                                new Point(32.000, 23.000, Point.CARTESIAN),
                                 new Point(9.000, 24.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
-                        new BezierCurve(
+                        new BezierLine(
                                 new Point(9.000, 24.000, Point.CARTESIAN),
-                                new Point(23.000, 76.500, Point.CARTESIAN),
                                 new Point(40.500, 73.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
-                        new BezierCurve(
+                        new BezierLine(
                                 new Point(40.500, 73.000, Point.CARTESIAN),
-                                new Point(31.500, 76.000, Point.CARTESIAN),
-                                new Point(32.000, 28.000, Point.CARTESIAN),
                                 new Point(15.000, 24.000, Point.CARTESIAN)
                         ), Math.toRadians(0), Math.toRadians(-45)
                 )
