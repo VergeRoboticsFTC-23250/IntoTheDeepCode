@@ -62,7 +62,6 @@ public class OuttakeSlides implements Subsystem {
         slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideL.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideR.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideL.setDirection(DcMotorSimple.Direction.REVERSE);
         slideL.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
 

@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
@@ -17,7 +19,7 @@ import dev.frozenmilk.mercurial.commands.groups.Parallel;
 @Mercurial.Attach
 @Chassis.Attach
 //@IntakeSlides.Attach
-//@OuttakeSlides.Attach
+@OuttakeSlides.Attach
 //@Intake.Attach
 @Outtake.Attach
 @BulkRead.Attach
