@@ -7,10 +7,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.LConstants;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
+import dev.frozenmilk.mercurial.Mercurial;
+import dev.frozenmilk.mercurial.commands.Lambda;
+import dev.frozenmilk.mercurial.commands.groups.Parallel;
+import dev.frozenmilk.mercurial.commands.groups.Sequential;
 
 
 @Autonomous
@@ -99,6 +104,19 @@ public class Auto extends OpMode {
             case 11:
                 if (!follower.isBusy()) {
                     follower.followPath(Paths.plusThreeBlueSpec.get(11), true);
+                    pathIndex = 12;
+                }
+                    break;
+            case 12:
+                if (!follower.isBusy()) {
+                    follower.followPath(Paths.plusThreeBlueSpec.get(12), true);
+                    pathIndex = 13;
+                }
+                    break;
+            case 13:
+                if (!follower.isBusy()) {
+                    follower.followPath(Paths.plusThreeBlueSpec.get(13), true);
+                    pathIndex = 14;
                 }
                     break;
         }
