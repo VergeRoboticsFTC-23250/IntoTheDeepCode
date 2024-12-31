@@ -1,41 +1,33 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
+import org.firstinspires.ftc.teamcode.util.dairy.Paths;
+import org.firstinspires.ftc.teamcode.util.dairy.Robot;
+import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.LConstants;
 
-import dev.frozenmilk.mercurial.Mercurial;
+import dev.frozenmilk.dairy.core.FeatureRegistrar;
 
-@Mercurial.Attach
-@Chassis.Attach
-@Autonomous(name = "Auto")
+// add feature annotations here
 public class Auto extends OpMode {
+
+    Follower follower;
 
     @Override
     public void init() {
-        // the rest is as normal
-        // remember that you can use OpModeLazyCells to init your hardware and similar
-    }
-
-    @Override
-    public void init_loop() {
-        // the rest is as normal
-    }
-
-    @Override
-    public void start() {
-        // the rest is as normal
+        Robot.init();
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
     }
 
     @Override
     public void loop() {
-        // the rest is as normal
+        follower.update();
     }
 
     @Override
-    public void stop() {
-        // the rest is as normal
+    public void start() {
+        follower.followPath(Paths.plusThreeBlueSpec.get(0));
     }
 }
