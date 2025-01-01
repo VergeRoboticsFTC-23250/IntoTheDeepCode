@@ -37,19 +37,19 @@ public class Teleop extends OpMode {
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
 
-        tejas.dpadUp()
-                .whileTrue(OuttakeSlides.setPowerCommand(1));
-        tejas.dpadDown()
-                .whileTrue(OuttakeSlides.setPowerCommand(-1));
+//        tejas.dpadUp()
+//                .whileTrue(OuttakeSlides.setPowerCommand(1));
+//        tejas.dpadDown()
+//                .whileTrue(OuttakeSlides.setPowerCommand(-1));
 
         tejas.cross()
                 .onTrue(Robot.setState(Robot.State.HOME));
         tejas.triangle()
                 .onTrue(Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE));
-        tejas.square()
-                .onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
-        tejas.circle()
-                .onTrue(Robot.setState(Robot.State.INTAKE));
+//        tejas.square()
+//                .onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
+//        tejas.circle()
+//                .onTrue(Robot.setState(Robot.State.INTAKE));
     }
 
     @Override
