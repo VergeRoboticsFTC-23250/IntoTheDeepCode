@@ -14,6 +14,10 @@ public class testop extends LinearOpMode {
     public static String s1 = "claw";
     public static String s2 = "armL";
     public static String m = "outtakeSR";
+    public static String m2 = "outtakeSL";
+    public static boolean invertM = true;
+    public static boolean enableM2 = true;
+    public static DcMotorEx motor2;
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -21,6 +25,10 @@ public class testop extends LinearOpMode {
         Servo servo2 = hardwareMap.get(Servo.class, s2);
         if (invert) servo.setDirection(Servo.Direction.REVERSE);
         DcMotorEx motor = hardwareMap.get(DcMotorEx.class, m);
+        if (enableM2){
+            DcMotorEx motor2 = hardwareMap.get(DcMotorEx.class, m2);
+        }
+        if (invertM) motor.setDirection(DcMotorEx.Direction.REVERSE);
         waitForStart();
         while (opModeIsActive()){
             if (gamepad1.left_stick_y != 0){
@@ -31,6 +39,9 @@ public class testop extends LinearOpMode {
             }
 
             motor.setPower(gamepad1.right_stick_y);
+            if (enableM2){
+                motor2.setPower(gamepad1.right_stick_y);
+            }
             if (gamepad1.cross){
                 servo.setPosition(0);
                 if (enableS2){
