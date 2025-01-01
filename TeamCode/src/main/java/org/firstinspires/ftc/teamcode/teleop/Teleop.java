@@ -42,27 +42,56 @@ public class Teleop extends OpMode {
                 .onTrue(OuttakeSlides.runToPosition(OuttakeSlides.submirsiblePos));
         tejas.dpadDown()
                 .onTrue(OuttakeSlides.runToPosition(OuttakeSlides.minPos));
-//        tejas.dpadUp()
-//                .whileTrue(OuttakeSlides.setPowerCommand(1))
-//                .onFalse(OuttakeSlides.setPowerCommand(0));
-//        tejas.dpadDown()
-//                .whileTrue(OuttakeSlides.setPowerCommand(-1))
-//                .onFalse(OuttakeSlides.setPowerCommand(0));
+        tejas.dpadRight()
+                .onTrue(
+                        Robot.setState(Robot.State.HOME)
+                );
+        tejas.dpadLeft()
+                .onTrue(
+                        Robot.setState(Robot.State.TRANSFER)
+                );
 
 
         tejas.cross()
-                .onTrue(Outtake.setArm(Outtake.armSpecPos));
+                .onTrue(
+                        new Parallel(
+                                Outtake.setArm(Outtake.armSubmersiblePos),
+                                Outtake.setPivot(Outtake.pivotSubmersiblePos)
+                        )
+                );
         tejas.square()
-                .onTrue(Outtake.openClaw());
+                .onTrue(
+                        new Parallel(
+                                Outtake.setArm(Outtake.armHomePos),
+                                Outtake.setPivot(Outtake.pivotHomePos)
+                        )
+                );
         tejas.circle()
-                .onTrue(Outtake.setPivot(Outtake.pivotSpecPos));
+                .onTrue(
+                        new Parallel(
+                                Outtake.setArm(Outtake.armBucketPos),
+                                Outtake.setPivot(Outtake.pivotBucketPos)
+                        )
+                );
         tejas.triangle()
-                .onTrue(Outtake.closeClaw());
+                .onTrue(
+                        new Parallel(
+                                Outtake.setArm(Outtake.armSpecPos),
+                                Outtake.setPivot(Outtake.pivotSpecPos)
+                        )
+                );
+        tejas.rightBumper()
+                .onTrue(
+                        Outtake.openClaw()
+                );
+        tejas.leftBumper()
+                .onTrue(
+                        Outtake.closeClaw()
+                );
     }
 
     @Override
     public void loop() {
         // https://github.com/Iris-TheRainbow/27971-IntoTheDeep-Teamcode/tree/main
-//        telemetry.addData("sloth load worked",true);
     }
 }

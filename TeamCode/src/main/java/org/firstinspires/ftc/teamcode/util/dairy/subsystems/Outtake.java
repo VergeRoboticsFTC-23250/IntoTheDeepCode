@@ -30,22 +30,22 @@ public class Outtake implements Subsystem {
 
     public static Servo pivot;
 
-    public static double clawOpenPos = 0;
-    public static double clawClosePos = 0.76;
+    public static double clawOpenPos = 0.1;
+    public static double clawClosePos = 0.85;
 
     public static double armSubmersiblePos = 0.0;
-    public static double armHomePos = 0.33;
+    public static double armHomePos = 0.25;
     public static double armBucketPos = 0.8;
-    public static double armTransferPos = 0.2;
+    public static double armTransferPos = 0.272;
     public static double armSpecPos = 0.5;
     public static double armTransitionPos = 1;
 
     //pivot
     public static double pivotSubmersiblePos = 0.825;
     public static double pivotSpecPos = 0.75;
-    public static double pivotHomePos = 0.825;
+    public static double pivotHomePos = 0.84;
     public static double pivotBucketPos = 0.86;
-    public static double pivotTranferPos = 0.75; // TODO
+    public static double pivotTranferPos = 0.79; // TODO
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
     @Inherited
@@ -71,6 +71,11 @@ public class Outtake implements Subsystem {
         claw = hMap.get(Servo.class, "claw");
 
         pivot = hMap.get(Servo.class, "pivot");
+
+        claw.setDirection(Servo.Direction.REVERSE);
+
+        armR.setDirection(Servo.Direction.REVERSE);
+        armL.setDirection(Servo.Direction.REVERSE);
 
         setPivot(Outtake.pivotHomePos);
         setArm(Outtake.armHomePos);

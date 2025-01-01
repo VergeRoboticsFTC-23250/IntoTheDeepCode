@@ -24,7 +24,6 @@ public class testop extends LinearOpMode {
         Servo servo2 = hardwareMap.get(Servo.class, s2);
         if (invert) servo.setDirection(Servo.Direction.REVERSE);
 
-
         DcMotorEx motor = hardwareMap.get(DcMotorEx.class, m);
         DcMotorEx motor2 = hardwareMap.get(DcMotorEx.class, m2);
         if (invertM) motor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -45,24 +44,14 @@ public class testop extends LinearOpMode {
             if (enableM2){
                 motor2.setPower(gamepad1.right_stick_y);
             }
-            if (gamepad1.cross){
-                servo.setPosition(0);
+            if (gamepad1.square) {
+                servo.setPosition(0.1); //open
                 if (enableS2){
-                    servo2.setPosition(0);
-                }
-            } else if (gamepad1.triangle){
-                servo.setPosition(1);
-                if (enableS2){
-                    servo2.setPosition(1);
-                }
-            } else if (gamepad1.square) {
-                servo.setPosition(0.5);
-                if (enableS2){
-                    servo2.setPosition(0.5);
+                    servo2.setPosition(0.1);
                 }
             } else if (gamepad1.circle) {
-                servo.setPosition(0.76);
-                if (enableS2) servo2.setPosition(.76);
+                servo.setPosition(0.85);
+                if (enableS2) servo2.setPosition(.85);
             }
         }
     }

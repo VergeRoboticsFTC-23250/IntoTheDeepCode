@@ -94,25 +94,25 @@ public class Robot {
 
         flavor = FeatureRegistrar.getActiveOpModeWrapper().getOpModeType();
 
-//        stateMachine = new StateMachine<>(State.INIT)
-//                .withState(State.INIT, (state, name) -> Lambda.from(
-//                        new Sequential(
-//                                Outtake.setArm(init.armPos).with(new Wait(0.5)),
-//                                Outtake.setPivot(init.pivotPos).with(new Wait(0.5)),
-//                                Outtake.closeClaw().with(new Wait(0.5))
-//                                //OuttakeSlides.home(),
-//                                //IntakeSlides.home()
-//                        )
-//                ))
-//                .withState(State.HOME, (state, name) -> Lambda.from(
-//                        new Sequential(
-//                                Outtake.openClaw().with(new Wait(0.5)),
-//                                Outtake.setArm(home.armPos).with(new Wait(0.5)),
-//                                Outtake.setPivot(home.pivotPos).with(new Wait(0.5))
-//                                //OuttakeSlides.home(),
-//                                //IntakeSlides.home()
-//                        )
-//                ))
+        stateMachine = new StateMachine<>(State.INIT)
+                .withState(State.INIT, (state, name) -> Lambda.from(
+                        new Sequential(
+                                Outtake.setArm(init.armPos),
+                                Outtake.setPivot(init.pivotPos),
+                                Outtake.closeClaw()
+                                //OuttakeSlides.home(),
+                                //IntakeSlides.home()
+                        )
+                ))
+                .withState(State.HOME, (state, name) -> Lambda.from(
+                        new Sequential(
+                                Outtake.openClaw(),
+                                Outtake.setArm(home.armPos),
+                                Outtake.setPivot(home.pivotPos)
+                                //OuttakeSlides.home(),
+                                //IntakeSlides.home()
+                        )
+                ))
 //                .withState(State.INTAKE, (state, name) -> Lambda.from(
 //                        new Sequential(
 //                                Outtake.setArm(intake.armPos).with(new Wait(0.5)),
@@ -151,15 +151,15 @@ public class Robot {
 //                                )
 //                        )
 //                ))
-//                .withState(State.TRANSFER, (state, name) -> Lambda.from(
-//                        new Sequential(
-//                                //OuttakeSlides.home(),
-//                                //IntakeSlides.home(),
-//                                Outtake.setArm(transfer.armPos).raceWith(new Wait(0.5)),
-//                                Outtake.setPivot(transfer.pivotPos).raceWith(new Wait(0.5)),
-//                                Outtake.closeClaw().raceWith(new Wait(0.5))
-//                        )
-//                ));
+                .withState(State.TRANSFER, (state, name) -> Lambda.from(
+                        new Sequential(
+                                //OuttakeSlides.home(),
+                                //IntakeSlides.home(),
+                                Outtake.setArm(transfer.armPos),
+                                Outtake.setPivot(transfer.pivotPos)
+//                                Outtake.closeClaw()
+                        )
+                ));
 
         if (flavor == OpModeMeta.Flavor.AUTONOMOUS) {
 
@@ -169,7 +169,9 @@ public class Robot {
     public static Lambda setState(State state) {
         return new Lambda("set-state")
                 .setInit(() -> {
-                    stateMachine.setState(state);
+                    stateMachine.schedule(state);
+                    FeatureRegistrar.getActiveOpMode().telemetry.addData("State", state);
+                    FeatureRegistrar.getActiveOpMode().telemetry.update();
                 })
                 .setFinish(() -> true);
     }
