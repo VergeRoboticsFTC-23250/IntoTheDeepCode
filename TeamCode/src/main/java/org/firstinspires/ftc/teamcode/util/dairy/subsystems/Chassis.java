@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.util.DashboardPoseTracker;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -39,6 +40,7 @@ public class Chassis implements Subsystem {
     public static boolean isSlowed = false;
     public static double slowSpeed = 0.5;
     public static Telemetry telemetry;
+    public static DashboardPoseTracker dashboardPoseTracker;
     public Chassis() {}
 
     public void speedSlow(){
@@ -77,6 +79,8 @@ public class Chassis implements Subsystem {
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
         telemetry = opMode.getOpMode().telemetry;
         follower = new Follower(hMap, FConstants.class, LConstants.class); //TODO
+
+        dashboardPoseTracker = Chassis.follower.getDashboardPoseTracker();
 
         setDefaultCommand(drive(Mercurial.gamepad1()));
     }

@@ -94,25 +94,25 @@ public class Robot {
 
         flavor = FeatureRegistrar.getActiveOpModeWrapper().getOpModeType();
 
-        stateMachine = new StateMachine<>(State.INIT)
-                .withState(State.INIT, (state, name) -> Lambda.from(
-                        new Sequential(
-                                Outtake.setArm(init.armPos).with(new Wait(0.5)),
-                                Outtake.setPivot(init.pivotPos).with(new Wait(0.5)),
-                                Outtake.closeClaw().with(new Wait(0.5))
-                                //OuttakeSlides.home(),
-                                //IntakeSlides.home()
-                        )
-                ))
-                .withState(State.HOME, (state, name) -> Lambda.from(
-                        new Sequential(
-                                Outtake.openClaw().with(new Wait(0.5)),
-                                Outtake.setArm(home.armPos).with(new Wait(0.5)),
-                                Outtake.setPivot(home.pivotPos).with(new Wait(0.5))
-                                //OuttakeSlides.home(),
-                                //IntakeSlides.home()
-                        )
-                ))
+//        stateMachine = new StateMachine<>(State.INIT)
+//                .withState(State.INIT, (state, name) -> Lambda.from(
+//                        new Sequential(
+//                                Outtake.setArm(init.armPos).with(new Wait(0.5)),
+//                                Outtake.setPivot(init.pivotPos).with(new Wait(0.5)),
+//                                Outtake.closeClaw().with(new Wait(0.5))
+//                                //OuttakeSlides.home(),
+//                                //IntakeSlides.home()
+//                        )
+//                ))
+//                .withState(State.HOME, (state, name) -> Lambda.from(
+//                        new Sequential(
+//                                Outtake.openClaw().with(new Wait(0.5)),
+//                                Outtake.setArm(home.armPos).with(new Wait(0.5)),
+//                                Outtake.setPivot(home.pivotPos).with(new Wait(0.5))
+//                                //OuttakeSlides.home(),
+//                                //IntakeSlides.home()
+//                        )
+//                ))
 //                .withState(State.INTAKE, (state, name) -> Lambda.from(
 //                        new Sequential(
 //                                Outtake.setArm(intake.armPos).with(new Wait(0.5)),
@@ -122,17 +122,17 @@ public class Robot {
 //                                //IntakeSlides.home()
 //                        )
 //                ))
-                .withState(State.OUTTAKE_SUBMERSIBLE, (state, name) -> Lambda.from(
-                        new Sequential(
-                                Outtake.closeClaw().with(new Wait(0.4)),
-                                OuttakeSlides.runToPosition(outtakeSubmersible.slidePos).raceWith(new Wait(0.5)),
-                                new Parallel(
-                                        Outtake.setArm(outtakeSubmersible.armPos).with(new Wait(0.5)),
-                                        Outtake.setPivot(outtakeSubmersible.pivotPos).with(new Wait(0.5))
-                                )
-                        )
-
-                ));
+//                .withState(State.OUTTAKE_SUBMERSIBLE, (state, name) -> Lambda.from(
+//                        new Sequential(
+//                                Outtake.closeClaw().with(new Wait(0.4)),
+//                                OuttakeSlides.runToPosition(outtakeSubmersible.slidePos).raceWith(new Wait(0.5)),
+//                                new Parallel(
+//                                        Outtake.setArm(outtakeSubmersible.armPos).with(new Wait(0.5)),
+//                                        Outtake.setPivot(outtakeSubmersible.pivotPos).with(new Wait(0.5))
+//                                )
+//                        )
+//
+//                ));
 //                .withState(State.OUTTAKE_SUBMERSIBLE_SCORE, (state, name) -> Lambda.from(
 //                        new Sequential(
 //                                OuttakeSlides.runToPosition(outtakeSubmersibleScore.slidePos).with(new Wait(.8)),

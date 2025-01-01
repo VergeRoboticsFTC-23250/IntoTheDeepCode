@@ -13,7 +13,7 @@ public class testop extends LinearOpMode {
     public static boolean enableS2 = false;
     public static String s1 = "claw";
     public static String s2 = "armL";
-    public static String m = "extendo";
+    public static String m = "outtakeSR";
     @Override
     public void runOpMode() throws InterruptedException {
 

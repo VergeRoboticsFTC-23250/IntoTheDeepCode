@@ -20,12 +20,12 @@ public class Paths {
                 createPath(
                         new BezierLine(
                                 new Point(9.000, 65.000, Point.CARTESIAN),
-                                new Point(40.500, 64.800, Point.CARTESIAN)
+                                new Point(41.000, 65.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierCurve(
-                                new Point(40.500, 64.800, Point.CARTESIAN),
+                                new Point(41.000, 65.000, Point.CARTESIAN),
                                 new Point(31.500, 66.000, Point.CARTESIAN),
                                 new Point(13.000, 26.000, Point.CARTESIAN),
                                 new Point(63.000, 45.000, Point.CARTESIAN),
@@ -35,12 +35,12 @@ public class Paths {
                 createPath(
                         new BezierLine(
                                 new Point(58.500, 23.000, Point.CARTESIAN),
-                                new Point(15.500, 22.500, Point.CARTESIAN)
+                                new Point(25.000, 22.500, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierCurve(
-                                new Point(15.500, 22.500, Point.CARTESIAN),
+                                new Point(25.000, 22.500, Point.CARTESIAN),
                                 new Point(62.500, 32.000, Point.CARTESIAN),
                                 new Point(58.500, 12.500, Point.CARTESIAN)
                         )
@@ -48,12 +48,12 @@ public class Paths {
                 createPath(
                         new BezierLine(
                                 new Point(58.500, 12.500, Point.CARTESIAN),
-                                new Point(16.300, 12.500, Point.CARTESIAN)
+                                new Point(25.000, 12.500, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierCurve(
-                                new Point(16.300, 12.500, Point.CARTESIAN),
+                                new Point(25.000, 12.500, Point.CARTESIAN),
                                 new Point(62.000, 18.500, Point.CARTESIAN),
                                 new Point(58.500, 7.500, Point.CARTESIAN)
                         )
@@ -61,50 +61,54 @@ public class Paths {
                 createPath(
                         new BezierLine(
                                 new Point(58.500, 7.500, Point.CARTESIAN),
-                                new Point(16.500, 7.500, Point.CARTESIAN)
+                                new Point(25.000, 7.500, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierCurve(
-                                new Point(16.500, 7.500, Point.CARTESIAN),
+                                new Point(25.000, 7.500, Point.CARTESIAN),
                                 new Point(27.000, 23.000, Point.CARTESIAN),
-                                new Point(9.000, 24.000, Point.CARTESIAN)
+                                new Point(9.500, 32.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierLine(
-                                new Point(9.000, 24.000, Point.CARTESIAN),
-                                new Point(40.500, 66.000, Point.CARTESIAN)
+                                new Point(9.500, 32.000, Point.CARTESIAN),
+                                new Point(41.000, 67.000, Point.CARTESIAN)
+                        )
+                ),
+                createPath(
+                        new BezierCurve(
+                                new Point(41.000, 67.000, Point.CARTESIAN),
+                                new Point(24.655, 54.670, Point.CARTESIAN),
+                                new Point(30.194, 26.084, Point.CARTESIAN),
+                                new Point(9.500, 32.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierLine(
-                                new Point(40.500, 66.000, Point.CARTESIAN),
-                                new Point(9.000, 24.000, Point.CARTESIAN)
+                                new Point(9.500, 32.000, Point.CARTESIAN),
+                                new Point(41.000, 69.000, Point.CARTESIAN)
+                        )
+                ),
+                createPath(
+                        new BezierCurve(
+                                new Point(41.000, 69.000, Point.CARTESIAN),
+                                new Point(24.655, 54.849, Point.CARTESIAN),
+                                new Point(30.372, 25.548, Point.CARTESIAN),
+                                new Point(9.500, 32.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierLine(
-                                new Point(9.000, 24.000, Point.CARTESIAN),
-                                new Point(40.500, 68.000, Point.CARTESIAN)
+                                new Point(9.500, 32.000, Point.CARTESIAN),
+                                new Point(41.000, 71.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierLine(
-                                new Point(40.500, 68.000, Point.CARTESIAN),
-                                new Point(9.000, 24.000, Point.CARTESIAN)
-                        )
-                ),
-                createPath(
-                        new BezierLine(
-                                new Point(9.000, 24.000, Point.CARTESIAN),
-                                new Point(40.500, 70.000, Point.CARTESIAN)
-                        )
-                ),
-                createPath(
-                        new BezierLine(
-                                new Point(40.500, 70.000, Point.CARTESIAN),
-                                new Point(15.000, 24.000, Point.CARTESIAN)
+                                new Point(41.000, 71.000, Point.CARTESIAN),
+                                new Point(13.000, 10.000, Point.CARTESIAN)
                         ), Math.toRadians(0), Math.toRadians(-45)
                 )
         );

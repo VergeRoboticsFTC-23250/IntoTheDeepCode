@@ -87,7 +87,7 @@ public class IntakeSlides implements Subsystem {
     }
 
     public static Lambda runToPosition(int pos){
-        return new Lambda("set-target-pos")
+        return new Lambda("set-extendo-pos")
                 .setRequirements(INSTANCE)
                 .setInit(() -> controller.setSetPoint(pos))
                 .setExecute(() -> extendo.setPower(controller.calculate(extendo.getCurrentPosition())))

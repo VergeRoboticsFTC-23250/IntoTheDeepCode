@@ -1,7 +1,14 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis.dashboardPoseTracker;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.DashboardPoseTracker;
+import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -28,7 +35,7 @@ public class Auto extends OpMode {
     public void init() {
         Paths.init();
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
-        follower.setStartingPose(new Pose(9.000, 65.000, 0));
+        follower.setStartingPose(new Pose(9, 65.000, 0));
     }
 
     public void autoPathUpdate() {
@@ -130,6 +137,6 @@ public class Auto extends OpMode {
 
     @Override
     public void start() {
-        follower.followPath(Paths.plusThreeBlueSpec.get(0),true);
+        follower.followPath(Paths.plusThreeBlueSpec.get(0), true);
     }
 }

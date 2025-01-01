@@ -32,17 +32,17 @@ public class OuttakeSlides implements Subsystem {
     public static DcMotorEx slideL;
     public static DcMotorEx encoder;
     public static Telemetry telemetry;
-    public static int tolerance = 40;
-    public static int submirsiblePos = 0;
+    public static int tolerance = 800;
+    public static int submirsiblePos = 8000;
     public static int bucketPos = 0;
     public static int scoreSubmersiblePos = 0;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
-    public static double Kp = 0.0014;
+    public static double Kp = 0.00014;
     public static double Ki = 0.0000;
     public static double Kd = 0.0000;
     public static double Kf = 0.0000;
     public static double minArmMoveHeight = 500;
-    public static int maxPos = 2200;
+    public static int maxPos = 54000;
     public static int minPos = 0;
     public static double currentLimit = 4;
 
@@ -64,8 +64,6 @@ public class OuttakeSlides implements Subsystem {
         slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideL.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideR.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideL.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
-        slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
 
         reset();
 
@@ -104,6 +102,8 @@ public class OuttakeSlides implements Subsystem {
         return new Lambda("set-power")
                 .setExecute(() -> {
                     setPower(power);
+                    controller.setSetPoint(getPos());
+                    logTele();
                 });
     }
 
@@ -115,16 +115,23 @@ public class OuttakeSlides implements Subsystem {
         slideL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         controller.reset();
         controller.setSetPoint(0);
     }
 
     public static Lambda runToPosition(int pos){
         return new Lambda("set-target-pos")
-                .setRequirements(INSTANCE)
+                .addRequirements(INSTANCE)
+                .setInterruptible(true)
                 .setInit(() -> controller.setSetPoint(pos))
-                .setExecute(() -> setPower(controller.calculate(getPos())))
-                .setFinish(() -> controller.atSetPoint());
+                .setExecute(() -> {
+                    setPower(controller.calculate(getPos()));
+                    logTele();
+                })
+                .setFinish(() -> false);
     }
 
     public static void logCurrent(){
