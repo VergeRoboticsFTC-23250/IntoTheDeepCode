@@ -32,8 +32,8 @@ public class OuttakeSlides implements Subsystem {
     public static DcMotorEx slideL;
     public static DcMotorEx encoder;
     public static Telemetry telemetry;
-    public static int tolerance = 800;
-    public static int submirsiblePos = 8000;
+    public static int tolerance = 1200;
+    public static int submirsiblePos = 24000;
     public static int bucketPos = 0;
     public static int scoreSubmersiblePos = 0;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
@@ -124,14 +124,9 @@ public class OuttakeSlides implements Subsystem {
 
     public static Lambda runToPosition(int pos){
         return new Lambda("set-target-pos")
-                .addRequirements(INSTANCE)
                 .setInterruptible(true)
                 .setInit(() -> controller.setSetPoint(pos))
-                .setExecute(() -> {
-                    setPower(controller.calculate(getPos()));
-                    logTele();
-                })
-                .setFinish(() -> false);
+                .setFinish(() -> controller.atSetPoint());
     }
 
     public static void logCurrent(){
@@ -148,11 +143,13 @@ public class OuttakeSlides implements Subsystem {
         telemetry.addData("Slide Power", slideL.getPower());
         telemetry.addData("Slide Setpoint", controller.getSetPoint());
         telemetry.addData("Slide Error", controller.getPositionError());
+        telemetry.addData("At Setpoint?", controller.atSetPoint());
     }
 
     public static Lambda runPID() {
         return new Lambda("outtake-pid")
                 .addRequirements(INSTANCE)
+                .setInterruptible(true)
                 .setExecute(() -> {
                     double power = controller.calculate(getPos());
                     setPower(power);
