@@ -69,8 +69,8 @@ public class IntakeSlides implements Subsystem {
 
         extendo = hMap.get(DcMotorEx.class, "extendo");
         extendo.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
+        extendo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        setDefaultCommand(runPID());
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
@@ -16,12 +17,13 @@ import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.commands.groups.Parallel;
+import dev.frozenmilk.mercurial.commands.groups.Sequential;
 
 @Mercurial.Attach
 @Chassis.Attach
-//@IntakeSlides.Attach
+@IntakeSlides.Attach
 @OuttakeSlides.Attach
-//@Intake.Attach
+@Intake.Attach
 @Outtake.Attach
 @BulkRead.Attach
 @LoopTimes.Attach
@@ -37,56 +39,31 @@ public class Teleop extends OpMode {
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
 
-
-        tejas.dpadUp()
-                .onTrue(OuttakeSlides.runToPosition(OuttakeSlides.submirsiblePos));
-        tejas.dpadDown()
-                .onTrue(OuttakeSlides.runToPosition(OuttakeSlides.minPos));
-        tejas.dpadRight()
-                .onTrue(
-                        Robot.setState(Robot.State.HOME)
-                );
-        tejas.dpadLeft()
-                .onTrue(
-                        Robot.setState(Robot.State.TRANSFER)
-                );
-
-
-        tejas.cross()
-                .onTrue(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armSubmersiblePos),
-                                Outtake.setPivot(Outtake.pivotSubmersiblePos)
-                        )
-                );
         tejas.square()
                 .onTrue(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armHomePos),
-                                Outtake.setPivot(Outtake.pivotHomePos)
-                        )
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE)
                 );
         tejas.circle()
-                .onTrue(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armBucketPos),
-                                Outtake.setPivot(Outtake.pivotBucketPos)
-                        )
-                );
-        tejas.triangle()
-                .onTrue(
-                        new Parallel(
-                                Outtake.setArm(Outtake.armSpecPos),
-                                Outtake.setPivot(Outtake.pivotSpecPos)
-                        )
-                );
+                .onTrue(Robot.setState(Robot.State.INTAKE_SPEC));
+//        tejas.cross()
+//                .onTrue(
+//                        Robot.setState(Robot.State.HOME)
+//                );
+//        tejas.dpadLeft()
+//                .onTrue(
+//                        Robot.setState(Robot.State.TRANSFER)
+//                );
+
         tejas.rightBumper()
                 .onTrue(
-                        Outtake.openClaw()
+                        Chassis.slow()
+                ).onFalse(
+                        Chassis.fast()
                 );
+
         tejas.leftBumper()
                 .onTrue(
-                        Outtake.closeClaw()
+                        Robot.manipulate()
                 );
     }
 

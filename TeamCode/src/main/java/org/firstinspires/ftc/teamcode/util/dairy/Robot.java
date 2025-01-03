@@ -1,15 +1,14 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.pathgen.PathBuilder;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 
 import java.util.Map;
-import java.util.Objects;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.mercurial.commands.Lambda;
@@ -20,15 +19,15 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 
 public class Robot {
 
-    public static volatile State currentState = State.INIT;
+    public static volatile State currentState = State.HOME;
     public enum State {
-        INIT,
         HOME,
-        INTAKE,
+        INTAKE_SPEC,
         OUTTAKE_SUBMERSIBLE,
         OUTTAKE_SUBMERSIBLE_SCORE,
         OUTTAKE_BUCKET,
-        TRANSFER
+        TRANSFER,
+        OUTTAKE_SPEC
     }
 
     public static StateMachine<State> stateMachine;
@@ -79,13 +78,12 @@ public class Robot {
                 Outtake.armTransferPos,
                 Outtake.pivotTranferPos,
                 false,
-                OuttakeSlides.minPos
+                OuttakeSlides.safePos
         );
 
         Map<State, StatePositions> states = Map.of(
-                State.INIT, init,
                 State.HOME, home,
-                State.INTAKE, intake,
+                State.INTAKE_SPEC, intake,
                 State.OUTTAKE_SUBMERSIBLE, outtakeSubmersible,
                 State.OUTTAKE_SUBMERSIBLE_SCORE, outtakeSubmersibleScore,
                 State.OUTTAKE_BUCKET, outtakeBucket,
@@ -94,53 +92,38 @@ public class Robot {
 
         flavor = FeatureRegistrar.getActiveOpModeWrapper().getOpModeType();
 
-        stateMachine = new StateMachine<>(State.INIT)
-                .withState(State.INIT, (state, name) -> Lambda.from(
-                        new Sequential(
-                                Outtake.setArm(init.armPos),
-                                Outtake.setPivot(init.pivotPos),
-                                Outtake.closeClaw()
-                                //OuttakeSlides.home(),
-                                //IntakeSlides.home()
-                        )
-                ))
+        stateMachine = new StateMachine<>(State.HOME)
                 .withState(State.HOME, (state, name) -> Lambda.from(
                         new Sequential(
                                 Outtake.openClaw(),
                                 Outtake.setArm(home.armPos),
-                                Outtake.setPivot(home.pivotPos)
-                                //OuttakeSlides.home(),
-                                //IntakeSlides.home()
+                                Outtake.setPivot(home.pivotPos),
+                                OuttakeSlides.runToPosition(OuttakeSlides.minPos)
                         )
                 ))
-//                .withState(State.INTAKE, (state, name) -> Lambda.from(
-//                        new Sequential(
-//                                Outtake.setArm(intake.armPos).with(new Wait(0.5)),
-//                                Outtake.setPivot(intake.pivotPos).with(new Wait(0.5)),
-//                                Outtake.openClaw().with(new Wait(0.4))
-//                                //OuttakeSlides.home(),
-//                                //IntakeSlides.home()
-//                        )
-//                ))
-//                .withState(State.OUTTAKE_SUBMERSIBLE, (state, name) -> Lambda.from(
-//                        new Sequential(
-//                                Outtake.closeClaw().with(new Wait(0.4)),
-//                                OuttakeSlides.runToPosition(outtakeSubmersible.slidePos).raceWith(new Wait(0.5)),
-//                                new Parallel(
-//                                        Outtake.setArm(outtakeSubmersible.armPos).with(new Wait(0.5)),
-//                                        Outtake.setPivot(outtakeSubmersible.pivotPos).with(new Wait(0.5))
-//                                )
-//                        )
-//
-//                ));
-//                .withState(State.OUTTAKE_SUBMERSIBLE_SCORE, (state, name) -> Lambda.from(
-//                        new Sequential(
-//                                OuttakeSlides.runToPosition(outtakeSubmersibleScore.slidePos).with(new Wait(.8)),
-//                                Outtake.setArm(outtakeSubmersibleScore.armPos).with(new Wait(0.2)),
-//                                Outtake.setPivot(outtakeSubmersibleScore.pivotPos).with(new Wait(0.2)),
-//                                Outtake.openClaw().with(new Wait(0.4))
-//                        )
-//                ))
+                .withState(State.INTAKE_SPEC, (state, name) -> Lambda.from(
+                        new Sequential(
+                                Outtake.openClaw(),
+                                Outtake.setArm(intake.armPos),
+                                Outtake.setPivot(intake.pivotPos),
+                                new Wait(0.5),
+                                OuttakeSlides.runToPosition(OuttakeSlides.minPos)
+
+                        )
+                ))
+                .withState(State.OUTTAKE_SUBMERSIBLE, (state, name) -> Lambda.from(
+                        new Sequential(
+                                Outtake.closeClaw(),
+                                OuttakeSlides.runToPosition(outtakeSubmersible.slidePos),
+                                Outtake.setPivot(outtakeSubmersible.pivotPos),
+                                Outtake.setArm(outtakeSubmersible.armPos)
+                        )
+                ))
+                .withState(State.OUTTAKE_SUBMERSIBLE_SCORE, (state, name) -> Lambda.from(
+                        new Sequential(
+                                OuttakeSlides.runToPosition(outtakeSubmersibleScore.slidePos)
+                        )
+                ))
 //                .withState(State.OUTTAKE_BUCKET, (state, name) -> Lambda.from(
 //                        new Sequential(
 //                                Outtake.closeClaw().with(new Wait(0.4)),
@@ -153,11 +136,10 @@ public class Robot {
 //                ))
                 .withState(State.TRANSFER, (state, name) -> Lambda.from(
                         new Sequential(
-                                //OuttakeSlides.home(),
-                                //IntakeSlides.home(),
                                 Outtake.setArm(transfer.armPos),
-                                Outtake.setPivot(transfer.pivotPos)
-//                                Outtake.closeClaw()
+                                Outtake.setPivot(transfer.pivotPos).with(new Wait(.25)),
+                                Outtake.closeClaw().with(new Wait(0.25)),
+                                OuttakeSlides.runToPosition(transfer.slidePos)
                         )
                 ));
 
@@ -174,5 +156,16 @@ public class Robot {
                     FeatureRegistrar.getActiveOpMode().telemetry.update();
                 })
                 .setFinish(() -> true);
+    }
+
+    public static Lambda manipulate() {
+        return new Lambda("manipulate")
+                .setInit(() -> {
+                    if (stateMachine.getState().equals(Robot.State.OUTTAKE_SUBMERSIBLE)) {
+                        stateMachine.schedule(State.OUTTAKE_SUBMERSIBLE_SCORE);
+                    } else {
+                        Outtake.toggleThing().schedule();
+                    }
+                });
     }
 }

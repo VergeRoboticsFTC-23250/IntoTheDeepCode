@@ -1,28 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis.dashboardPoseTracker;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.DashboardPoseTracker;
-import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.util.dairy.Paths;
-import org.firstinspires.ftc.teamcode.util.dairy.Robot;
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.LConstants;
-
-import dev.frozenmilk.dairy.core.FeatureRegistrar;
-import dev.frozenmilk.mercurial.Mercurial;
-import dev.frozenmilk.mercurial.commands.Lambda;
-import dev.frozenmilk.mercurial.commands.groups.Parallel;
-import dev.frozenmilk.mercurial.commands.groups.Sequential;
 
 
 @Autonomous
@@ -41,88 +26,88 @@ public class Auto extends OpMode {
     public void autoPathUpdate() {
         switch (pathIndex) {
             case 0:
-                follower.followPath(Paths.plusThreeBlueSpec.get(0), true);
+                follower.followPath(Paths.plusFourSpec.get(0), true);
                 pathIndex = 1;
                 break;
             case 1:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(1), true);
+                    follower.followPath(Paths.plusFourSpec.get(1), true);
                     pathIndex = 2;
                 }
                     break;
 
             case 2:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(2), true);
+                    follower.followPath(Paths.plusFourSpec.get(2), true);
                     pathIndex = 3;
                 }
                     break;
 
             case 3:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(3), true);
+                    follower.followPath(Paths.plusFourSpec.get(3), true);
                     pathIndex = 4;
                 }
                     break;
 
             case 4:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(4), true);
+                    follower.followPath(Paths.plusFourSpec.get(4), true);
                     pathIndex = 5;
                 }
                     break;
 
             case 5:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(5), true);
+                    follower.followPath(Paths.plusFourSpec.get(5), true);
                     pathIndex = 6;
                 }
                     break;
             case 6:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(6), true);
+                    follower.followPath(Paths.plusFourSpec.get(6), true);
                     pathIndex = 7;
                 }
                     break;
             case 7:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(7), true);
+                    follower.followPath(Paths.plusFourSpec.get(7), true);
                     pathIndex = 8;
                 }
                     break;
             case 8:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(8), true);
+                    follower.followPath(Paths.plusFourSpec.get(8), true);
                     pathIndex = 9;
                 }
                     break;
             case 9:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(9), true);
+                    follower.followPath(Paths.plusFourSpec.get(9), true);
                     pathIndex = 10;
                 }
                     break;
             case 10:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(10), true);
+                    follower.followPath(Paths.plusFourSpec.get(10), true);
                     pathIndex = 11;
                 }
                     break;
             case 11:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(11), true);
+                    follower.followPath(Paths.plusFourSpec.get(11), true);
                     pathIndex = 12;
                 }
                     break;
             case 12:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(12), true);
+                    follower.followPath(Paths.plusFourSpec.get(12), true);
                     pathIndex = 13;
                 }
                     break;
             case 13:
                 if (!follower.isBusy()) {
-                    follower.followPath(Paths.plusThreeBlueSpec.get(13), true);
+                    follower.followPath(Paths.plusFourSpec.get(13), true);
                     pathIndex = 14;
                 }
                     break;
@@ -133,10 +118,12 @@ public class Auto extends OpMode {
     public void loop() {
         follower.update();
         autoPathUpdate();
+        telemetry.addData("Path Index", pathIndex);
+        follower.telemetryDebug(telemetry);
     }
 
     @Override
     public void start() {
-        follower.followPath(Paths.plusThreeBlueSpec.get(0), true);
+        follower.followPath(Paths.plusFourSpec.get(0), true);
     }
 }

@@ -38,7 +38,7 @@ public class Chassis implements Subsystem {
     public static final Chassis INSTANCE = new Chassis();
     public static Follower follower;
     public static boolean isSlowed = false;
-    public static double slowSpeed = 0.5;
+    public static double slowSpeed = 0.25;
     public static Telemetry telemetry;
     public static DashboardPoseTracker dashboardPoseTracker;
     public Chassis() {}
@@ -101,9 +101,9 @@ public class Chassis implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setExecute(() -> {
                     drive(
-                            gamepad.leftStickY().state(),
-                            gamepad.leftStickX().state(),
-                            -gamepad.rightStickX().state()
+                            gamepad.rightStickY().state(),
+                            -gamepad.rightStickX().state(),
+                            -gamepad.leftStickX().state()
                     );
                 })
                 .setFinish(() -> false);
@@ -113,6 +113,16 @@ public class Chassis implements Subsystem {
         return new Lambda("toggle-slow")
                 .setInit(() -> isSlowed = !isSlowed)
                 .setFinish(() -> true);
+    }
+
+    public static Lambda slow(){
+        return new Lambda("slow")
+                .setInit(() -> isSlowed = true);
+    }
+
+    public static Lambda fast(){
+        return new Lambda("fast")
+                .setInit(() -> isSlowed = false);
     }
 
     public static Lambda followPath(Path path) {

@@ -6,6 +6,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.util.dairy.Robot;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -16,7 +18,9 @@ import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
 import dev.frozenmilk.mercurial.commands.Lambda;
+import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
+import dev.frozenmilk.util.cell.RefCell;
 import kotlin.annotation.MustBeDocumented;
 
 @Config
@@ -30,18 +34,19 @@ public class Outtake implements Subsystem {
 
     public static Servo pivot;
 
+    public static boolean isClawOpen = true;
+
     public static double clawOpenPos = 0.1;
     public static double clawClosePos = 0.85;
 
     public static double armSubmersiblePos = 0.0;
-    public static double armHomePos = 0.25;
-    public static double armBucketPos = 0.8;
-    public static double armTransferPos = 0.272;
-    public static double armSpecPos = 0.5;
-    public static double armTransitionPos = 1;
+    public static double armHomePos = 0.41; //0.25
+    public static double armBucketPos = 0.8+.16;
+    public static double armTransferPos = 0.272+.16;
+    public static double armSpecPos = 0.55+.16;
 
     //pivot
-    public static double pivotSubmersiblePos = 0.825;
+    public static double pivotSubmersiblePos = 0.74;
     public static double pivotSpecPos = 0.75;
     public static double pivotHomePos = 0.84;
     public static double pivotBucketPos = 0.86;
@@ -79,23 +84,64 @@ public class Outtake implements Subsystem {
 
         setPivot(Outtake.pivotHomePos);
         setArm(Outtake.armHomePos);
-        openClaw();
+        setClaw(clawOpenPos);
     }
 
     @Override
     public void postUserLoopHook(@NonNull Wrapper opMode) {}
 
+    // state is an isOpen boolean
+    public static StatefulLambda<RefCell<Boolean>> toggleClaw() {
+        return new StatefulLambda<RefCell<Boolean>>("toggle-claw", new RefCell<>(true))
+                .addRequirements(INSTANCE.claw)
+                .setInit((state) -> {
+                    if (state.get() == true) {
+                        setClaw(clawClosePos);
+                    } else {
+                        setClaw(clawOpenPos);
+                    }
+                })
+                .setEnd((interrupted, state) -> {
+                    if (!interrupted) {
+                        state.accept(!state.get());
+                    }
+                });
+    }
+
+    public static Lambda toggleThing() {
+        return new Lambda("toggle-thing")
+                .addRequirements(INSTANCE.claw)
+                .setInit(() -> {
+                    if (isClawOpen) {
+                        setClaw(clawClosePos);
+                    } else {
+                        setClaw(clawOpenPos);
+                    }
+                })
+                .setEnd((interrupted) -> {
+                    if (!interrupted) {
+                        isClawOpen = !isClawOpen;
+                    }
+                });
+    }
+
     public static Lambda openClaw(){
         return new Lambda("open-claw")
                 .addRequirements(INSTANCE.claw)
-                .setInit(() -> setClaw(clawOpenPos))
+                .setInit(() -> {
+                    setClaw(clawOpenPos);
+                    isClawOpen = true;
+                })
                 .setFinish(() -> true);
     }
 
     public static Lambda closeClaw(){
         return new Lambda("close-claw")
                 .addRequirements(INSTANCE.claw)
-                .setExecute(() -> setClaw(clawClosePos))
+                .setInit(() -> {
+                    setClaw(clawClosePos);
+                    isClawOpen = false;
+                })
                 .setFinish(() -> true);
     }
 

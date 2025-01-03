@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp
 @Config
 public class testop extends LinearOpMode {
-    public static boolean invert = true;
-    public static boolean enableS2 = false;
-    public static String s1 = "claw";
-    public static String s2 = "armL";
+    public static boolean invert = false;
+    public static boolean enableS2 = true;
+    public static String s1 = "dropdownL";
+    public static String s2 = "dropdownR";
     public static String m = "outtakeSR";
     public static String m2 = "outtakeSL";
     public static boolean invertM = true;
@@ -45,13 +45,13 @@ public class testop extends LinearOpMode {
                 motor2.setPower(gamepad1.right_stick_y);
             }
             if (gamepad1.square) {
-                servo.setPosition(0.1); //open
+                servo.setPosition(0); //open
                 if (enableS2){
-                    servo2.setPosition(0.1);
+                    servo2.setPosition(0);
                 }
             } else if (gamepad1.circle) {
-                servo.setPosition(0.85);
-                if (enableS2) servo2.setPosition(.85);
+                servo.setPosition(.715);
+                if (enableS2) servo2.setPosition(0.715);
             }
         }
     }
