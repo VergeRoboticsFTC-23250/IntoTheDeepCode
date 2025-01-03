@@ -27,6 +27,7 @@ public class Intake implements Subsystem {
     public static final Intake INSTANCE = new Intake();
     public static double dropPos = 0;
     public static double raisePos = 0.715;
+    public static double restPos = 0;
     public static Servo dropL;
     public static Servo dropR;
     public static CRServo spintake1;
