@@ -143,9 +143,7 @@ public class Robot {
                         )
                 ));
 
-        if (flavor == OpModeMeta.Flavor.AUTONOMOUS) {
-
-        }
+        Paths.init();
     }
 
     public static Lambda setState(State state) {

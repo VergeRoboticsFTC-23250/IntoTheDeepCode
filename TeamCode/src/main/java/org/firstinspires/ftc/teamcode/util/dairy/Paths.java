@@ -18,12 +18,12 @@ public class Paths {
                 createPath(
                         new BezierLine(
                                 new Point(9.000, 65.000, Point.CARTESIAN),
-                                new Point(39.000, 65.000, Point.CARTESIAN)
+                                new Point(40.000, 67.000, Point.CARTESIAN)
                         )
                 ),
                 createPath(
                         new BezierCurve(
-                                new Point(39.000, 65.000, Point.CARTESIAN),
+                                new Point(40.000, 65.000, Point.CARTESIAN),
                                 new Point(31.500, 66.000, Point.CARTESIAN),
                                 new Point(13.000, 26.000, Point.CARTESIAN),
                                 new Point(63.000, 45.000, Point.CARTESIAN),

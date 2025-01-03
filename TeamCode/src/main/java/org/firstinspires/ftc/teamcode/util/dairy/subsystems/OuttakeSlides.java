@@ -33,10 +33,10 @@ public class OuttakeSlides implements Subsystem {
     public static DcMotorEx encoder;
     public static Telemetry telemetry;
     public static int tolerance = 1200;
-    public static int safePos = 12000;
+    public static int safePos = 11200;
     public static int submirsiblePos = safePos;
     public static int bucketPos = 0;
-    public static int scoreSubmersiblePos = 22800;
+    public static int scoreSubmersiblePos = 26800;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
     public static double Kp = 0.00014;
     public static double Ki = 0.0000;
@@ -165,5 +165,10 @@ public class OuttakeSlides implements Subsystem {
                 .setExecute(() -> setPower(controller.calculate(getPos())))
                 .setFinish(OuttakeSlides::isOverCurrent)
                 .setEnd((interrupted) -> {if (!interrupted) reset();});
+    }
+
+    public static Lambda waitForPos(int pos) {
+        return new Lambda("wait-for-pos")
+                .setFinish(() -> Math.abs(getPos() - pos) < tolerance);
     }
 }

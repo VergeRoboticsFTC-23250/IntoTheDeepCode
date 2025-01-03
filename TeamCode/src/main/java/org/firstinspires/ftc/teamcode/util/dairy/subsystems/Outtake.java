@@ -127,7 +127,6 @@ public class Outtake implements Subsystem {
 
     public static Lambda openClaw(){
         return new Lambda("open-claw")
-                .addRequirements(INSTANCE.claw)
                 .setInit(() -> {
                     setClaw(clawOpenPos);
                     isClawOpen = true;
@@ -137,7 +136,6 @@ public class Outtake implements Subsystem {
 
     public static Lambda closeClaw(){
         return new Lambda("close-claw")
-                .addRequirements(INSTANCE.claw)
                 .setInit(() -> {
                     setClaw(clawClosePos);
                     isClawOpen = false;
@@ -145,12 +143,15 @@ public class Outtake implements Subsystem {
                 .setFinish(() -> true);
     }
 
-    private static void setPosition(double pos) {
+    public static void setPosition(double pos) {
         armL.setPosition(pos);
         armR.setPosition(pos);
     }
-    private static void setClaw(double pos){
+    public static void setClaw(double pos){
         claw.setPosition(pos);
+    }
+    public static void setPivotManual(double pos){
+        pivot.setPosition(pos);
     }
 
     public static Lambda setArm(double pos){

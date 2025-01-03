@@ -6,8 +6,10 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.util.Constants;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -76,13 +78,18 @@ public class Chassis implements Subsystem {
 
     @Override
     public void preUserInitHook(@NonNull Wrapper opMode) {
-        HardwareMap hMap = opMode.getOpMode().hardwareMap;
         telemetry = opMode.getOpMode().telemetry;
-        follower = new Follower(hMap, FConstants.class, LConstants.class); //TODO
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(FeatureRegistrar.getActiveOpMode().hardwareMap);
 
         dashboardPoseTracker = Chassis.follower.getDashboardPoseTracker();
 
-        setDefaultCommand(drive(Mercurial.gamepad1()));
+        if (Robot.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
+            follower.setStartingPose(new Pose(9, 65, 0));
+        } else {
+            setDefaultCommand(drive(Mercurial.gamepad1()));
+        }
+
     }
 
     @Override
@@ -128,9 +135,17 @@ public class Chassis implements Subsystem {
     public static Lambda followPath(Path path) {
         return new Lambda("follow-path")
                 .addRequirements(INSTANCE)
+                .setInterruptible(true)
                 .setInit(() -> follower.followPath(path, true))
-                .setExecute(() -> follower.update())
-                .setFinish(() -> !follower.isBusy());
+                .setExecute(() -> {
+                    follower.update();
+                    follower.telemetryDebug(telemetry);
+
+                })
+                .setFinish(() -> !follower.isBusy())
+                .setEnd((interrupted) -> {
+                    if (interrupted) follower.breakFollowing();
+                });
     }
 
     public static Lambda followPathChain(PathChain chain) {
