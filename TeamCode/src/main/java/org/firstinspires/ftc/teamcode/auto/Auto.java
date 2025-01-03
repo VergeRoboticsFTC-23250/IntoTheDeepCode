@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis.follower;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
@@ -57,80 +59,99 @@ public class Auto extends OpMode {
     public void start() {
         new Sequential(
                 OuttakeSlides.runToPosition(OuttakeSlides.submirsiblePos),
+
                 // Preload
                 new Parallel(
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(0))
-
                 ),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
                 new Wait(0.5),
                 Outtake.openClaw(),
+
+                // Pushing samples
                 new Parallel(
                         Chassis.followPath(Paths.plusFourSpec.get(1)),
                         Robot.setState(Robot.State.INTAKE_SPEC)
                 ),
-                // Pushing samples into hp
                 Chassis.followPath(Paths.plusFourSpec.get(2)),
                 Chassis.followPath(Paths.plusFourSpec.get(3)),
                 Chassis.followPath(Paths.plusFourSpec.get(4)),
                 Chassis.followPath(Paths.plusFourSpec.get(5)),
                 Chassis.followPath(Paths.plusFourSpec.get(6)),
                 Chassis.followPath(Paths.plusFourSpec.get(7)),
+
+                // plus 1 intake
                 new Wait(0.5),
                 Outtake.closeClaw(),
+
                 // plus 1 outtake
                 new Parallel(
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(8))
-
                 ),
+                Chassis.followPath(Paths.plusFourSpec.get(9)),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
                 new Wait(0.5),
                 Outtake.openClaw(),
+
+                // plus 2 intake
                 new Parallel(
-                        Chassis.followPath(Paths.plusFourSpec.get(9)),
-                        Robot.setState(Robot.State.INTAKE_SPEC)
-                ),
-                new Wait(0.5),
-                Outtake.closeClaw(),
-                new Parallel(
-                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
+                        Robot.setState(Robot.State.INTAKE_SPEC),
                         Chassis.followPath(Paths.plusFourSpec.get(10))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
-                new Wait(0.5),
-                Outtake.openClaw(),
-                new Parallel(
-                        Chassis.followPath(Paths.plusFourSpec.get(11)),
-                        Robot.setState(Robot.State.INTAKE_SPEC)
-                ),
                 new Wait(0.5),
                 Outtake.closeClaw(),
+
+                // plus 2 outtake
                 new Parallel(
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
-                        Chassis.followPath(Paths.plusFourSpec.get(12))
+                        Chassis.followPath(Paths.plusFourSpec.get(11))
                 ),
+                Chassis.followPath(Paths.plusFourSpec.get(12)),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
                 new Wait(0.5),
-                Outtake.openClaw(),
-                new Parallel(
-                        Chassis.followPath(Paths.plusFourSpec.get(13)),
-                        Robot.setState(Robot.State.INTAKE_SPEC)
-                ),
-                new Wait(0.5),
-                Outtake.closeClaw(),
-                new Parallel(
-                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
-                        Chassis.followPath(Paths.plusFourSpec.get(14))
-                ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
-                new Wait(0.5),
-                Outtake.openClaw(),
-                new Parallel(
-                        Chassis.followPath(Paths.plusFourSpec.get(15)),
-                        Robot.setState(Robot.State.INTAKE_SPEC)
-                )
+                Outtake.openClaw()
+//                new Parallel(
+//                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
+//                        Chassis.followPath(Paths.plusFourSpec.get(11)).then(new Wait(0.5)),
+//                        Chassis.followPath(Paths.plusFourSpec.get(12)).then(new Wait(0.5))
+//                ),
+//                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+//                new Wait(0.5),
+//                Outtake.openClaw(),
+//                new Parallel(
+//                        Chassis.followPath(Paths.plusFourSpec.get(13)),
+//                        Robot.setState(Robot.State.INTAKE_SPEC)
+//                ),
+//                new Wait(0.5),
+//                Outtake.closeClaw(),
+//                new Parallel(
+//                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
+//                        Chassis.followPath(Paths.plusFourSpec.get(14)).then(new Wait(0.5)),
+//                        Chassis.followPath(Paths.plusFourSpec.get(15)).then(new Wait(0.5))
+//                ),
+//                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+//                new Wait(0.5),
+//                Outtake.openClaw(),
+//                new Parallel(
+//                        Chassis.followPath(Paths.plusFourSpec.get(16)),
+//                        Robot.setState(Robot.State.INTAKE_SPEC)
+//                ),
+//                new Wait(0.5),
+//                Outtake.closeClaw(),
+//                new Parallel(
+//                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
+//                        Chassis.followPath(Paths.plusFourSpec.get(17)).then(new Wait(0.5)),
+//                        Chassis.followPath(Paths.plusFourSpec.get(18)).then(new Wait(0.5))
+//                ),
+//                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+//                new Wait(0.5),
+//                Outtake.openClaw(),
+//                new Parallel(
+//                        Chassis.followPath(Paths.plusFourSpec.get(19)),
+//                        Robot.setState(Robot.State.INTAKE_SPEC)
+//                )
             )
         .schedule();
     }
