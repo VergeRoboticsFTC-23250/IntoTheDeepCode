@@ -56,6 +56,8 @@ public class Auto extends OpMode {
     @Override
     public void start() {
         new Sequential(
+                OuttakeSlides.runToPosition(OuttakeSlides.submirsiblePos),
+                // Preload
                 new Parallel(
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         new Sequential(
@@ -70,12 +72,42 @@ public class Auto extends OpMode {
                 ),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
                 new Wait(0.5),
-                Outtake.openClaw()
-
-//                new Parallel(
-//                        Chassis.followPath(Paths.plusFourSpec.get(1)),
-//                        Robot.setState(Robot.State.INTAKE_SPEC)
-//                )
+                Outtake.openClaw(),
+                new Parallel(
+                        Chassis.followPath(Paths.plusFourSpec.get(1)),
+                        Robot.setState(Robot.State.INTAKE_SPEC)
+                ),
+                // Pushing samples into hp
+                Chassis.followPath(Paths.plusFourSpec.get(2)),
+                Chassis.followPath(Paths.plusFourSpec.get(3)),
+                Chassis.followPath(Paths.plusFourSpec.get(4)),
+                Chassis.followPath(Paths.plusFourSpec.get(5)),
+                Chassis.followPath(Paths.plusFourSpec.get(6)),
+                Chassis.followPath(Paths.plusFourSpec.get(7)),
+                new Wait(0.5),
+                Outtake.closeClaw(),
+                // plus 1 outtake
+                new Parallel(
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
+                        new Sequential(
+                                Chassis.followPath(Paths.plusFourSpec.get(8)),
+                                Chassis.followPath(new Path(
+                                        new BezierLine(
+                                                new Point(40.000, 67.000, Point.CARTESIAN),
+                                                new Point(47.000, 67.000, Point.CARTESIAN)
+                                        )
+                                )).raceWith(new Wait(0.5))
+                        )
+                ),
+                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+                new Wait(0.5),
+                Outtake.openClaw(),
+                new Parallel(
+                        Chassis.followPath(Paths.plusFourSpec.get(9)),
+                        Robot.setState(Robot.State.INTAKE_SPEC)
+                ),
+                new Wait(0.5),
+                Outtake.closeClaw()
         )
         .schedule();
     }

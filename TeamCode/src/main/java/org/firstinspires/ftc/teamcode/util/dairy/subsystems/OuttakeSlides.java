@@ -36,7 +36,7 @@ public class OuttakeSlides implements Subsystem {
     public static int safePos = 11200;
     public static int submirsiblePos = safePos;
     public static int bucketPos = 0;
-    public static int scoreSubmersiblePos = 26800;
+    public static int scoreSubmersiblePos = 26500;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
     public static double Kp = 0.00014;
     public static double Ki = 0.0000;
