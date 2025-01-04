@@ -40,6 +40,7 @@ public class Outtake implements Subsystem {
     public static double clawClosePos = 0.85;
 
     public static double armSubmersiblePos = 0.0;
+    public static double armOuttakeSpec = .16;
     public static double armHomePos = 0.41; //0.25
     public static double armBucketPos = 0.8+.16;
     public static double armTransferPos = 0.272+.16;
@@ -48,6 +49,7 @@ public class Outtake implements Subsystem {
     //pivot
     public static double pivotSubmersiblePos = 0.77;
     public static double pivotSpecPos = 0.75;
+    public static double pivotOuttakeSpec = 0.76;
     public static double pivotHomePos = 0.84;
     public static double pivotBucketPos = 0.86;
     public static double pivotTranferPos = 0.79; // TODO

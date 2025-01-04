@@ -141,6 +141,14 @@ public class Robot {
                                 Outtake.closeClaw().with(new Wait(0.25)),
                                 OuttakeSlides.runToPosition(transfer.slidePos)
                         )
+                ))
+                .withState(State.OUTTAKE_SPEC, (state, name) -> Lambda.from(
+                        new Sequential(
+                                Outtake.closeClaw(),
+                                OuttakeSlides.runToPosition(OuttakeSlides.safePos),
+                                Outtake.setArm(Outtake.armOuttakeSpec),
+                                Outtake.setPivot(Outtake.pivotOuttakeSpec)
+                        )
                 ));
 
         Paths.init();
@@ -149,9 +157,12 @@ public class Robot {
     public static Lambda setState(State state) {
         return new Lambda("set-state")
                 .setInit(() -> {
-                    stateMachine.schedule(state);
-                    FeatureRegistrar.getActiveOpMode().telemetry.addData("State", state);
-                    FeatureRegistrar.getActiveOpMode().telemetry.update();
+                    if (!stateMachine.getState().equals(State.OUTTAKE_BUCKET) || stateMachine.getState().equals(State.TRANSFER)) {
+                        stateMachine.schedule(state);
+                        FeatureRegistrar.getActiveOpMode().telemetry.addData("State", state);
+                        FeatureRegistrar.getActiveOpMode().telemetry.update();
+                    }
+
                 })
                 .setFinish(() -> true);
     }
@@ -161,7 +172,13 @@ public class Robot {
                 .setInit(() -> {
                     if (stateMachine.getState().equals(Robot.State.OUTTAKE_SUBMERSIBLE)) {
                         stateMachine.schedule(State.OUTTAKE_SUBMERSIBLE_SCORE);
-                    } else {
+                    } else if (stateMachine.getState().equals(State.HOME)) {
+                        new Sequential(
+                                Robot.setState(State.TRANSFER),
+                                Robot.setState(State.OUTTAKE_SPEC)
+                        ).schedule();
+                    }
+                    else {
                         Outtake.toggleThing().schedule();
                     }
                 });

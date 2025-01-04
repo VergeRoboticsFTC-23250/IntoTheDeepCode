@@ -45,10 +45,12 @@ public class Teleop extends OpMode {
                 );
         tejas.circle()
                 .onTrue(Robot.setState(Robot.State.INTAKE_SPEC));
-//        tejas.cross()
-//                .onTrue(
-//                        Robot.setState(Robot.State.HOME)
-//                );
+        tejas.triangle()
+                .onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
+        tejas.cross()
+                .onTrue(
+                        Robot.setState(Robot.State.HOME)
+                );
 //        tejas.dpadLeft()
 //                .onTrue(
 //                        Robot.setState(Robot.State.TRANSFER)
