@@ -42,19 +42,19 @@ public class Robot {
                 Outtake.armHomePos,
                 Outtake.pivotHomePos,
                 false,
-                IntakeSlides.minPos
+                OuttakeSlides.minPos
         );
         StatePositions home = new StatePositions(
                 Outtake.armHomePos,
                 Outtake.pivotHomePos,
                 true,
-                IntakeSlides.minPos
+                OuttakeSlides.minPos
         );
         StatePositions intake = new StatePositions(
                 Outtake.armSpecPos,
                 Outtake.pivotSpecPos,
                 true,
-                IntakeSlides.minPos
+                OuttakeSlides.minPos
         );
         StatePositions outtakeSubmersible = new StatePositions(
                 Outtake.armSubmersiblePos,

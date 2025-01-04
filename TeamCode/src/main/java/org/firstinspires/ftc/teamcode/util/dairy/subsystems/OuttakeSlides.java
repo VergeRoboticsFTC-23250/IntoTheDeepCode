@@ -35,7 +35,6 @@ public class OuttakeSlides implements Subsystem {
     public static int tolerance = 1200;
     public static int safePos = 11200;
     public static int submirsiblePos = safePos;
-    public static int bucketPos = 0;
     public static int scoreSubmersiblePos = 26500;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
     public static double Kp = 0.00014;
@@ -43,8 +42,10 @@ public class OuttakeSlides implements Subsystem {
     public static double Kd = 0.0000;
     public static double Kf = 0.0000;
     public static int maxPos = 54000;
+    public static int bucketPos = maxPos;
     public static int minPos = 0;
     public static double currentLimit = 4;
+    public static volatile boolean enablePID = true;
 
     public static PIDFController controller = new PIDFController(Kp, Ki, Kd, Kf);
 
@@ -120,6 +121,7 @@ public class OuttakeSlides implements Subsystem {
 
         controller.reset();
         controller.setSetPoint(0);
+        logTele();
     }
 
     public static Lambda runToPosition(int pos){
@@ -144,6 +146,7 @@ public class OuttakeSlides implements Subsystem {
         telemetry.addData("Slide Setpoint", controller.getSetPoint());
         telemetry.addData("Slide Error", controller.getPositionError());
         telemetry.addData("At Setpoint?", controller.atSetPoint());
+        telemetry.addData("Enable PID", enablePID);
     }
 
     public static Lambda runPID() {
@@ -151,24 +154,48 @@ public class OuttakeSlides implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInterruptible(true)
                 .setExecute(() -> {
-                    double power = controller.calculate(getPos());
-                    setPower(power);
-                    logTele();
+                    if (enablePID) {
+                        double power = controller.calculate(getPos());
+                        setPower(power);
+                        logTele();
+                    }
                 })
                 .setFinish(() -> false);
     }
 
     public static Lambda home() {
         return new Lambda("home-outtake")
-                .addRequirements(INSTANCE)
-                .setInit(() -> controller.setSetPoint(0))
-                .setExecute(() -> setPower(controller.calculate(getPos())))
+                .setInit(() -> {
+                    enablePID = false;
+                    setPower(-1);
+                })
                 .setFinish(OuttakeSlides::isOverCurrent)
-                .setEnd((interrupted) -> {if (!interrupted) reset();});
+                .setEnd((interrupted) -> {
+                    if (!interrupted) {
+                        reset();
+                        safePos += 11200;
+                        submirsiblePos = safePos;
+                        scoreSubmersiblePos += 11200;
+                        minPos += 11200;
+                        maxPos += 11200;
+                        bucketPos = maxPos;
+                    }
+                    setPower(0);
+                    enablePID = true;
+                });
     }
 
     public static Lambda waitForPos(int pos) {
         return new Lambda("wait-for-pos")
                 .setFinish(() -> Math.abs(getPos() - pos) < tolerance);
+    }
+
+    public static Lambda setPowerSafe(int pow){
+        return new Lambda("set-power-safe")
+                .setInit(() -> {
+                    enablePID = false;
+                    setPower(pow);
+                })
+                .setFinish(() -> isOverCurrent());
     }
 }

@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -27,23 +29,14 @@ import kotlin.annotation.MustBeDocumented;
 @Config
 public class IntakeSlides implements Subsystem {
     public static final IntakeSlides INSTANCE = new IntakeSlides();
+    private static final Logger log = LoggerFactory.getLogger(IntakeSlides.class);
 
     private static DcMotorEx extendo;
     public static Telemetry telemetry;
 
-    public static double constantPower;
+    public static double constantPower = 0.2;
 
-    public static int maxPos = 1000;
-    public static int minPos = 0;
-
-    public static int currentLimit = 4;
-
-    public static double Kp = 0.00014;
-    public static double Ki = 0.0000;
-    public static double Kd = 0.0000;
-    public static double Kf = 0.0000;
-
-    public static PIDFController controller = new PIDFController(Kp, Ki, Kd, Kf);
+    public static boolean enablePID = true;
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
     @Inherited
@@ -68,19 +61,23 @@ public class IntakeSlides implements Subsystem {
         telemetry = opMode.getOpMode().telemetry;
 
         extendo = hMap.get(DcMotorEx.class, "extendo");
-        extendo.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
-        extendo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        reset();
     }
 
     @Override
     public void postUserLoopHook(@NonNull Wrapper opMode) {}
 
-    public static boolean isOverCurrent() { return extendo.isOverCurrent(); }
-
     public static void reset() {
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
 
+    public static Lambda setPower(double pow) {
+        return new Lambda("home-outtake")
+                .setInit(() -> {
+                    extendo.setPower(pow);
+                })
+                .setFinish(() -> true);
     }
 }
