@@ -134,7 +134,7 @@ public class OnePlusThreeSpec extends OpMode {
                 // park
                 new Parallel(
                         Robot.setState(Robot.State.INTAKE_SPEC),
-                        Chassis.followPath(Paths.plusFourSpec.get(19))
+                        Chassis.followPath(Paths.parkWithSpecPush)
                 )
         )
                 .schedule();

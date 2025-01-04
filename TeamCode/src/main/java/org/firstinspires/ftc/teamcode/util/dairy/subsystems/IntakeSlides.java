@@ -31,19 +31,19 @@ public class IntakeSlides implements Subsystem {
     private static DcMotorEx extendo;
     public static Telemetry telemetry;
 
-    public static class Gains {
-        public static double Kp = 0.01;
-        public static double Ki = 0;
-        public static double Kd = 0;
-        public static double Kf = 0;
-    }
+    public static double constantPower;
 
     public static int maxPos = 1000;
     public static int minPos = 0;
 
     public static int currentLimit = 4;
 
-    private static PIDFController controller = new PIDFController(Gains.Kp, Gains.Ki, Gains.Kd, Gains.Kf);
+    public static double Kp = 0.00014;
+    public static double Ki = 0.0000;
+    public static double Kd = 0.0000;
+    public static double Kf = 0.0000;
+
+    public static PIDFController controller = new PIDFController(Kp, Ki, Kd, Kf);
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
     @Inherited
@@ -76,39 +76,11 @@ public class IntakeSlides implements Subsystem {
     @Override
     public void postUserLoopHook(@NonNull Wrapper opMode) {}
 
-    public static Lambda runPID(){
-        return new Lambda("intake-pid")
-                .addRequirements(INSTANCE)
-                .setExecute(() -> {
-                    double power = controller.calculate(extendo.getCurrentPosition());
-                    extendo.setPower(power);
-                })
-                .setFinish(() -> false);
-    }
-
-    public static Lambda runToPosition(int pos){
-        return new Lambda("set-extendo-pos")
-                .setRequirements(INSTANCE)
-                .setInit(() -> controller.setSetPoint(pos))
-                .setExecute(() -> extendo.setPower(controller.calculate(extendo.getCurrentPosition())))
-                .setFinish(() -> controller.atSetPoint());
-    }
-
-    public static Lambda home() {
-        return new Lambda("home-intake")
-                .addRequirements(INSTANCE)
-                .setInit(() -> controller.setSetPoint(0))
-                .setExecute(() -> extendo.setPower(controller.calculate(extendo.getCurrentPosition())))
-                .setFinish(IntakeSlides::isOverCurrent)
-                .setEnd((interrupted) -> { if (!interrupted) reset(); });
-    }
-
     public static boolean isOverCurrent() { return extendo.isOverCurrent(); }
 
     public static void reset() {
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extendo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        controller.reset();
     }
 }

@@ -11,7 +11,7 @@ import java.util.Collections;
 public class Paths {
 
     public static ArrayList<Path> plusFourSpec = new ArrayList<>();
-    public static ArrayList<Path> plusThreeRedSpec = new ArrayList<>();
+    public static Path parkWithSpecPush;
 
     public static void init() {
         Collections.addAll(plusFourSpec,
@@ -33,12 +33,12 @@ public class Paths {
                 createPath( // push first sample
                         new BezierLine(
                                 new Point(58.500, 23.000, Point.CARTESIAN),
-                                new Point(25.000, 22.500, Point.CARTESIAN)
+                                new Point(20.000, 22.500, Point.CARTESIAN)
                         )
                 ),
                 createPath( // curve to second sample
                         new BezierCurve(
-                                new Point(25.000, 22.500, Point.CARTESIAN),
+                                new Point(20.000, 22.500, Point.CARTESIAN),
                                 new Point(62.500, 32.000, Point.CARTESIAN),
                                 new Point(58.500, 12.500, Point.CARTESIAN)
                         )
@@ -46,12 +46,12 @@ public class Paths {
                 createPath( // push second sample
                         new BezierLine(
                                 new Point(58.500, 12.500, Point.CARTESIAN),
-                                new Point(25.000, 12.500, Point.CARTESIAN)
+                                new Point(20.000, 12.500, Point.CARTESIAN)
                         )
                 ),
                 createPath( // curve to third sample
                         new BezierCurve(
-                                new Point(25.000, 12.500, Point.CARTESIAN),
+                                new Point(20.000, 12.500, Point.CARTESIAN),
                                 new Point(62.000, 18.500, Point.CARTESIAN),
                                 new Point(58.500, 8.000, Point.CARTESIAN)
                         )
@@ -59,12 +59,12 @@ public class Paths {
                 createPath( // push third sample
                         new BezierLine(
                                 new Point(58.500, 8.000, Point.CARTESIAN),
-                                new Point(25.000, 8.000, Point.CARTESIAN)
+                                new Point(20.000, 8.000, Point.CARTESIAN)
                         )
                 ),
                 createPath( // curve to plus 1 intake
                         new BezierCurve(
-                                new Point(25.000, 8.000, Point.CARTESIAN),
+                                new Point(20.000, 8.000, Point.CARTESIAN),
                                 new Point(27.000, 23.000, Point.CARTESIAN),
                                 new Point( 25, 34.5, Point.CARTESIAN),
                                 new Point(10.500, 33.000+2.5, Point.CARTESIAN)
@@ -136,18 +136,18 @@ public class Paths {
                                 new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),
-                createPath(
-                        new BezierLine(
-                                new Point(40.000, 74.000, Point.CARTESIAN),
-                                new Point(40.000, 67.000, Point.CARTESIAN)
-                        )
-                ),
                 createPath( // park
                         new BezierLine(
-                                new Point(40.000, 67.000, Point.CARTESIAN),
+                                new Point(40.000, 74.000, Point.CARTESIAN),
                                 new Point(13.000, 20.000, Point.CARTESIAN)
                         ), Math.toRadians(0), Math.toRadians(-45)
                 )
+        );
+        parkWithSpecPush = createPath(
+                new BezierLine(
+                        new Point(40.000, 67.000, Point.CARTESIAN),
+                        new Point(13.000, 20.000, Point.CARTESIAN)
+                ), Math.toRadians(0), Math.toRadians(-45)
         );
     }
 

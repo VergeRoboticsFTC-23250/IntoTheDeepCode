@@ -66,7 +66,7 @@ public class OnePlusFourSpec extends OpMode {
                         Chassis.followPath(Paths.plusFourSpec.get(0))
                 ),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
-                new Wait(0.5),
+                new Wait(0.3),
                 Outtake.openClaw(),
 
                 // Pushing samples
@@ -92,7 +92,7 @@ public class OnePlusFourSpec extends OpMode {
                 ),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
                 Chassis.followPath(Paths.plusFourSpec.get(9)),
-                new Wait(0.5),
+                new Wait(0.3),
                 Outtake.openClaw(),
 
                 // plus 2 intake
@@ -110,7 +110,7 @@ public class OnePlusFourSpec extends OpMode {
                 ),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
                 Chassis.followPath(Paths.plusFourSpec.get(12)),
-                new Wait(0.5),
+                new Wait(0.3),
                 Outtake.openClaw(),
 
                 // plus 3 intake
@@ -128,7 +128,7 @@ public class OnePlusFourSpec extends OpMode {
                 ),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
                 Chassis.followPath(Paths.plusFourSpec.get(15)),
-                new Wait(0.5),
+                new Wait(0.3),
                 Outtake.openClaw(),
 
                 // plus 4 intake
@@ -145,13 +145,13 @@ public class OnePlusFourSpec extends OpMode {
                         Chassis.followPath(Paths.plusFourSpec.get(17))
                 ),
                 Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
-                new Wait(0.5),
+                new Wait(0.3),
                 Outtake.openClaw(),
 
                 // park
                 new Parallel(
                         Robot.setState(Robot.State.INTAKE_SPEC),
-                        Chassis.followPath(Paths.plusFourSpec.get(19))
+                        Chassis.followPath(Paths.plusFourSpec.get(18))
                 )
             )
         .schedule();
