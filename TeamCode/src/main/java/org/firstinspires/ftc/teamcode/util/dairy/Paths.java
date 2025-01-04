@@ -127,12 +127,12 @@ public class Paths {
                                 new Point(40.000, 67.000, Point.CARTESIAN),
                                 new Point(24.655, 54.849, Point.CARTESIAN),
                                 new Point(30.372, 25.548, Point.CARTESIAN),
-                                new Point(10.500, 33.000, Point.CARTESIAN)
+                                new Point(10.500, 33.000-1, Point.CARTESIAN)
                         )
                 ),
                 createPath( // plus 4 outtake
                         new BezierLine(
-                                new Point(10.500, 33.000, Point.CARTESIAN),
+                                new Point(10.500, 33.000-1, Point.CARTESIAN),
                                 new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),
