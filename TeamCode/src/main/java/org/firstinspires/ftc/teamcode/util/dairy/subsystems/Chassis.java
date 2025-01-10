@@ -2,27 +2,26 @@ package org.firstinspires.ftc.teamcode.util.dairy.subsystems;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.DashboardPoseTracker;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
-import org.firstinspires.ftc.teamcode.util.roadrunner.MecanumDrive;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.atomic.AtomicLong;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.dependency.Dependency;
@@ -41,6 +40,11 @@ public class Chassis implements Subsystem {
     public static Follower follower;
     public static boolean isSlowed = false;
     public static double slowSpeed = 0.25;
+
+    public static DcMotorEx fl;
+    public static DcMotorEx fr;
+    public static DcMotorEx bl;
+    public static DcMotorEx br;
     public static Telemetry telemetry;
     public static DashboardPoseTracker dashboardPoseTracker;
     public Chassis() {}
@@ -90,6 +94,11 @@ public class Chassis implements Subsystem {
             setDefaultCommand(drive(Mercurial.gamepad1()));
         }
 
+        HardwareMap hMap = opMode.getOpMode().hardwareMap;
+        fl = hMap.get(DcMotorEx.class, FollowerConstants.leftFrontMotorName);
+        bl = hMap.get(DcMotorEx.class, FollowerConstants.leftRearMotorName);
+        fr = hMap.get(DcMotorEx.class, FollowerConstants.rightFrontMotorName);
+        br = hMap.get(DcMotorEx.class, FollowerConstants.rightRearMotorName);
     }
 
     @Override
@@ -114,6 +123,22 @@ public class Chassis implements Subsystem {
                     );
                 })
                 .setFinish(() -> false);
+    }
+    public static Lambda push(double pow, long time){
+        AtomicLong startTime = new AtomicLong();
+        return new Lambda("push-drive")
+                .setInit(() -> {
+                    startTime.set(System.currentTimeMillis());
+                })
+                .setExecute(
+                        () -> {
+                            fl.setPower(pow);
+                            fr.setPower(pow);
+                            bl.setPower(pow);
+                            br.setPower(pow);
+                        }
+                )
+                .setFinish(() -> System.currentTimeMillis() - startTime.get() > time);
     }
 
     public static Lambda toggleSlow() {

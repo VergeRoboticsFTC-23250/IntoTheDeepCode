@@ -40,6 +40,11 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 @Autonomous
 public class OnePlusFourSpec extends OpMode {
 
+    public static long intakeDelay = 250;
+    public static double intakePower = -0.5;
+    public static long outtakeDelay = 500;
+    public static double outtakePower = 1;
+
     @Override
     public void init() {
         Robot.init();
@@ -83,7 +88,7 @@ public class OnePlusFourSpec extends OpMode {
                 Chassis.followPath(Paths.plusFourSpec.get(7)),
 
                 // plus 1 intake
-                new Wait(0.5),
+                Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 1 outtake
@@ -91,9 +96,11 @@ public class OnePlusFourSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(8))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Chassis.followPath(Paths.plusFourSpec.get(9)),
-                new Wait(0.3),
                 Outtake.openClaw(),
 
                 // plus 2 intake
@@ -101,7 +108,7 @@ public class OnePlusFourSpec extends OpMode {
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         Chassis.followPath(Paths.plusFourSpec.get(10))
                 ),
-                new Wait(0.5),
+                Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 2 outtake
@@ -109,9 +116,11 @@ public class OnePlusFourSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(11))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Chassis.followPath(Paths.plusFourSpec.get(12)),
-                new Wait(0.3),
                 Outtake.openClaw(),
 
                 // plus 3 intake
@@ -119,7 +128,7 @@ public class OnePlusFourSpec extends OpMode {
                     Robot.setState(Robot.State.INTAKE_SPEC),
                     Chassis.followPath(Paths.plusFourSpec.get(13))
                 ),
-                new Wait(0.5),
+                Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 3 outtake
@@ -127,9 +136,11 @@ public class OnePlusFourSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(14))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Chassis.followPath(Paths.plusFourSpec.get(15)),
-                new Wait(0.3),
                 Outtake.openClaw(),
 
                 // plus 4 intake
@@ -137,7 +148,8 @@ public class OnePlusFourSpec extends OpMode {
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         Chassis.followPath(Paths.plusFourSpec.get(16))
                 ),
-                new Wait(0.5),
+
+                Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 4 outtake
@@ -145,8 +157,10 @@ public class OnePlusFourSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(17))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
-                new Wait(0.3),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Outtake.openClaw(),
 
                 // park
