@@ -71,8 +71,10 @@ public class OnePlusFourSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(0))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
-                new Wait(0.3),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Outtake.openClaw(),
 
                 // Pushing samples

@@ -48,7 +48,7 @@ public class Outtake implements Subsystem {
     public static double armSpecPos = 0.55+.16;
 
     //pivot
-    public static double pivotSubmersiblePos = 0.77;
+    public static double pivotSubmersiblePos = 0.79;
     public static double pivotSpecPos = 0.77;
     public static double pivotOuttakeSpec = 0.86;
     public static double pivotHomePos = 0.85;

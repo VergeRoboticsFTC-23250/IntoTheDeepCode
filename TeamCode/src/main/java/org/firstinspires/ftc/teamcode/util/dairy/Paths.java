@@ -18,8 +18,8 @@ public class Paths {
 
     public static double intakeOffset = -2;
     public static double intakeOffset1 = 2;
-    public static double intakeOffset2 = 0;
-    public static double intakeOffset3 = 0;
+    public static double intakeOffset2 = 1;
+    public static double intakeOffset3 = 1;
     public static double intakeOffset4 = 0;
 
     public static void init() {
@@ -27,7 +27,7 @@ public class Paths {
                 createPath( //preload
                         new BezierLine(
                                 new Point(9.000, 65.000, Point.CARTESIAN),
-                                new Point(41.000, 67.000, Point.CARTESIAN)
+                                new Point(40.00, 67.000, Point.CARTESIAN)
                         )
                 ),//1
                 createPath( // curve to first sample
