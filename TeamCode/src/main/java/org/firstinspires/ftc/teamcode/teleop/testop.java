@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class testop extends LinearOpMode {
     public static boolean invert = false;
     public static boolean enableS2 = true;
-    public static String s1 = "dropdownL";
-    public static String s2 = "dropdownR";
+    public static String s1 = "armL";
+    public static String s2 = "armR";
     public static String m = "outtakeSR";
     public static String m2 = "outtakeSL";
     public static boolean invertM = true;

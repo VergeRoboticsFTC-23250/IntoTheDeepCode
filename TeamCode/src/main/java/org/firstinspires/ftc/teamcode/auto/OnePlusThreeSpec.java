@@ -47,6 +47,7 @@ public class OnePlusThreeSpec extends OpMode {
         Outtake.isClawOpen = false;
         Outtake.setPosition(Outtake.armSpecPos);
         Outtake.setPivotManual(Outtake.pivotSpecPos);
+        IntakeSlides.extendo.setPower(IntakeSlides.constantPower);
 
         Robot.stateMachine.setState(Robot.State.INTAKE_SPEC);
     }
@@ -58,6 +59,7 @@ public class OnePlusThreeSpec extends OpMode {
     @Override
     public void start() {
         new Sequential(
+                IntakeSlides.setPower(IntakeSlides.constantPower),
                 OuttakeSlides.runToPosition(OuttakeSlides.submirsiblePos),
 
                 // Preload

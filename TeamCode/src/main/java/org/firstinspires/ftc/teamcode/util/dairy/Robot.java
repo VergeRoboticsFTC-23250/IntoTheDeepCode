@@ -124,16 +124,14 @@ public class Robot {
                                 OuttakeSlides.runToPosition(outtakeSubmersibleScore.slidePos)
                         )
                 ))
-//                .withState(State.OUTTAKE_BUCKET, (state, name) -> Lambda.from(
-//                        new Sequential(
-//                                Outtake.closeClaw().with(new Wait(0.4)),
-//                                OuttakeSlides.runToPosition(outtakeBucket.slidePos).raceWith(new Wait(0.5)),
-//                                new Parallel(
-//                                        Outtake.setArm(outtakeBucket.armPos).with(new Wait(0.5)),
-//                                        Outtake.setPivot(outtakeBucket.pivotPos).with(new Wait(0.5))
-//                                )
-//                        )
-//                ))
+                .withState(State.OUTTAKE_BUCKET, (state, name) -> Lambda.from(
+                        new Sequential(
+                                Outtake.closeClaw(),
+                                OuttakeSlides.runToPosition(outtakeBucket.slidePos),
+                                Outtake.setPivot(outtakeBucket.pivotPos),
+                                Outtake.setArm(outtakeBucket.armPos)
+                        )
+                ))
                 .withState(State.TRANSFER, (state, name) -> Lambda.from(
                         new Sequential(
                                 Outtake.setArm(transfer.armPos),
@@ -175,6 +173,7 @@ public class Robot {
                     } else if (stateMachine.getState().equals(State.HOME)) {
                         new Sequential(
                                 Robot.setState(State.TRANSFER),
+                                new Wait(.5),
                                 Robot.setState(State.OUTTAKE_SPEC)
                         ).schedule();
                     }

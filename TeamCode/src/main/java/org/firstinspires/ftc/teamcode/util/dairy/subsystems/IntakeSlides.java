@@ -29,12 +29,12 @@ import kotlin.annotation.MustBeDocumented;
 @Config
 public class IntakeSlides implements Subsystem {
     public static final IntakeSlides INSTANCE = new IntakeSlides();
-    private static final Logger log = LoggerFactory.getLogger(IntakeSlides.class);
+//    private static final Logger log = LoggerFactory.getLogger(IntakeSlides.class);
 
-    private static DcMotorEx extendo;
+    public static DcMotorEx extendo;
     public static Telemetry telemetry;
 
-    public static double constantPower = 0.2;
+    public static double constantPower = 0.1;
 
     public static boolean enablePID = true;
 

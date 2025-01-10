@@ -56,14 +56,17 @@ public class Teleop extends OpMode {
 //                        Robot.setState(Robot.State.TRANSFER)
 //                );
 
+
         tejas.rightBumper()
                 .onTrue(
-                        OuttakeSlides.runToPosition(OuttakeSlides.submirsiblePos)
+                        Chassis.slow()
+                ).onFalse(
+                    Chassis.fast()
                 );
 
         tejas.leftBumper()
                 .onTrue(
-                        OuttakeSlides.home()
+                        Robot.manipulate()
                 );
 
         arvind.rightTrigger().conditionalBindState().greaterThan(0.0).bind().whileTrue(
@@ -85,6 +88,16 @@ public class Teleop extends OpMode {
         ).onFalse(
                 Intake.raiseIntake().with(Intake.spintake(0.0))
         );
+
+        arvind.rightStickY().conditionalBindState().greaterThan(0.0).bind().onTrue(Intake.dropIntake()).onFalse(Intake.raiseIntake());
+
+        arvind.rightBumper().onTrue(Robot.manipulate());
+        arvind.leftBumper().onTrue(Intake.spintake(1)).onFalse(Intake.spintake(0));
+
+        arvind.dpadUp().onTrue(Intake.spintake(-1)).onFalse(Intake.spintake(0));
+
+        arvind.square().onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
+
     }
 
     @Override

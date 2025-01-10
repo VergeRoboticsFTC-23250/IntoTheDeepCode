@@ -41,7 +41,7 @@ public class OuttakeSlides implements Subsystem {
     public static double Ki = 0.0000;
     public static double Kd = 0.0000;
     public static double Kf = 0.0000;
-    public static int maxPos = 54000;
+    public static int maxPos = 45000;
     public static int bucketPos = maxPos;
     public static int minPos = 0;
     public static double currentLimit = 4;
