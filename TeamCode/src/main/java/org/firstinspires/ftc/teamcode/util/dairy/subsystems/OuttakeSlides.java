@@ -102,9 +102,17 @@ public class OuttakeSlides implements Subsystem {
     public static Lambda setPowerCommand(double power){
         return new Lambda("set-power")
                 .setExecute(() -> {
-                    setPower(power);
-                    controller.setSetPoint(getPos());
-                    logTele();
+                    if (power != 0) {
+                        enablePID = false;
+                        setPower(power);
+                        controller.setSetPoint(getPos());
+                        logTele();
+                    } else {
+                        enablePID = true;
+                        controller.setSetPoint(getPos());
+                        setPower(0);
+                    }
+
                 });
     }
 

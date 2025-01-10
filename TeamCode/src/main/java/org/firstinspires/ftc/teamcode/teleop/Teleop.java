@@ -56,6 +56,18 @@ public class Teleop extends OpMode {
 //                        Robot.setState(Robot.State.TRANSFER)
 //                );
 
+        tejas.dpadUp()
+                .onTrue(
+                        OuttakeSlides.setPowerCommand(1.0)
+                ).onFalse(
+                        OuttakeSlides.setPowerCommand(0.0)
+                );
+        tejas.dpadDown()
+                .onTrue(
+                        OuttakeSlides.setPowerCommand(-1.0)
+                ).onFalse(
+                        OuttakeSlides.setPowerCommand(0.0)
+                );
 
         tejas.rightBumper()
                 .onTrue(

@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 
 import java.lang.annotation.ElementType;
@@ -37,7 +38,7 @@ public class Outtake implements Subsystem {
     public static boolean isClawOpen = true;
 
     public static double clawOpenPos = 0.1;
-    public static double clawClosePos = 0.85;
+    public static double clawClosePos = 0.89;
 
     public static double armSubmersiblePos = 0.0;
     public static double armOuttakeSpec = .9;
@@ -91,7 +92,10 @@ public class Outtake implements Subsystem {
 
     @Override
     public void postUserStartHook(@NonNull Wrapper opMode) {
-        Robot.setState(Robot.State.HOME).schedule();
+        if (Robot.flavor.equals(OpModeMeta.Flavor.TELEOP)){
+            Robot.setState(Robot.State.HOME).schedule();
+        }
+
     }
 
     @Override
