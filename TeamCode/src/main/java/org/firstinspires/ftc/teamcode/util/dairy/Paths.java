@@ -147,10 +147,16 @@ public class Paths {
                                 new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),//18
+//                createPath( // park
+//                        new BezierLine(
+//                                new Point(40.000, 74.000, Point.CARTESIAN),
+//                                new Point(13.000, 20.000, Point.CARTESIAN)
+//                        ), Math.toRadians(0), Math.toRadians(-45)
+//                )//19
                 createPath( // park
                         new BezierLine(
                                 new Point(40.000, 74.000, Point.CARTESIAN),
-                                new Point(13.000, 20.000, Point.CARTESIAN)
+                                new Point(32.000, 74.000, Point.CARTESIAN)
                         ), Math.toRadians(0), Math.toRadians(-45)
                 )//19
         );

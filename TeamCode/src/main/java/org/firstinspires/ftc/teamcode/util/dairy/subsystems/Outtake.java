@@ -92,9 +92,9 @@ public class Outtake implements Subsystem {
 
     @Override
     public void postUserStartHook(@NonNull Wrapper opMode) {
-        if (Robot.flavor.equals(OpModeMeta.Flavor.TELEOP)){
-            Robot.setState(Robot.State.HOME).schedule();
-        }
+//        if (Robot.flavor.equals(OpModeMeta.Flavor.TELEOP)){
+//            Robot.setState(Robot.State.HOME).schedule();
+//        }
 
     }
 
