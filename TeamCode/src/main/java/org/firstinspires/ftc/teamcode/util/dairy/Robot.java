@@ -189,6 +189,8 @@ public class Robot {
                     if (stateMachine.getState().equals(State.HOME)){
                         new Sequential(
                                 Intake.spintake(1),
+                                Intake.raiseIntake(),
+                                new Wait(1),
                                 IntakeSlides.setPower(-0.8),
                                 new Wait(0.8),
                                 IntakeSlides.setPower(-IntakeSlides.constantPower),
@@ -196,6 +198,8 @@ public class Robot {
                                 Robot.setState(State.TRANSFER),
                                 Intake.spintake(0)
                         ).schedule();
+                    } else {
+                        Robot.setState(State.OUTTAKE_SPEC).schedule();
                     }
                 });
     }
