@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.pathgen.PathBuilder;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
@@ -155,12 +156,7 @@ public class Robot {
     public static Lambda setState(State state) {
         return new Lambda("set-state")
                 .setInit(() -> {
-                    if (!stateMachine.getState().equals(State.OUTTAKE_BUCKET) || stateMachine.getState().equals(State.TRANSFER)) {
-                        stateMachine.schedule(state);
-                        FeatureRegistrar.getActiveOpMode().telemetry.addData("State", state);
-                        FeatureRegistrar.getActiveOpMode().telemetry.update();
-                    }
-
+                    stateMachine.schedule(state);
                 })
                 .setFinish(() -> true);
     }
@@ -176,9 +172,30 @@ public class Robot {
                                 new Wait(.5),
                                 Robot.setState(State.OUTTAKE_SPEC)
                         ).schedule();
+                    } else if (stateMachine.getState().equals(State.TRANSFER)) {
+                        new Sequential(
+                                Robot.setState(State.OUTTAKE_SPEC)
+                        ).schedule();
                     }
                     else {
                         Outtake.toggleThing().schedule();
+                    }
+                });
+    }
+
+    public static Lambda arvManipulate() {
+        return new Lambda("arv-manipulate")
+                .setInit(() -> {
+                    if (stateMachine.getState().equals(State.HOME)){
+                        new Sequential(
+                                Intake.spintake(1),
+                                IntakeSlides.setPower(-0.8),
+                                new Wait(0.8),
+                                IntakeSlides.setPower(-IntakeSlides.constantPower),
+                                new Wait(0.3),
+                                Robot.setState(State.TRANSFER),
+                                Intake.spintake(0)
+                        ).schedule();
                     }
                 });
     }

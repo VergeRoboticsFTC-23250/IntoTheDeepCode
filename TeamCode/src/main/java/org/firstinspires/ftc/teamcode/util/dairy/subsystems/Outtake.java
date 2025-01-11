@@ -43,7 +43,7 @@ public class Outtake implements Subsystem {
     public static double armSubmersiblePos = 0.0;
     public static double armOuttakeSpec = .9;
     public static double armHomePos = 0.41; //0.25
-    public static double armBucketPos = 0.8+.16;
+    public static double armBucketPos = 1;
     public static double armTransferPos = 0.272+.16;
     public static double armSpecPos = 0.55+.16;
 

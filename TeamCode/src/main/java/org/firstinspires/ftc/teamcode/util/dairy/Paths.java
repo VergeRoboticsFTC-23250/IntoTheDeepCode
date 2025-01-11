@@ -20,7 +20,9 @@ public class Paths {
     public static double intakeOffset1 = 2;
     public static double intakeOffset2 = 1;
     public static double intakeOffset3 = 1;
-    public static double intakeOffset4 = 0;
+    public static double intakeOffset4 = 2;
+
+
 
     public static void init() {
         Collections.addAll(plusFourSpec,
@@ -32,7 +34,7 @@ public class Paths {
                 ),//1
                 createPath( // curve to first sample
                         new BezierCurve(
-                                new Point(41.000, 67.000, Point.CARTESIAN),
+                                new Point(40.000, 67.000, Point.CARTESIAN),
                                 new Point(31.500, 66.000, Point.CARTESIAN),
                                 new Point(13.000, 26.000, Point.CARTESIAN),
                                 new Point(63.000, 45.000, Point.CARTESIAN),
@@ -82,18 +84,18 @@ public class Paths {
                 createPath( // plus 1 outtake
                         new BezierLine(
                                 new Point(10.500, 33.000+2.5, Point.CARTESIAN),
-                                new Point(41.000, 74.000, Point.CARTESIAN)
+                                new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),//9
                 createPath(
                         new BezierLine(
-                                new Point(41.000, 74.000, Point.CARTESIAN),
-                                new Point(41, 67, Point.CARTESIAN)
+                                new Point(40.000, 74.000, Point.CARTESIAN),
+                                new Point(40, 67, Point.CARTESIAN)
                         )
                 ),//10
                 createPath( // curve to plus 2 intake
                         new BezierCurve(
-                                new Point(41.000, 67.000, Point.CARTESIAN),
+                                new Point(40.000, 67.000, Point.CARTESIAN),
                                 new Point(24.655, 54.670, Point.CARTESIAN),
                                 new Point(30.194, 26.084, Point.CARTESIAN),
                                 new Point(10.500 + intakeOffset + intakeOffset2, 33.000+1.5, Point.CARTESIAN)
@@ -102,18 +104,18 @@ public class Paths {
                 createPath( // plus 2 outtake
                         new BezierLine(
                                 new Point(10.500, 33.000, Point.CARTESIAN),
-                                new Point(41.000, 74.000, Point.CARTESIAN)
+                                new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),//12
                 createPath(
                         new BezierLine(
-                                new Point(41.000, 74.000, Point.CARTESIAN),
-                                new Point(41, 67, Point.CARTESIAN)
+                                new Point(40.000, 74.000, Point.CARTESIAN),
+                                new Point(40, 67, Point.CARTESIAN)
                         )
                 ),//13
                 createPath( // curve to plus 3 intake
                         new BezierCurve(
-                                new Point(41.000, 67.000, Point.CARTESIAN),
+                                new Point(40.000, 67.000, Point.CARTESIAN),
                                 new Point(24.655, 54.849, Point.CARTESIAN),
                                 new Point(30.372, 25.548, Point.CARTESIAN),
                                 new Point(10.500 + intakeOffset + intakeOffset3, 33.000, Point.CARTESIAN)
@@ -122,18 +124,18 @@ public class Paths {
                 createPath( // plus 3 outtake
                         new BezierLine(
                                 new Point(10.500, 33.000, Point.CARTESIAN),
-                                new Point(41.000, 74.000, Point.CARTESIAN)
+                                new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),//15
                 createPath(
                         new BezierLine(
-                                new Point(41.000, 74.000, Point.CARTESIAN),
-                                new Point(41, 67, Point.CARTESIAN)
+                                new Point(40.000, 74.000, Point.CARTESIAN),
+                                new Point(40, 67, Point.CARTESIAN)
                         )
                 ),//16
                 createPath( // curve to plus 4 intake
                         new BezierCurve(
-                                new Point(41.000, 67.000, Point.CARTESIAN),
+                                new Point(40.000, 67.000, Point.CARTESIAN),
                                 new Point(24.655, 54.849, Point.CARTESIAN),
                                 new Point(30.372, 25.548, Point.CARTESIAN),
                                 new Point(10.500 + intakeOffset + intakeOffset4, 33.000-1, Point.CARTESIAN)
@@ -142,12 +144,12 @@ public class Paths {
                 createPath( // plus 4 outtake
                         new BezierLine(
                                 new Point(10.500, 33.000-1, Point.CARTESIAN),
-                                new Point(41.000, 74.000, Point.CARTESIAN)
+                                new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),//18
                 createPath( // park
                         new BezierLine(
-                                new Point(41.000, 74.000, Point.CARTESIAN),
+                                new Point(40.000, 74.000, Point.CARTESIAN),
                                 new Point(13.000, 20.000, Point.CARTESIAN)
                         ), Math.toRadians(0), Math.toRadians(-45)
                 )//19

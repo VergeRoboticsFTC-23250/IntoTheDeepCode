@@ -32,7 +32,7 @@ public class OuttakeSlides implements Subsystem {
     public static DcMotorEx slideL;
     public static DcMotorEx encoder;
     public static Telemetry telemetry;
-    public static int tolerance = 1200;
+    public static int tolerance = 1600;
     public static int safePos = 11200;
     public static int submirsiblePos = safePos;
     public static int scoreSubmersiblePos = 26500;
@@ -41,7 +41,7 @@ public class OuttakeSlides implements Subsystem {
     public static double Ki = 0.0000;
     public static double Kd = 0.0000;
     public static double Kf = 0.0000;
-    public static int maxPos = 45000;
+    public static int maxPos = 70000;
     public static int bucketPos = maxPos;
     public static int minPos = 0;
     public static double currentLimit = 4;
@@ -135,7 +135,14 @@ public class OuttakeSlides implements Subsystem {
     public static Lambda runToPosition(int pos){
         return new Lambda("set-target-pos")
                 .setInterruptible(true)
-                .setInit(() -> controller.setSetPoint(pos))
+                .setInit(() -> {
+                    controller.setSetPoint(pos);
+                    if(pos > 40000){
+                        controller.setTolerance(3400);
+                    } else {
+                        controller.setTolerance(tolerance);
+                    }
+                })
                 .setFinish(() -> controller.atSetPoint());
     }
 
