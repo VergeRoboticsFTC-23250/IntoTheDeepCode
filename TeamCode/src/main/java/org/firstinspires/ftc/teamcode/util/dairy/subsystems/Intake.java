@@ -25,12 +25,11 @@ import kotlin.annotation.MustBeDocumented;
 @Config
 public class Intake implements Subsystem {
     public static final Intake INSTANCE = new Intake();
-    public static double dropPos = 0.0;
-    public static double raisePos = 0.71;
-    public static double restPos = 0;
+    public static double dropPos = 0.76;
+    public static double raisePos = 0.475;
     public static Servo dropL;
     public static Servo dropR;
-    public static CRServo spintake1;
+    public static DcMotorEx spintake;
     private Intake() {}
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
@@ -57,7 +56,7 @@ public class Intake implements Subsystem {
         dropL = hMap.get(Servo.class, "dropdownL");
         dropR = hMap.get(Servo.class, "dropdownR");
 
-        spintake1 = hMap.get(CRServo.class, "spintake1");
+        spintake = hMap.get(DcMotorEx.class, "spintake");
     }
 
     @Override
@@ -74,16 +73,16 @@ public class Intake implements Subsystem {
     }
 
     private static void spin(double power){
-        spintake1.setPower(power);
+        spintake.setPower(power);
     }
 
     private static void stop(){
-        spintake1.setPower(0);
+        spintake.setPower(0);
     }
 
     public static Lambda spintake(double power){
         return new Lambda("spintake")
-                .addRequirements(INSTANCE.spintake1)
+                .addRequirements(INSTANCE.spintake)
                 .setExecute(() -> spin(power))
                 .setFinish(() -> true);
     }

@@ -136,8 +136,13 @@ public class Robot {
                 .withState(State.TRANSFER, (state, name) -> Lambda.from(
                         new Sequential(
                                 Outtake.setArm(transfer.armPos),
-                                Outtake.setPivot(transfer.pivotPos).with(new Wait(.25)),
-                                Outtake.closeClaw().with(new Wait(0.25)),
+                                Outtake.setPivot(transfer.pivotPos),
+                                new Wait(0.125),
+                                Outtake.closeClawPartially(),
+                                new Wait(0.125),
+                                Outtake.setArm(home.armPos),
+                                new Wait(0.125),
+                                Outtake.closeClaw(),
                                 OuttakeSlides.runToPosition(transfer.slidePos)
                         )
                 ))

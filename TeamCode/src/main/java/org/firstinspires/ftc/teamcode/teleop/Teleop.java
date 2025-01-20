@@ -18,6 +18,7 @@ import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
+import dev.frozenmilk.mercurial.commands.util.Wait;
 
 @Mercurial.Attach
 @Chassis.Attach
@@ -39,6 +40,10 @@ public class Teleop extends OpMode {
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
 
+        tejas.dpadRight().onTrue(
+                Intake.raiseIntake()
+        );
+
         tejas.square()
                 .onTrue(
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE)
@@ -51,10 +56,10 @@ public class Teleop extends OpMode {
                 .onTrue(
                         Robot.setState(Robot.State.HOME)
                 );
-//        tejas.dpadLeft()
-//                .onTrue(
-//                        Robot.setState(Robot.State.TRANSFER)
-//                );
+        tejas.dpadLeft()
+                .onTrue(
+                        Robot.setState(Robot.State.TRANSFER)
+                );
 
         tejas.dpadUp()
                 .onTrue(
@@ -96,19 +101,16 @@ public class Teleop extends OpMode {
         );
 
         arvind.cross().onTrue(
-                Intake.dropIntake().with(Intake.spintake(1.0))
+                Intake.dropIntake()
         ).onFalse(
-                Intake.raiseIntake().with(Intake.spintake(1.0))
+                Intake.raiseIntake()
         );
 
-        arvind.rightStickY().conditionalBindState().greaterThan(0.0).bind().onTrue(Intake.dropIntake()).onFalse(Intake.raiseIntake());
-
         arvind.rightBumper().onTrue(Robot.manipulate());
+
         arvind.leftBumper().onTrue(Intake.spintake(1)).onFalse(Intake.spintake(0));
 
         arvind.dpadUp().onTrue(Intake.spintake(-1)).onFalse(Intake.spintake(0));
-
-        arvind.square().onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
 
     }
 

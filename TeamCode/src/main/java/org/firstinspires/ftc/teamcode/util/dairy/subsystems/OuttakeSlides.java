@@ -61,7 +61,7 @@ public class OuttakeSlides implements Subsystem {
         telemetry = opMode.getOpMode().telemetry;
         slideR = hMap.get(DcMotorEx.class, "outtakeSR");
         slideL = hMap.get(DcMotorEx.class, "outtakeSL");
-        encoder = hMap.get(DcMotorEx.class, "encoder");
+        encoder = hMap.get(DcMotorEx.class, "spintake");
         slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideL.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
         slideR.setDirection(DcMotorSimple.Direction.REVERSE);

@@ -39,21 +39,22 @@ public class Outtake implements Subsystem {
 
     public static double clawOpenPos = 0.1;
     public static double clawClosePos = 0.89;
+    public static double clawPartiallyClosePos = 0.7;
 
     public static double armSubmersiblePos = 0.0;
     public static double armOuttakeSpec = .9;
-    public static double armHomePos = 0.41; //0.25
+    public static double armHomePos = 0.575; //0.25
     public static double armBucketPos = 1;
-    public static double armTransferPos = 0.272+.16;
+    public static double armTransferPos = .475;
     public static double armSpecPos = 0.55+.16;
 
     //pivot
     public static double pivotSubmersiblePos = 0.79;
     public static double pivotSpecPos = 0.77;
     public static double pivotOuttakeSpec = 0.86;
-    public static double pivotHomePos = 0.885;
+    public static double pivotHomePos = 1;
     public static double pivotBucketPos = 0.86;
-    public static double pivotTranferPos = 0.79; // TODO
+    public static double pivotTranferPos = 1; // TODO
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
     @Inherited
@@ -149,6 +150,14 @@ public class Outtake implements Subsystem {
         return new Lambda("close-claw")
                 .setInit(() -> {
                     setClaw(clawClosePos);
+                    isClawOpen = false;
+                })
+                .setFinish(() -> true);
+    }
+    public static Lambda closeClawPartially(){
+        return new Lambda("close-claw-partially")
+                .setInit(() -> {
+                    setClaw(clawPartiallyClosePos);
                     isClawOpen = false;
                 })
                 .setFinish(() -> true);
