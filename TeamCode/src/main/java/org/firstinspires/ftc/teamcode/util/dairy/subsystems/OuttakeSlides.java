@@ -34,7 +34,7 @@ public class OuttakeSlides implements Subsystem {
     public static Telemetry telemetry;
     public static int tolerance = 1600;
     public static int safePos = 11200;
-    public static int submirsiblePos = safePos;
+    public static int submersiblePos = safePos;
     public static int scoreSubmersiblePos = 26500;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
     public static double Kp = 0.00014;
@@ -189,7 +189,7 @@ public class OuttakeSlides implements Subsystem {
                     if (!interrupted) {
                         reset();
                         safePos += 11200;
-                        submirsiblePos = safePos;
+                        submersiblePos = safePos;
                         scoreSubmersiblePos += 11200;
                         minPos += 11200;
                         maxPos += 11200;

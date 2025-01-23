@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -30,6 +31,7 @@ public class Intake implements Subsystem {
     public static Servo dropL;
     public static Servo dropR;
     public static DcMotorEx spintake;
+    public static boolean raised;
     private Intake() {}
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
@@ -60,16 +62,30 @@ public class Intake implements Subsystem {
     }
 
     @Override
-    public void postUserLoopHook(@NonNull Wrapper opMode) {}
+    public void postUserStartHook(@NonNull Wrapper opMode) {
+        raised = true;
+    }
 
     private static void drop(){
         dropL.setPosition(dropPos);
         dropR.setPosition(dropPos);
+        raised = false;
     }
 
     private static void raise(){
         dropL.setPosition(raisePos);
         dropR.setPosition(raisePos);
+        raised = true;
+    }
+
+    private static void setPos(double pos) {
+        dropL.setPosition(pos);
+        dropR.setPosition(pos);
+        if (Math.abs(pos - dropPos) < 0.1) {
+            raised = false;
+        } else if (Math.abs(pos - raisePos) < 0.1){
+            raised = true;
+        }
     }
 
     private static void spin(double power){
@@ -96,5 +112,10 @@ public class Intake implements Subsystem {
         return new Lambda("drop-intake")
                 .addRequirements(INSTANCE.dropL, INSTANCE.dropR)
                 .setInit(Intake::drop);
+    }
+    public static Lambda setIntake(double pos) {
+        return new  Lambda("set-intake")
+                .addRequirements(INSTANCE.dropL, INSTANCE.dropR)
+                .setInit(() -> Intake.setPos(pos));
     }
 }

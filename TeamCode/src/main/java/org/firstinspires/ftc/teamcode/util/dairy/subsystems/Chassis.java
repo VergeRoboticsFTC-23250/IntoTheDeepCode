@@ -102,11 +102,12 @@ public class Chassis implements Subsystem {
     }
 
     @Override
-    public void postUserInitHook(@NonNull Wrapper opMode) {}
+    public void postUserInitHook(@NonNull Wrapper opMode) {
+        if (Robot.flavor.equals(OpModeMeta.Flavor.TELEOP)) follower.startTeleopDrive();
+    }
 
     @Override
     public void preUserStartHook(@NonNull Wrapper opMode) {
-        follower.startTeleopDrive();
     }
 
     @Override
@@ -166,6 +167,21 @@ public class Chassis implements Subsystem {
                     follower.update();
                     follower.telemetryDebug(telemetry);
 
+                })
+                .setFinish(() -> !follower.isBusy())
+                .setEnd((interrupted) -> {
+                    if (interrupted) follower.breakFollowing();
+                });
+    }
+
+    public static Lambda followPath(Path path, boolean hold) {
+        return new Lambda("follow-path")
+                .addRequirements(INSTANCE)
+                .setInterruptible(true)
+                .setInit(() -> follower.followPath(path, hold))
+                .setExecute(() -> {
+                    follower.update();
+                    follower.telemetryDebug(telemetry);
                 })
                 .setFinish(() -> !follower.isBusy())
                 .setEnd((interrupted) -> {

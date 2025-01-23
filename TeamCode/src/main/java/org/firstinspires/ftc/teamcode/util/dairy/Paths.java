@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
+import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Paths {
 
@@ -175,6 +177,30 @@ public class Paths {
 //        plusFourSpec.get(16).setPathEndTimeoutConstraint(500);
     }
 
+    public static Path pathTo(BezierLine line, Follower follower) {
+        return createPath(
+                new BezierLine(
+                        new Point(follower.getPose().getX(), follower.getPose().getY()),
+                        new Point(line.getLastControlPoint().getX(), line.getLastControlPoint().getY())
+                )
+        );
+    }
+
+    public static Path pathTo(BezierCurve curve, Follower follower) {
+        ArrayList<Point> controlPoints = curve.getControlPoints();
+
+        // Always include the first point (follower position)
+        List<Point> points = new ArrayList<>();
+        points.add(new Point(follower.getPose().getX(), follower.getPose().getY()));
+
+        // Add as many control points as available
+        points.addAll(controlPoints);
+
+        // Add the last control point
+        points.add(curve.getLastControlPoint());
+
+        return createPath(new BezierCurve(points.toArray(new Point[0])));
+    }
 
 
     private static Path createPath(BezierLine line, double heading) {

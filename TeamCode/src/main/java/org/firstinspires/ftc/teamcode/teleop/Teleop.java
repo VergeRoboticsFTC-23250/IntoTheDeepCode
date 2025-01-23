@@ -106,11 +106,13 @@ public class Teleop extends OpMode {
                 Intake.raiseIntake()
         );
 
+        arvind.rightStickY().conditionalBindState().greaterThan(.01).bind().onTrue(Intake.setIntake(Intake.raisePos + arvind.rightStickY().state() * (Intake.dropPos - Intake.raisePos)));
+
         arvind.rightBumper().onTrue(Robot.manipulate());
 
-        arvind.leftBumper().onTrue(Intake.spintake(1)).onFalse(Intake.spintake(0));
+        arvind.leftBumper().onTrue(Intake.spintake(-1)).onFalse(Intake.spintake(-0.1));
 
-        arvind.dpadUp().onTrue(Intake.spintake(-1)).onFalse(Intake.spintake(0));
+        arvind.dpadUp().onTrue(Intake.spintake(0.5)).onFalse(Intake.spintake(0));
 
     }
 

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
-import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.pathgen.PathBuilder;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
@@ -13,8 +12,8 @@ import java.util.Map;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.mercurial.commands.Lambda;
-import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
+import dev.frozenmilk.mercurial.commands.util.IfElse;
 import dev.frozenmilk.mercurial.commands.util.StateMachine;
 import dev.frozenmilk.mercurial.commands.util.Wait;
 
@@ -61,7 +60,7 @@ public class Robot {
                 Outtake.armSubmersiblePos,
                 Outtake.pivotSubmersiblePos,
                 false,
-                OuttakeSlides.submirsiblePos
+                OuttakeSlides.submersiblePos
         );
         StatePositions outtakeSubmersibleScore = new StatePositions(
                 Outtake.armSubmersiblePos,
@@ -96,6 +95,13 @@ public class Robot {
         stateMachine = new StateMachine<>(State.HOME)
                 .withState(State.HOME, (state, name) -> Lambda.from(
                         new Sequential(
+//                                new IfElse(
+//                                        () -> (Intake.raised && (
+//                                                OuttakeSlides.controller.getSetPoint() == OuttakeSlides.submersiblePos ||
+//                                                OuttakeSlides.controller.getSetPoint() == OuttakeSlides.scoreSubmersiblePos)),
+//                                        Intake.dropIntake().then(new Wait(0.4)),
+//                                        new Wait(0)
+//                                ),
                                 Outtake.openClaw(),
                                 Outtake.setArm(home.armPos),
                                 Outtake.setPivot(home.pivotPos),
@@ -137,11 +143,11 @@ public class Robot {
                         new Sequential(
                                 Outtake.setArm(transfer.armPos),
                                 Outtake.setPivot(transfer.pivotPos),
-                                new Wait(0.125),
+                                new Wait(0.25),
                                 Outtake.closeClawPartially(),
-                                new Wait(0.125),
+                                new Wait(0.25),
                                 Outtake.setArm(home.armPos),
-                                new Wait(0.125),
+                                new Wait(0.25),
                                 Outtake.closeClaw(),
                                 OuttakeSlides.runToPosition(transfer.slidePos)
                         )
@@ -169,22 +175,17 @@ public class Robot {
     public static Lambda manipulate() {
         return new Lambda("manipulate")
                 .setInit(() -> {
-                    if (stateMachine.getState().equals(Robot.State.OUTTAKE_SUBMERSIBLE)) {
+                    if (stateMachine.getState().equals(State.OUTTAKE_SUBMERSIBLE)) {
                         stateMachine.schedule(State.OUTTAKE_SUBMERSIBLE_SCORE);
                     } else if (stateMachine.getState().equals(State.HOME)) {
                         new Sequential(
-                                Robot.setState(State.TRANSFER),
-                                new Wait(.5),
-                                Robot.setState(State.OUTTAKE_SPEC)
+                                Robot.setState(State.TRANSFER)
                         ).schedule();
                     } else if (stateMachine.getState().equals(State.TRANSFER)) {
                         new Sequential(
                                 Robot.setState(State.OUTTAKE_SPEC)
                         ).schedule();
-                    }
-                    else {
-                        Outtake.toggleThing().schedule();
-                    }
+                    } else { Outtake.toggleThing().schedule(); }
                 });
     }
 
