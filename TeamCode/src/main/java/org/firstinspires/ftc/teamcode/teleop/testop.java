@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 
@@ -24,7 +25,7 @@ public class testop extends LinearOpMode {
     public static BezierLine line;
     @Override
     public void runOpMode() throws InterruptedException {
-
+        TouchSensor touch = hardwareMap.get(TouchSensor.class, "touchSlide");
 //        Servo servo = hardwareMap.get(Servo.class, s1);
 //        Servo servo2 = hardwareMap.get(Servo.class, s2);
 //        if (invert) servo.setDirection(Servo.Direction.REVERSE);
@@ -48,7 +49,7 @@ public class testop extends LinearOpMode {
 //                    servo2.setPosition(gamepad1.left_stick_y / 2 + 0.5);
 //                }
 //            }
-
+            telemetry.addData("touch pressed", touch.isPressed());
             motor.setPower(gamepad1.right_stick_y);
             if (enableM2){
                 motor2.setPower(gamepad1.right_stick_y);

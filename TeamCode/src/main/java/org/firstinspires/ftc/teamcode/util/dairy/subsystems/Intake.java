@@ -118,22 +118,18 @@ public class Intake implements Subsystem {
 
     public static Lambda raiseIntake() {
         return new Lambda("raise-intake")
-                .addRequirements(INSTANCE.dropL, INSTANCE.dropR)
                 .setInit(Intake::raise);
     }
     public static Lambda dropIntake() {
         return new Lambda("drop-intake")
-                .addRequirements(INSTANCE.dropL, INSTANCE.dropR)
                 .setInit(Intake::drop);
     }
     public static Lambda extraIntake() {
         return new Lambda("extra-intake")
-                .addRequirements(INSTANCE.dropL, INSTANCE.dropR)
                 .setInit(Intake::raiseExtra);
     }
     public static Lambda setIntake(double pos) {
         return new  Lambda("set-intake")
-                .addRequirements(INSTANCE.dropL, INSTANCE.dropR)
                 .setInit(() -> Intake.setPos(pos));
     }
 }

@@ -63,7 +63,7 @@ public class IntakeSlides implements Subsystem {
         telemetry = opMode.getOpMode().telemetry;
 
         extendo = hMap.get(DcMotorEx.class, "extendo");
-        touch = hMap.get(TouchSensor.class, "slideTouch");
+        touch = hMap.get(TouchSensor.class, "touchSlide");
 
         reset();
     }

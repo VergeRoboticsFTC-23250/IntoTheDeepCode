@@ -136,9 +136,10 @@ public class Robot {
                 .withState(State.OUTTAKE_BUCKET, (state, name) -> Lambda.from(
                         new Sequential(
                                 Outtake.closeClaw(),
-                                OuttakeSlides.runToPosition(outtakeBucket.slidePos),
+                                OuttakeSlides.runToPosition(OuttakeSlides.safePos),
                                 Outtake.setPivot(outtakeBucket.pivotPos),
-                                Outtake.setArm(outtakeBucket.armPos)
+                                Outtake.setArm(outtakeBucket.armPos),
+                                OuttakeSlides.runToPosition(outtakeBucket.slidePos)
                         )
                 ))
                 .withState(State.TRANSFER, (state, name) -> Lambda.from(
@@ -200,16 +201,12 @@ public class Robot {
     public static Lambda macroNoCook() {
         return new Lambda("macro-no-cook")
                 .setInit(() -> {
-                   new Sequential(
-                           Robot.setState(State.HOME),
-                           new Parallel(
-                                   Intake.raiseIntake(),
-                                   IntakeSlides.home()
-                           ),
-                           Robot.setState(State.TRANSFER),
-                           new Wait(1),
-                           Robot.setState(State.OUTTAKE_SPEC)
-                   ).schedule();
+                    new Sequential(
+                            Robot.setState(State.HOME),
+                            new Wait(0.1),
+                            IntakeSlides.home(),
+                            Robot.setState(State.TRANSFER)
+                    ).schedule();
                 });
     }
 
@@ -218,13 +215,11 @@ public class Robot {
                 .setInit(() -> {
                     new Sequential(
                             Robot.setState(State.HOME),
-                            new Parallel(
-                                    Intake.extraIntake(),
-                                    IntakeSlides.home()
-                            ),
-                            Robot.setState(State.TRANSFER),
-                            new Wait(1),
-                            Robot.setState(State.OUTTAKE_SPEC)
+                            new Wait(0.1),
+                            Intake.extraIntake(),
+                            new Wait(0.25),
+                            IntakeSlides.home(),
+                            Robot.setState(State.TRANSFER)
                     ).schedule();
                 });
     }
