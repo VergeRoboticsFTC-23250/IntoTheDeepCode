@@ -10,6 +10,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.firstinspires.ftc.teamcode.util.dairy.Robot;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -19,6 +22,7 @@ import java.lang.annotation.Target;
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
+import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
@@ -26,8 +30,10 @@ import kotlin.annotation.MustBeDocumented;
 @Config
 public class Intake implements Subsystem {
     public static final Intake INSTANCE = new Intake();
-    public static double dropPos = 0.76;
-    public static double raisePos = 0.475;
+    public static double dropPos = 0.74;
+    public static double hoverPos = 0.64;
+    public static double raisePos = 0.46;
+    public static double extraRaisePos = 0.35;
     public static Servo dropL;
     public static Servo dropR;
     public static DcMotorEx spintake;
@@ -59,11 +65,12 @@ public class Intake implements Subsystem {
         dropR = hMap.get(Servo.class, "dropdownR");
 
         spintake = hMap.get(DcMotorEx.class, "spintake");
+
     }
 
     @Override
     public void postUserStartHook(@NonNull Wrapper opMode) {
-        raised = true;
+//        raised = true;
     }
 
     private static void drop(){
@@ -75,6 +82,12 @@ public class Intake implements Subsystem {
     private static void raise(){
         dropL.setPosition(raisePos);
         dropR.setPosition(raisePos);
+        raised = true;
+    }
+
+    private static void raiseExtra(){
+        dropL.setPosition(extraRaisePos);
+        dropR.setPosition(extraRaisePos);
         raised = true;
     }
 
@@ -112,6 +125,11 @@ public class Intake implements Subsystem {
         return new Lambda("drop-intake")
                 .addRequirements(INSTANCE.dropL, INSTANCE.dropR)
                 .setInit(Intake::drop);
+    }
+    public static Lambda extraIntake() {
+        return new Lambda("extra-intake")
+                .addRequirements(INSTANCE.dropL, INSTANCE.dropR)
+                .setInit(Intake::raiseExtra);
     }
     public static Lambda setIntake(double pos) {
         return new  Lambda("set-intake")

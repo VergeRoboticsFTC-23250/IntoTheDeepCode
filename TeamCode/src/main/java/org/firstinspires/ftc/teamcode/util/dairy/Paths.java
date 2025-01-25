@@ -38,8 +38,8 @@ public class Paths {
                         new BezierCurve(
                                 new Point(40.000, 67.000, Point.CARTESIAN),
                                 new Point(31.500, 66.000, Point.CARTESIAN),
-                                new Point(13.000, 26.000, Point.CARTESIAN),
-                                new Point(63.000, 45.000, Point.CARTESIAN),
+                                new Point(11.000, 12.000, Point.CARTESIAN),
+                                new Point(68.000, 49.500, Point.CARTESIAN),
                                 new Point(58.500, 23.000, Point.CARTESIAN)
                         )
                 ),//2
@@ -80,7 +80,7 @@ public class Paths {
                                 new Point(20.000, 8.000, Point.CARTESIAN),
                                 new Point(27.000, 23.000, Point.CARTESIAN),
                                 new Point( 25, 34.5, Point.CARTESIAN),
-                                new Point(10.500 + intakeOffset + intakeOffset1, 33.000+2.5, Point.CARTESIAN)
+                                new Point(10.500 + intakeOffset + intakeOffset1, 33.000+3.5, Point.CARTESIAN)
                         )
                 ),//8
                 createPath( // plus 1 outtake
@@ -120,7 +120,7 @@ public class Paths {
                                 new Point(40.000, 67.000, Point.CARTESIAN),
                                 new Point(24.655, 54.849, Point.CARTESIAN),
                                 new Point(30.372, 25.548, Point.CARTESIAN),
-                                new Point(10.500 + intakeOffset + intakeOffset3, 33.000, Point.CARTESIAN)
+                                new Point(10.500 + intakeOffset + intakeOffset3, 33.000+2, Point.CARTESIAN)
                         )
                 ),//14
                 createPath( // plus 3 outtake
@@ -140,7 +140,7 @@ public class Paths {
                                 new Point(40.000, 67.000, Point.CARTESIAN),
                                 new Point(24.655, 54.849, Point.CARTESIAN),
                                 new Point(30.372, 25.548, Point.CARTESIAN),
-                                new Point(10.500 + intakeOffset + intakeOffset4, 33.000-1, Point.CARTESIAN)
+                                new Point(10.500 + intakeOffset + intakeOffset4, 33.000+2, Point.CARTESIAN)
                         )
                 ),//17
                 createPath( // plus 4 outtake

@@ -52,7 +52,7 @@ public class OnePlusFourSpec extends OpMode {
     @Override
     public void start() {
         new Sequential(
-                Intake.raiseIntake(),
+                Intake.setIntake(Intake.hoverPos),
                 OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
 
                 // Preload

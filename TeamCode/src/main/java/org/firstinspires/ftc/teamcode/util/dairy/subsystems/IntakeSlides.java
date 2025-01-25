@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -32,6 +33,7 @@ public class IntakeSlides implements Subsystem {
 //    private static final Logger log = LoggerFactory.getLogger(IntakeSlides.class);
 
     public static DcMotorEx extendo;
+    public static TouchSensor touch;
     public static Telemetry telemetry;
 
     public static double constantPower = 0.1;
@@ -61,6 +63,7 @@ public class IntakeSlides implements Subsystem {
         telemetry = opMode.getOpMode().telemetry;
 
         extendo = hMap.get(DcMotorEx.class, "extendo");
+        touch = hMap.get(TouchSensor.class, "slideTouch");
 
         reset();
     }
@@ -74,10 +77,17 @@ public class IntakeSlides implements Subsystem {
     }
 
     public static Lambda setPower(double pow) {
-        return new Lambda("home-outtake")
+        return new Lambda("power-outtake")
                 .setInit(() -> {
                     extendo.setPower(pow);
                 })
                 .setFinish(() -> true);
+    }
+
+    public static Lambda home() {
+        return new Lambda("home-outtake")
+                .setInit(() -> extendo.setPower(-1))
+                .setFinish(() -> touch.isPressed())
+                .setEnd((interrupted) -> extendo.setPower(-constantPower));
     }
 }

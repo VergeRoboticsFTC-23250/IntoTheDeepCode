@@ -40,9 +40,9 @@ public class Teleop extends OpMode {
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
 
-        tejas.dpadRight().onTrue(
-                Intake.raiseIntake()
-        );
+//        tejas.dpadRight().onTrue(
+//                Intake.raiseIntake()
+//        );
 
         tejas.square()
                 .onTrue(
@@ -59,6 +59,11 @@ public class Teleop extends OpMode {
         tejas.dpadLeft()
                 .onTrue(
                         Robot.setState(Robot.State.TRANSFER)
+                );
+
+        arvind.dpadRight()
+                .onTrue(
+                        Intake.extraIntake()
                 );
 
         tejas.dpadUp()
@@ -100,13 +105,7 @@ public class Teleop extends OpMode {
                 IntakeSlides.setPower(-IntakeSlides.constantPower)
         );
 
-        arvind.cross().onTrue(
-                Intake.dropIntake()
-        ).onFalse(
-                Intake.raiseIntake()
-        );
-
-        arvind.rightStickY().conditionalBindState().greaterThan(.01).bind().onTrue(Intake.setIntake(Intake.raisePos + arvind.rightStickY().state() * (Intake.dropPos - Intake.raisePos)));
+        arvind.rightStickY().conditionalBindState().greaterThan(0.0).bind().onTrue(Intake.dropIntake()).onFalse(Intake.raiseIntake());
 
         arvind.rightBumper().onTrue(Robot.manipulate());
 
@@ -118,6 +117,6 @@ public class Teleop extends OpMode {
 
     @Override
     public void loop() {
-        // https://github.com/Iris-TheRainbow/27971-IntoTheDeep-Teamcode/tree/main
+
     }
 }

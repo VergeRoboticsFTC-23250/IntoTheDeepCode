@@ -12,6 +12,7 @@ import java.util.Map;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.mercurial.commands.Lambda;
+import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
 import dev.frozenmilk.mercurial.commands.util.IfElse;
 import dev.frozenmilk.mercurial.commands.util.StateMachine;
@@ -27,7 +28,8 @@ public class Robot {
         OUTTAKE_SUBMERSIBLE_SCORE,
         OUTTAKE_BUCKET,
         TRANSFER,
-        OUTTAKE_SPEC
+        OUTTAKE_SPEC,
+        UNJAM
     }
 
     public static StateMachine<State> stateMachine;
@@ -159,6 +161,12 @@ public class Robot {
                                 Outtake.setArm(Outtake.armOuttakeSpec),
                                 Outtake.setPivot(Outtake.pivotOuttakeSpec)
                         )
+                ))
+                .withState(State.UNJAM, (state, name) -> Lambda.from(
+                            new Sequential(
+                                    Intake.setIntake(Intake.hoverPos),
+                                    new Wait(0.2)
+                            )
                 ));
 
         Paths.init();
@@ -189,24 +197,35 @@ public class Robot {
                 });
     }
 
-    public static Lambda arvManipulate() {
-        return new Lambda("arv-manipulate")
+    public static Lambda macroNoCook() {
+        return new Lambda("macro-no-cook")
                 .setInit(() -> {
-                    if (stateMachine.getState().equals(State.HOME)){
-                        new Sequential(
-                                Intake.spintake(1),
-                                Intake.raiseIntake(),
-                                new Wait(1),
-                                IntakeSlides.setPower(-0.8),
-                                new Wait(0.8),
-                                IntakeSlides.setPower(-IntakeSlides.constantPower),
-                                new Wait(0.3),
-                                Robot.setState(State.TRANSFER),
-                                Intake.spintake(0)
-                        ).schedule();
-                    } else {
-                        Robot.setState(State.OUTTAKE_SPEC).schedule();
-                    }
+                   new Sequential(
+                           Robot.setState(State.HOME),
+                           new Parallel(
+                                   Intake.raiseIntake(),
+                                   IntakeSlides.home()
+                           ),
+                           Robot.setState(State.TRANSFER),
+                           new Wait(1),
+                           Robot.setState(State.OUTTAKE_SPEC)
+                   ).schedule();
+                });
+    }
+
+    public static Lambda macroCook() {
+        return new Lambda("macro-cook")
+                .setInit(() -> {
+                    new Sequential(
+                            Robot.setState(State.HOME),
+                            new Parallel(
+                                    Intake.extraIntake(),
+                                    IntakeSlides.home()
+                            ),
+                            Robot.setState(State.TRANSFER),
+                            new Wait(1),
+                            Robot.setState(State.OUTTAKE_SPEC)
+                    ).schedule();
                 });
     }
 }

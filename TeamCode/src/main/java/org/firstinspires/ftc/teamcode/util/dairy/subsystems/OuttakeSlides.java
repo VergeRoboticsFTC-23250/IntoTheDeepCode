@@ -21,6 +21,7 @@ import java.lang.annotation.Target;
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
+import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
@@ -162,6 +163,7 @@ public class OuttakeSlides implements Subsystem {
         telemetry.addData("Slide Error", controller.getPositionError());
         telemetry.addData("At Setpoint?", controller.atSetPoint());
         telemetry.addData("Enable PID", enablePID);
+        telemetry.addData("arv joystick", Mercurial.gamepad2().rightStickY().state());
     }
 
     public static Lambda runPID() {
