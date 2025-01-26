@@ -21,6 +21,7 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 public class Robot {
 
     public static volatile State currentState = State.HOME;
+
     public enum State {
         HOME,
         INTAKE_SPEC,
@@ -104,6 +105,13 @@ public class Robot {
 //                                        Intake.dropIntake().then(new Wait(0.4)),
 //                                        new Wait(0)
 //                                ),
+                                new IfElse(
+                                        () -> Intake.raised,
+                                        Intake.setIntake(Intake.hoverPos),
+                                        new Wait(0)
+                                ),
+                                Intake.setIntake(Intake.hoverPos),
+                                new Wait(0.2),
                                 Outtake.openClaw(),
                                 Outtake.setArm(home.armPos),
                                 Outtake.setPivot(home.pivotPos),
@@ -122,6 +130,12 @@ public class Robot {
                 ))
                 .withState(State.OUTTAKE_SUBMERSIBLE, (state, name) -> Lambda.from(
                         new Sequential(
+                                new IfElse(
+                                        () -> Intake.raised,
+                                        Intake.setIntake(Intake.hoverPos),
+                                        new Wait(0)
+                                ),
+                                new Wait(0.2),
                                 Outtake.closeClaw(),
                                 OuttakeSlides.runToPosition(outtakeSubmersible.slidePos),
                                 Outtake.setPivot(outtakeSubmersible.pivotPos),
@@ -162,12 +176,6 @@ public class Robot {
                                 Outtake.setArm(Outtake.armOuttakeSpec),
                                 Outtake.setPivot(Outtake.pivotOuttakeSpec)
                         )
-                ))
-                .withState(State.UNJAM, (state, name) -> Lambda.from(
-                            new Sequential(
-                                    Intake.setIntake(Intake.hoverPos),
-                                    new Wait(0.2)
-                            )
                 ));
 
         Paths.init();
@@ -221,6 +229,28 @@ public class Robot {
                             IntakeSlides.home(),
                             Robot.setState(State.TRANSFER)
                     ).schedule();
+                });
+    }
+
+    public static Lambda macroHalfCook() {
+        return new Lambda("macro-half-cook")
+                .setInit(() -> {
+                    new Sequential(
+                            Robot.setState(State.HOME),
+                            new Wait(0.1),
+                            Intake.extraIntake(),
+                            new Wait(0.25),
+                            IntakeSlides.home(),
+                            Outtake.setArm(Outtake.armTransferPos-.04),
+                            Outtake.setPivot(Outtake.pivotTranferPos),
+                            new Wait(0.25),
+                            Outtake.closeClaw(),
+                            new Wait(0.2),
+                            Outtake.setArm(Outtake.armHomePos),
+                            Outtake.setPivot(Outtake.pivotHomePos),
+                            OuttakeSlides.runToPosition(OuttakeSlides.safePos)
+                    ).schedule();
+                    stateMachine.setState(State.TRANSFER);
                 });
     }
 }

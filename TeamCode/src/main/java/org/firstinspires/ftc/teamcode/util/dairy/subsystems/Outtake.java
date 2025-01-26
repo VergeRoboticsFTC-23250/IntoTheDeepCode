@@ -176,7 +176,7 @@ public class Outtake implements Subsystem {
 
     public static Lambda setArm(double pos) {
         return new Lambda("set-arm")
-                .addRequirements(INSTANCE.armL, INSTANCE.armR)
+//                .addRequirements(INSTANCE.armL, INSTANCE.armR)
                 .setInit(() -> {
                     setPosition(pos);
                 });
@@ -184,7 +184,7 @@ public class Outtake implements Subsystem {
 
     public static Lambda setPivot(double pos){
         return new Lambda("set-pivot")
-                .addRequirements(INSTANCE.pivot)
+//                .addRequirements(INSTANCE.pivot)
                 .setInit(() -> pivot.setPosition(pos));
     }
 }

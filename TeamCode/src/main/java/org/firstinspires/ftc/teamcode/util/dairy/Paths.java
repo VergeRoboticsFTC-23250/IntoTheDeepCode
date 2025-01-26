@@ -66,18 +66,18 @@ public class Paths {
                         new BezierCurve(
                                 new Point(20.000, 12.500, Point.CARTESIAN),
                                 new Point(62.000, 18.500, Point.CARTESIAN),
-                                new Point(58.500, 8.000, Point.CARTESIAN)
+                                new Point(58.500, 9.000, Point.CARTESIAN)
                         )
                 ),//6
                 createPath( // push third sample
                         new BezierLine(
-                                new Point(58.500, 8.000, Point.CARTESIAN),
-                                new Point(20.000, 8.000, Point.CARTESIAN)
+                                new Point(58.500, 9.000, Point.CARTESIAN),
+                                new Point(20.000, 9.000, Point.CARTESIAN)
                         )
                 ),//7
                 createPath( // curve to plus 1 intake
                         new BezierCurve(
-                                new Point(20.000, 8.000, Point.CARTESIAN),
+                                new Point(20.000, 9.000, Point.CARTESIAN),
                                 new Point(27.000, 23.000, Point.CARTESIAN),
                                 new Point( 25, 34.5, Point.CARTESIAN),
                                 new Point(10.500 + intakeOffset + intakeOffset1, 33.000+3.5, Point.CARTESIAN)
@@ -169,12 +169,6 @@ public class Paths {
                 ), Math.toRadians(0), Math.toRadians(-45)
         );
 
-
-
-//        plusFourSpec.get(7).setPathEndTimeoutConstraint(500);
-//        plusFourSpec.get(10).setPathEndTimeoutConstraint(500);
-//        plusFourSpec.get(13).setPathEndTimeoutConstraint(500);
-//        plusFourSpec.get(16).setPathEndTimeoutConstraint(500);
     }
 
     public static Path pathTo(BezierLine line, Follower follower) {

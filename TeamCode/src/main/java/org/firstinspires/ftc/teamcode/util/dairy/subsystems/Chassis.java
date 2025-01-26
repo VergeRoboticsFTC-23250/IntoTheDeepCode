@@ -193,7 +193,10 @@ public class Chassis implements Subsystem {
         return new Lambda("follow-path-chain")
                 .addRequirements(INSTANCE)
                 .setInit(() -> follower.followPath(chain, true))
-                .setExecute(() -> follower.update())
-                .setFinish(() -> !follower.isBusy());
+                .setExecute(() -> {
+                    follower.update();
+                    telemetry.addData("pinpoint cooked", follower.isPinpointCooked());
+                })
+                .setFinish(() -> !follower.isBusy() || follower.isRobotStuck());
     }
 }

@@ -116,6 +116,10 @@ public class Teleop extends OpMode {
 
         arvind.dpadUp().onTrue(Intake.spintake(0.5)).onFalse(Intake.spintake(0));
 
+        arvind.dpadRight().onTrue(Robot.macroHalfCook());
+
+        arvind.triangle().onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
+
     }
 
     @Override

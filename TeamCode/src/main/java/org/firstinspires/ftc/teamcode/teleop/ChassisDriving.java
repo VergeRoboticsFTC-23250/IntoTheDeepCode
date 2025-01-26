@@ -35,36 +35,27 @@ public class ChassisDriving extends OpMode {
      */
     @Override
     public void loop() {
-        if (gamepad1.dpad_up) {
+        if (gamepad1.cross) {
             frontLeft.setPower(1);
-            backLeft.setPower(1);
-            frontRight.setPower(-1);
-            backRight.setPower(-1);
-        } else if (gamepad1.dpad_down) {
-            frontLeft.setPower(-1);
-            backLeft.setPower(-1);
             frontRight.setPower(1);
+            backLeft.setPower(1);
             backRight.setPower(1);
+        } else {
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
         }
 
-        double y = -gamepad1.right_stick_y; // Remember, Y stick value is reversed
-        double x = gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
-        double rx = gamepad1.left_stick_x;
-
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio,
-        // but only if at least one is out of the range [-1, 1]
-        double frontLeftPower = (y + x + rx);
-        double backLeftPower = (y - x + rx);
-        double frontRightPower = (y - x - rx);
-        double backRightPower = (y + x - rx);
-
-        boolean slow = gamepad1.right_bumper;
-
-        frontLeft.setPower(slow? frontLeftPower * 0.5 : frontLeftPower);
-        backLeft.setPower(slow? backLeftPower * 0.5 : backLeftPower);
-        frontRight.setPower(slow? frontRightPower * 0.5 : frontRightPower);
-        backRight.setPower(slow? backRightPower * 0.5: backRightPower);
+        if (gamepad1.dpad_up) {
+            frontLeft.setPower(-1);
+        } else if (gamepad1.dpad_right) {
+            frontRight.setPower(-1);
+        } else if (gamepad1.dpad_left) {
+            backLeft.setPower(-1);
+        } else if (gamepad1.dpad_down) {
+            backRight.setPower(-1);
+        }
 
     }
 }
