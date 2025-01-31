@@ -37,15 +37,15 @@ public class OuttakeSlides implements Subsystem {
     public static int safePos = 11200;
     public static int submersiblePos = safePos;
     public static int scoreSubmersiblePos = 26500;
+    public static int maxPos = 70000;
+    public static int bucketPos = maxPos;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
     public static double Kp = 0.00014;
     public static double Ki = 0.0000;
     public static double Kd = 0.0000;
     public static double Kf = 0.0000;
-    public static int maxPos = 70000;
-    public static int bucketPos = maxPos;
     public static int minPos = 0;
-    public static double currentLimit = 4;
+    public static double currentLimit = 1700;
     public static volatile boolean enablePID = true;
 
     public static PIDFController controller = new PIDFController(Kp, Ki, Kd, Kf);
@@ -63,8 +63,8 @@ public class OuttakeSlides implements Subsystem {
         slideR = hMap.get(DcMotorEx.class, "outtakeSR");
         slideL = hMap.get(DcMotorEx.class, "outtakeSL");
         encoder = hMap.get(DcMotorEx.class, "spintake");
-        slideR.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
-        slideL.setCurrentAlert(currentLimit, CurrentUnit.AMPS);
+        slideR.setCurrentAlert(currentLimit, CurrentUnit.MILLIAMPS);
+        slideL.setCurrentAlert(currentLimit, CurrentUnit.MILLIAMPS);
         slideR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         reset();
@@ -184,20 +184,12 @@ public class OuttakeSlides implements Subsystem {
         return new Lambda("home-outtake")
                 .setInit(() -> {
                     enablePID = false;
-                    setPower(-1);
+                    setPower(-0.5);
                 })
                 .setFinish(OuttakeSlides::isOverCurrent)
                 .setEnd((interrupted) -> {
-                    if (!interrupted) {
-                        reset();
-                        safePos += 11200;
-                        submersiblePos = safePos;
-                        scoreSubmersiblePos += 11200;
-                        minPos += 11200;
-                        maxPos += 11200;
-                        bucketPos = maxPos;
-                    }
                     setPower(0);
+                    reset();
                     enablePID = true;
                 });
     }

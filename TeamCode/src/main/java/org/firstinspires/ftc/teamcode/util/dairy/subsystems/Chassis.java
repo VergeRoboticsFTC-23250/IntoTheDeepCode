@@ -161,14 +161,12 @@ public class Chassis implements Subsystem {
     public static Lambda followPath(Path path) {
         return new Lambda("follow-path")
                 .addRequirements(INSTANCE)
-                .setInterruptible(true)
                 .setInit(() -> follower.followPath(path, true))
                 .setExecute(() -> {
                     follower.update();
                     follower.telemetryDebug(telemetry);
-
                 })
-                .setFinish(() -> !follower.isBusy())
+                .setFinish(() -> !follower.isBusy() || follower.isRobotStuck())
                 .setEnd((interrupted) -> {
                     if (interrupted) follower.breakFollowing();
                 });
@@ -183,7 +181,7 @@ public class Chassis implements Subsystem {
                     follower.update();
                     follower.telemetryDebug(telemetry);
                 })
-                .setFinish(() -> !follower.isBusy())
+                .setFinish(() -> !follower.isBusy() || follower.isRobotStuck())
                 .setEnd((interrupted) -> {
                     if (interrupted) follower.breakFollowing();
                 });

@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
@@ -14,6 +17,7 @@ import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
+import dev.frozenmilk.mercurial.bindings.BoundBooleanSupplier;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.commands.groups.Parallel;
@@ -34,6 +38,7 @@ public class Teleop extends OpMode {
     private BoundGamepad tejas;
     private BoundGamepad arvind;
 
+    private BoundBooleanSupplier arvTake;
 
     @Override
     public void init() {
@@ -73,13 +78,13 @@ public class Teleop extends OpMode {
 
         tejas.dpadUp()
                 .onTrue(
-                        OuttakeSlides.setPowerCommand(1.0)
+                        OuttakeSlides.setPowerCommand(0.5)
                 ).onFalse(
                         OuttakeSlides.setPowerCommand(0.0)
                 );
         tejas.dpadDown()
                 .onTrue(
-                        OuttakeSlides.setPowerCommand(-1.0)
+                        OuttakeSlides.setPowerCommand(-0.5)
                 ).onFalse(
                         OuttakeSlides.setPowerCommand(0.0)
                 );
@@ -96,6 +101,10 @@ public class Teleop extends OpMode {
                         Robot.manipulate()
                 );
 
+        tejas.share().and(tejas.options()).onTrue(
+                OuttakeSlides.home()
+        );
+
         arvind.rightTrigger().conditionalBindState().greaterThan(0.0).bind().whileTrue(
                 IntakeSlides.setPower(1.0)
         );
@@ -110,20 +119,35 @@ public class Teleop extends OpMode {
                 IntakeSlides.setPower(-IntakeSlides.constantPower)
         );
 
-        arvind.rightStickY().conditionalBindState().greaterThan(0.0).bind().onTrue(Intake.dropIntake()).onFalse(Intake.raiseIntake());
+        arvind.cross()
+                .onTrue(
+                        Robot.setState(Robot.State.HOME)
+                );
+
+        arvTake = arvind.rightStickY().conditionalBindState().greaterThan(0.0).bind();
+
+        arvTake.onTrue(Intake.dropIntake()).onFalse(Intake.raiseIntake());
 
         arvind.leftBumper().onTrue(Intake.spintake(-1)).onFalse(Intake.spintake(-0.1));
 
-        arvind.dpadUp().onTrue(Intake.spintake(0.5)).onFalse(Intake.spintake(0));
+        arvind.dpadUp().onTrue(Intake.spintake(0.3)).onFalse(Intake.spintake(0));
 
         arvind.dpadRight().onTrue(Robot.macroHalfCook());
 
         arvind.triangle().onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
 
+        arvind.dpadDown().and(arvTake).onTrue(Intake.setIntake(Intake.flatPos))
+                .onFalse(Intake.setIntake(Intake.dropPos));
     }
 
     @Override
     public void loop() {
-
+        telemetry.addData("right current", OuttakeSlides.slideR.getCurrent(CurrentUnit.MILLIAMPS));
+        telemetry.addData("right current", OuttakeSlides.slideL.getCurrent(CurrentUnit.MILLIAMPS));
+        telemetry.addData("Light Detected", ((OpticalDistanceSensor) Intake.color).getLightDetected());
+        telemetry.addData("Red", Intake.color.red());
+        telemetry.addData("Green", Intake.color.green());
+        telemetry.addData("Blue", Intake.color.blue());
+        telemetry.addData("Distance", Intake.distance.getDistance(DistanceUnit.MM));
     }
 }

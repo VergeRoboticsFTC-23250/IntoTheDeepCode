@@ -6,9 +6,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
-import org.firstinspires.ftc.teamcode.util.dairy.Robot;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -19,9 +16,7 @@ import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
 import dev.frozenmilk.mercurial.commands.Lambda;
-import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
-import dev.frozenmilk.util.cell.RefCell;
 import kotlin.annotation.MustBeDocumented;
 
 @Config
@@ -102,26 +97,8 @@ public class Outtake implements Subsystem {
     @Override
     public void postUserLoopHook(@NonNull Wrapper opMode) {}
 
-    // state is an isOpen boolean
-    public static StatefulLambda<RefCell<Boolean>> toggleClaw() {
-        return new StatefulLambda<RefCell<Boolean>>("toggle-claw", new RefCell<>(true))
-                .addRequirements(INSTANCE.claw)
-                .setInit((state) -> {
-                    if (state.get() == true) {
-                        setClaw(clawClosePos);
-                    } else {
-                        setClaw(clawOpenPos);
-                    }
-                })
-                .setEnd((interrupted, state) -> {
-                    if (!interrupted) {
-                        state.accept(!state.get());
-                    }
-                });
-    }
-
-    public static Lambda toggleThing() {
-        return new Lambda("toggle-thing")
+    public static Lambda toggleClaw() {
+        return new Lambda("toggle-claw")
                 .addRequirements(INSTANCE.claw)
                 .setInit(() -> {
                     if (isClawOpen) {

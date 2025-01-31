@@ -1,15 +1,21 @@
 package org.firstinspires.ftc.teamcode.util.dairy.subsystems;
 
+import static java.lang.Double.NaN;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 
@@ -23,6 +29,7 @@ import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
 import dev.frozenmilk.mercurial.Mercurial;
+import dev.frozenmilk.mercurial.bindings.BoundBooleanSupplier;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
@@ -30,7 +37,8 @@ import kotlin.annotation.MustBeDocumented;
 @Config
 public class Intake implements Subsystem {
     public static final Intake INSTANCE = new Intake();
-    public static double dropPos = 0.74;
+    public static double dropPos = 0.735;
+    public static double flatPos = 0.82;
     public static double hoverPos = 0.64;
     public static double raisePos = 0.46;
     public static double extraRaisePos = 0.35;
@@ -38,6 +46,13 @@ public class Intake implements Subsystem {
     public static Servo dropR;
     public static DcMotorEx spintake;
     public static boolean raised;
+    public static ColorSensor color;
+    public static DistanceSensor distance;
+    public static boolean prevHasSample;
+    public static boolean hasSample;
+    Gamepad.LedEffect.Builder yellow;
+    Gamepad.LedEffect.Builder blue;
+    Gamepad.LedEffect.Builder red;
     private Intake() {}
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
@@ -66,11 +81,50 @@ public class Intake implements Subsystem {
 
         spintake = hMap.get(DcMotorEx.class, "spintake");
 
+        color = hMap.get(ColorSensor.class, "color");
+        distance = hMap.get(DistanceSensor.class, "color");
+
+        yellow = new Gamepad.LedEffect.Builder().addStep(255,255,0,500);
+        blue = new Gamepad.LedEffect.Builder().addStep(0,0,255,500);
+        red = new Gamepad.LedEffect.Builder().addStep(255,0,0,500);
+
+
+    }
+
+    @Override
+    public void postUserLoopHook(@NonNull Wrapper opMode) {
+        hasSample = false;
+
+        if (!Double.isNaN(distance.getDistance(DistanceUnit.MM))
+                && distance.getDistance(DistanceUnit.MM) < 75) {
+
+            hasSample = true;
+
+            if (!prevHasSample) {
+                opMode.getOpMode().gamepad1.rumble(400);
+                opMode.getOpMode().gamepad2.rumble(400);
+
+            }
+
+            if (color.red() > 2000 && color.green() > 2000) {
+                opMode.getOpMode().gamepad1.runLedEffect(yellow.build());
+                opMode.getOpMode().gamepad2.runLedEffect(yellow.build());
+            } else if (color.red() > 1500 && color.green() < 1150) {
+                opMode.getOpMode().gamepad1.runLedEffect(red.build());
+                opMode.getOpMode().gamepad2.runLedEffect(red.build());
+            } else if (color.red() < 900 && color.green() > 1000) {
+                opMode.getOpMode().gamepad1.runLedEffect(blue.build());
+                opMode.getOpMode().gamepad2.runLedEffect(blue.build());
+            }
+
+        }
+
+        prevHasSample = hasSample;
     }
 
     @Override
     public void postUserStartHook(@NonNull Wrapper opMode) {
-//        raised = true;
+        raised = false;
     }
 
     private static void drop(){
@@ -111,7 +165,6 @@ public class Intake implements Subsystem {
 
     public static Lambda spintake(double power){
         return new Lambda("spintake")
-                .addRequirements(INSTANCE.spintake)
                 .setExecute(() -> spin(power))
                 .setFinish(() -> true);
     }

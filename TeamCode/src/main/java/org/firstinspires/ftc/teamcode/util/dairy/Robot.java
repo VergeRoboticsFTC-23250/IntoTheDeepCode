@@ -12,9 +12,7 @@ import java.util.Map;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.mercurial.commands.Lambda;
-import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
-import dev.frozenmilk.mercurial.commands.util.IfElse;
 import dev.frozenmilk.mercurial.commands.util.StateMachine;
 import dev.frozenmilk.mercurial.commands.util.Wait;
 
@@ -105,13 +103,6 @@ public class Robot {
 //                                        Intake.dropIntake().then(new Wait(0.4)),
 //                                        new Wait(0)
 //                                ),
-                                new IfElse(
-                                        () -> Intake.raised,
-                                        Intake.setIntake(Intake.hoverPos),
-                                        new Wait(0)
-                                ),
-                                Intake.setIntake(Intake.hoverPos),
-                                new Wait(0.2),
                                 Outtake.openClaw(),
                                 Outtake.setArm(home.armPos),
                                 Outtake.setPivot(home.pivotPos),
@@ -130,11 +121,6 @@ public class Robot {
                 ))
                 .withState(State.OUTTAKE_SUBMERSIBLE, (state, name) -> Lambda.from(
                         new Sequential(
-                                new IfElse(
-                                        () -> Intake.raised,
-                                        Intake.setIntake(Intake.hoverPos),
-                                        new Wait(0)
-                                ),
                                 new Wait(0.2),
                                 Outtake.closeClaw(),
                                 OuttakeSlides.runToPosition(outtakeSubmersible.slidePos),
@@ -184,6 +170,12 @@ public class Robot {
     public static Lambda setState(State state) {
         return new Lambda("set-state")
                 .setInit(() -> {
+                    if (stateMachine.getState().equals(State.INTAKE_SPEC) && state.equals(State.OUTTAKE_SUBMERSIBLE)) {
+                        new Sequential(
+                                Intake.setIntake(Intake.hoverPos),
+                                new Wait(0.15)
+                        ).schedule();
+                    }
                     stateMachine.schedule(state);
                 })
                 .setFinish(() -> true);
@@ -192,17 +184,16 @@ public class Robot {
     public static Lambda manipulate() {
         return new Lambda("manipulate")
                 .setInit(() -> {
-                    if (stateMachine.getState().equals(State.OUTTAKE_SUBMERSIBLE)) {
+                    if (stateMachine.getState().equals(State.OUTTAKE_SUBMERSIBLE))
                         stateMachine.schedule(State.OUTTAKE_SUBMERSIBLE_SCORE);
-                    } else if (stateMachine.getState().equals(State.HOME)) {
-                        new Sequential(
-                                Robot.setState(State.TRANSFER)
-                        ).schedule();
-                    } else if (stateMachine.getState().equals(State.TRANSFER)) {
-                        new Sequential(
-                                Robot.setState(State.OUTTAKE_SPEC)
-                        ).schedule();
-                    } else { Outtake.toggleThing().schedule(); }
+
+                     else if (stateMachine.getState().equals(State.HOME))
+                        Robot.setState(State.TRANSFER).schedule();
+
+                     else if (stateMachine.getState().equals(State.TRANSFER))
+                        Robot.setState(State.OUTTAKE_SPEC).schedule();
+
+                     else Outtake.toggleClaw().schedule();
                 });
     }
 
@@ -211,9 +202,12 @@ public class Robot {
                 .setInit(() -> {
                     new Sequential(
                             Robot.setState(State.HOME),
+                            Intake.spintake(-1),
+                            Intake.raiseIntake(),
                             new Wait(0.1),
                             IntakeSlides.home(),
-                            Robot.setState(State.TRANSFER)
+                            Robot.setState(State.TRANSFER),
+                            Intake.spintake(-0.1)
                     ).schedule();
                 });
     }
@@ -223,11 +217,13 @@ public class Robot {
                 .setInit(() -> {
                     new Sequential(
                             Robot.setState(State.HOME),
+                            Intake.spintake(-1),
                             new Wait(0.1),
                             Intake.extraIntake(),
                             new Wait(0.25),
                             IntakeSlides.home(),
-                            Robot.setState(State.TRANSFER)
+                            Robot.setState(State.TRANSFER),
+                            Intake.spintake(-0.1)
                     ).schedule();
                 });
     }
@@ -237,6 +233,7 @@ public class Robot {
                 .setInit(() -> {
                     new Sequential(
                             Robot.setState(State.HOME),
+                            Intake.spintake(-1),
                             new Wait(0.1),
                             Intake.extraIntake(),
                             new Wait(0.25),
@@ -248,7 +245,8 @@ public class Robot {
                             new Wait(0.2),
                             Outtake.setArm(Outtake.armHomePos),
                             Outtake.setPivot(Outtake.pivotHomePos),
-                            OuttakeSlides.runToPosition(OuttakeSlides.safePos)
+                            OuttakeSlides.runToPosition(OuttakeSlides.safePos),
+                            Intake.spintake(-0.1)
                     ).schedule();
                     stateMachine.setState(State.TRANSFER);
                 });
