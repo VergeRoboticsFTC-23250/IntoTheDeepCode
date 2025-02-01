@@ -144,10 +144,10 @@ public class Teleop extends OpMode {
     public void loop() {
         telemetry.addData("right current", OuttakeSlides.slideR.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.addData("right current", OuttakeSlides.slideL.getCurrent(CurrentUnit.MILLIAMPS));
-        telemetry.addData("Light Detected", ((OpticalDistanceSensor) Intake.color).getLightDetected());
-        telemetry.addData("Red", Intake.color.red());
-        telemetry.addData("Green", Intake.color.green());
-        telemetry.addData("Blue", Intake.color.blue());
-        telemetry.addData("Distance", Intake.distance.getDistance(DistanceUnit.MM));
+//        telemetry.addData("Light Detected", ((OpticalDistanceSensor) Intake.color).getLightDetected());
+//        telemetry.addData("Red", Intake.color.red());
+//        telemetry.addData("Green", Intake.color.green());
+//        telemetry.addData("Blue", Intake.color.blue());
+//        telemetry.addData("Distance", Intake.distance.getDistance(DistanceUnit.MM));
     }
 }

@@ -46,13 +46,13 @@ public class Intake implements Subsystem {
     public static Servo dropR;
     public static DcMotorEx spintake;
     public static boolean raised;
-    public static ColorSensor color;
-    public static DistanceSensor distance;
-    public static boolean prevHasSample;
-    public static boolean hasSample;
-    Gamepad.LedEffect.Builder yellow;
-    Gamepad.LedEffect.Builder blue;
-    Gamepad.LedEffect.Builder red;
+//    public static ColorSensor color;
+//    public static DistanceSensor distance;
+//    public static boolean prevHasSample;
+//    public static boolean hasSample;
+//    Gamepad.LedEffect.Builder yellow;
+//    Gamepad.LedEffect.Builder blue;
+//    Gamepad.LedEffect.Builder red;
     private Intake() {}
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
@@ -81,45 +81,45 @@ public class Intake implements Subsystem {
 
         spintake = hMap.get(DcMotorEx.class, "spintake");
 
-        color = hMap.get(ColorSensor.class, "color");
-        distance = hMap.get(DistanceSensor.class, "color");
-
-        yellow = new Gamepad.LedEffect.Builder().addStep(255,255,0,500);
-        blue = new Gamepad.LedEffect.Builder().addStep(0,0,255,500);
-        red = new Gamepad.LedEffect.Builder().addStep(255,0,0,500);
+//        color = hMap.get(ColorSensor.class, "color");
+//        distance = hMap.get(DistanceSensor.class, "color");
+//
+//        yellow = new Gamepad.LedEffect.Builder().addStep(255,255,0,500);
+//        blue = new Gamepad.LedEffect.Builder().addStep(0,0,255,500);
+//        red = new Gamepad.LedEffect.Builder().addStep(255,0,0,500);
 
 
     }
 
     @Override
     public void postUserLoopHook(@NonNull Wrapper opMode) {
-        hasSample = false;
-
-        if (!Double.isNaN(distance.getDistance(DistanceUnit.MM))
-                && distance.getDistance(DistanceUnit.MM) < 75) {
-
-            hasSample = true;
-
-            if (!prevHasSample) {
-                opMode.getOpMode().gamepad1.rumble(400);
-                opMode.getOpMode().gamepad2.rumble(400);
-
-            }
-
-            if (color.red() > 2000 && color.green() > 2000) {
-                opMode.getOpMode().gamepad1.runLedEffect(yellow.build());
-                opMode.getOpMode().gamepad2.runLedEffect(yellow.build());
-            } else if (color.red() > 1500 && color.green() < 1150) {
-                opMode.getOpMode().gamepad1.runLedEffect(red.build());
-                opMode.getOpMode().gamepad2.runLedEffect(red.build());
-            } else if (color.red() < 900 && color.green() > 1000) {
-                opMode.getOpMode().gamepad1.runLedEffect(blue.build());
-                opMode.getOpMode().gamepad2.runLedEffect(blue.build());
-            }
-
-        }
-
-        prevHasSample = hasSample;
+//        hasSample = false;
+//
+//        if (!Double.isNaN(distance.getDistance(DistanceUnit.MM))
+//                && distance.getDistance(DistanceUnit.MM) < 75) {
+//
+//            hasSample = true;
+//
+//            if (!prevHasSample) {
+//                opMode.getOpMode().gamepad1.rumble(400);
+//                opMode.getOpMode().gamepad2.rumble(400);
+//
+//            }
+//
+//            if (color.red() > 2000 && color.green() > 2000) {
+//                opMode.getOpMode().gamepad1.runLedEffect(yellow.build());
+//                opMode.getOpMode().gamepad2.runLedEffect(yellow.build());
+//            } else if (color.red() > 1500 && color.green() < 1150) {
+//                opMode.getOpMode().gamepad1.runLedEffect(red.build());
+//                opMode.getOpMode().gamepad2.runLedEffect(red.build());
+//            } else if (color.red() < 900 && color.green() > 1000) {
+//                opMode.getOpMode().gamepad1.runLedEffect(blue.build());
+//                opMode.getOpMode().gamepad2.runLedEffect(blue.build());
+//            }
+//
+//        }
+//
+//        prevHasSample = hasSample;
     }
 
     @Override
