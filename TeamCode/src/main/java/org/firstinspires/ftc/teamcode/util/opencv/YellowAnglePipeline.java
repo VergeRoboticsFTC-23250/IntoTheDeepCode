@@ -10,14 +10,16 @@ import java.util.List;
 public class YellowAnglePipeline extends OpenCvPipeline {
     private static final double CAMERA_HORIZONTAL_FOV = 60.0; // Dummy value
     private static final double CAMERA_VERTICAL_FOV = 45.0;   // Dummy value
+    private static double angle;
+    private static double xOffset;
+    private static double yOffset;
+    Mat hsv = new Mat();
+    Mat mask = new Mat();
+    Mat hierarchy = new Mat();
+    List<MatOfPoint> contours = new ArrayList<>();
 
     @Override
     public Mat processFrame(Mat input) {
-        Mat hsv = new Mat();
-        Mat mask = new Mat();
-        Mat hierarchy = new Mat();
-        List<MatOfPoint> contours = new ArrayList<>();
-
         // Convert to HSV color space
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
@@ -59,7 +61,7 @@ public class YellowAnglePipeline extends OpenCvPipeline {
             Imgproc.circle(input, rect.center, 5, new Scalar(255, 0, 0), -1);
 
             // Calculate corrected angle in range [0, 180]
-            double angle = rect.angle;
+            angle = rect.angle;
             if (rect.size.width < rect.size.height) {
                 angle += 90;
             }
@@ -67,8 +69,8 @@ public class YellowAnglePipeline extends OpenCvPipeline {
             // Calculate offsets as a fraction of the camera's FOV
             double imageCenterX = input.width() / 2.0;
             double imageCenterY = input.height() / 2.0;
-            double xOffset = (rect.center.x - imageCenterX) / imageCenterX * (CAMERA_HORIZONTAL_FOV / 2.0);
-            double yOffset = (rect.center.y - imageCenterY) / imageCenterY * (CAMERA_VERTICAL_FOV / 2.0);
+             xOffset = (rect.center.x - imageCenterX) / imageCenterX * (CAMERA_HORIZONTAL_FOV / 2.0);
+             yOffset = (rect.center.y - imageCenterY) / imageCenterY * (CAMERA_VERTICAL_FOV / 2.0);
 
             // Display angle and offsets
             String angleText = String.format("Angle: %.2f", angle);
@@ -81,4 +83,8 @@ public class YellowAnglePipeline extends OpenCvPipeline {
 
         return input;
     }
+
+    public double getPosition() { return angle / 180.0; }
+    public double getX() { return xOffset; }
+    public double getY() { return yOffset; }
 }

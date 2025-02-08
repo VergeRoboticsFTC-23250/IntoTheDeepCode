@@ -2,11 +2,17 @@ package org.firstinspires.ftc.teamcode.util.dairy;
 
 import com.pedropathing.pathgen.PathBuilder;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
+import org.firstinspires.ftc.teamcode.util.opencv.YellowAnglePipeline;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Map;
 
@@ -17,6 +23,9 @@ import dev.frozenmilk.mercurial.commands.util.StateMachine;
 import dev.frozenmilk.mercurial.commands.util.Wait;
 
 public class Robot {
+
+    public static YellowAnglePipeline pipeline;
+    public static OpenCvWebcam webcam;
 
     public static volatile State currentState = State.HOME;
 
@@ -165,6 +174,23 @@ public class Robot {
                 ));
 
         Paths.init();
+
+        int cameraMonitorViewId = FeatureRegistrar.getActiveOpMode().hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", FeatureRegistrar.getActiveOpMode().hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(FeatureRegistrar.getActiveOpMode().hardwareMap.get(WebcamName.class, "clawcam"), cameraMonitorViewId);
+        pipeline = new YellowAnglePipeline();
+        webcam.setPipeline(pipeline);
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                webcam.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {}
+        });
+
     }
 
     public static Lambda setState(State state) {

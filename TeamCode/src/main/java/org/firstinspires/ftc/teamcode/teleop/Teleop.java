@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Claw;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
@@ -30,6 +31,7 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 @OuttakeSlides.Attach
 @Intake.Attach
 @Outtake.Attach
+@Claw.Attach
 @BulkRead.Attach
 @LoopTimes.Attach
 @FeatureRegistrar.LogDependencyResolutionExceptions
@@ -138,16 +140,14 @@ public class Teleop extends OpMode {
 
         arvind.dpadDown().and(arvTake).onTrue(Intake.setIntake(Intake.flatPos))
                 .onFalse(Intake.setIntake(Intake.dropPos));
+
+//        arvind.dpadLeft().onTrue(Claw.autoAlign(Robot.pipeline.getPosition()));
     }
 
     @Override
     public void loop() {
         telemetry.addData("right current", OuttakeSlides.slideR.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.addData("right current", OuttakeSlides.slideL.getCurrent(CurrentUnit.MILLIAMPS));
-//        telemetry.addData("Light Detected", ((OpticalDistanceSensor) Intake.color).getLightDetected());
-//        telemetry.addData("Red", Intake.color.red());
-//        telemetry.addData("Green", Intake.color.green());
-//        telemetry.addData("Blue", Intake.color.blue());
-//        telemetry.addData("Distance", Intake.distance.getDistance(DistanceUnit.MM));
+        telemetry.addData("pipeline", Robot.pipeline.getPosition());
     }
 }
