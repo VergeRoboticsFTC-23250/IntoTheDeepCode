@@ -40,7 +40,7 @@ public class Intake implements Subsystem {
     public static double dropPos = 0.735;
     public static double flatPos = 0.82;
     public static double hoverPos = 0.64;
-    public static double raisePos = 0.46;
+    public static double raisePos = 0.48;
     public static double extraRaisePos = 0.35;
     public static Servo dropL;
     public static Servo dropR;

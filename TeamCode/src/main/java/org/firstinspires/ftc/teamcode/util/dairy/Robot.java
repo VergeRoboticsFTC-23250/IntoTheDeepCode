@@ -187,12 +187,6 @@ public class Robot {
                     if (stateMachine.getState().equals(State.OUTTAKE_SUBMERSIBLE))
                         stateMachine.schedule(State.OUTTAKE_SUBMERSIBLE_SCORE);
 
-                     else if (stateMachine.getState().equals(State.HOME))
-                        Robot.setState(State.TRANSFER).schedule();
-
-                     else if (stateMachine.getState().equals(State.TRANSFER))
-                        Robot.setState(State.OUTTAKE_SPEC).schedule();
-
                      else Outtake.toggleClaw().schedule();
                 });
     }
@@ -201,13 +195,12 @@ public class Robot {
         return new Lambda("macro-no-cook")
                 .setInit(() -> {
                     new Sequential(
-                            Robot.setState(State.HOME),
                             Intake.spintake(-1),
+                            Robot.setState(State.HOME),
                             Intake.raiseIntake(),
                             new Wait(0.1),
                             IntakeSlides.home(),
-                            Robot.setState(State.TRANSFER),
-                            Intake.spintake(-0.1)
+                            Robot.setState(State.TRANSFER)
                     ).schedule();
                 });
     }

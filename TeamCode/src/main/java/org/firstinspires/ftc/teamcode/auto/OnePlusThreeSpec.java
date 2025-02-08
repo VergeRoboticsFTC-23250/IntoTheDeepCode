@@ -16,7 +16,6 @@ import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
-import dev.frozenmilk.mercurial.commands.util.Wait;
 
 @Mercurial.Attach
 @Chassis.Attach
@@ -29,6 +28,11 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 @Autonomous
 public class OnePlusThreeSpec extends OpMode {
 
+    public static long intakeDelay = 250;
+    public static double intakePower = -0.5;
+    public static long outtakeDelay = 500;
+    public static double outtakePower = 1;
+
     @Override
     public void init() {
         Robot.init();
@@ -36,7 +40,6 @@ public class OnePlusThreeSpec extends OpMode {
         Outtake.isClawOpen = false;
         Outtake.setPosition(Outtake.armSpecPos);
         Outtake.setPivotManual(Outtake.pivotSpecPos);
-        IntakeSlides.extendo.setPower(-IntakeSlides.constantPower);
 
         Robot.stateMachine.setState(Robot.State.INTAKE_SPEC);
     }
@@ -48,7 +51,8 @@ public class OnePlusThreeSpec extends OpMode {
     @Override
     public void start() {
         new Sequential(
-                IntakeSlides.setPower(-IntakeSlides.constantPower),
+                IntakeSlides.setPower(-0.3),
+                Intake.setIntake(Intake.hoverPos),
                 OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
 
                 // Preload
@@ -56,8 +60,10 @@ public class OnePlusThreeSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(0))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
-                new Wait(0.5),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Outtake.openClaw(),
 
                 // Pushing samples
@@ -73,7 +79,7 @@ public class OnePlusThreeSpec extends OpMode {
                 Chassis.followPath(Paths.plusFourSpec.get(7)),
 
                 // plus 1 intake
-                new Wait(0.5),
+                Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 1 outtake
@@ -81,9 +87,11 @@ public class OnePlusThreeSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(8))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Chassis.followPath(Paths.plusFourSpec.get(9)),
-                new Wait(0.5),
                 Outtake.openClaw(),
 
                 // plus 2 intake
@@ -91,7 +99,7 @@ public class OnePlusThreeSpec extends OpMode {
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         Chassis.followPath(Paths.plusFourSpec.get(10))
                 ),
-                new Wait(0.5),
+                Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 2 outtake
@@ -99,9 +107,11 @@ public class OnePlusThreeSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(11))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Chassis.followPath(Paths.plusFourSpec.get(12)),
-                new Wait(0.5),
                 Outtake.openClaw(),
 
                 // plus 3 intake
@@ -109,7 +119,7 @@ public class OnePlusThreeSpec extends OpMode {
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         Chassis.followPath(Paths.plusFourSpec.get(13))
                 ),
-                new Wait(0.5),
+                Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 3 outtake
@@ -117,16 +127,38 @@ public class OnePlusThreeSpec extends OpMode {
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
                         Chassis.followPath(Paths.plusFourSpec.get(14))
                 ),
-                Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE),
+                new Parallel(
+                        Chassis.push(outtakePower, outtakeDelay),
+                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+                ),
                 Chassis.followPath(Paths.plusFourSpec.get(15)),
-                new Wait(0.5),
                 Outtake.openClaw(),
 
-                // park
+                // plus 4 intake
                 new Parallel(
                         Robot.setState(Robot.State.INTAKE_SPEC),
-                        Chassis.followPath(Paths.parkWithSpecPush)
+                        Chassis.followPath(Paths.plusFourSpec.get(16))
                 )
+
+//                Chassis.push(intakePower, intakeDelay),
+//                Outtake.closeClaw(),
+//
+//                // plus 4 outtake
+//                new Parallel(
+//                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE),
+//                        Chassis.followPath(Paths.plusFourSpec.get(17))
+//                ),
+//                new Parallel(
+//                        Chassis.push(outtakePower, outtakeDelay),
+//                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
+//                ),
+//                Outtake.openClaw(),
+//
+//                // park
+//                new Parallel(
+//                        Robot.setState(Robot.State.INTAKE_SPEC),
+//                        Chassis.followPath(Paths.plusFourSpec.get(18))
+//                )
         )
                 .schedule();
     }

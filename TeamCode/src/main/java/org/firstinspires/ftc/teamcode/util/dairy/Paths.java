@@ -1,13 +1,10 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
-
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -172,6 +169,9 @@ public class Paths {
     }
 
     public static Path pathTo(BezierLine line, Follower follower) {
+
+
+
         return createPath(
                 new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY()),
@@ -180,8 +180,9 @@ public class Paths {
         );
     }
 
-    public static Path pathTo(BezierCurve curve, Follower follower) {
+    public static Path curveTo(BezierCurve curve, Follower follower) {
         ArrayList<Point> controlPoints = curve.getControlPoints();
+        controlPoints.remove(0);
 
         // Always include the first point (follower position)
         List<Point> points = new ArrayList<>();
@@ -189,9 +190,6 @@ public class Paths {
 
         // Add as many control points as available
         points.addAll(controlPoints);
-
-        // Add the last control point
-        points.add(curve.getLastControlPoint());
 
         return createPath(new BezierCurve(points.toArray(new Point[0])));
     }
