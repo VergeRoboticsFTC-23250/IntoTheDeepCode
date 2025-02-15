@@ -146,8 +146,8 @@ public class Teleop extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("right current", OuttakeSlides.slideR.getCurrent(CurrentUnit.MILLIAMPS));
-        telemetry.addData("right current", OuttakeSlides.slideL.getCurrent(CurrentUnit.MILLIAMPS));
-        telemetry.addData("pipeline", Robot.pipeline.getPosition());
+//        telemetry.addData("right current", OuttakeSlides.slideR.getCurrent(CurrentUnit.MILLIAMPS));
+//        telemetry.addData("right current", OuttakeSlides.slideL.getCurrent(CurrentUnit.MILLIAMPS));
+//        telemetry.addData("pipeline", Robot.pipeline.getPosition());
     }
 }

@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class YellowAnglePipeline extends OpenCvPipeline {
-    private static final double CAMERA_HORIZONTAL_FOV = 60.0; // Dummy value
-    private static final double CAMERA_VERTICAL_FOV = 45.0;   // Dummy value
+    private static final double CAMERA_HORIZONTAL_FOV = 70.42;
+    private static final double CAMERA_VERTICAL_FOV = 43.3;
     private static double angle;
     private static double xOffset;
     private static double yOffset;
-    Mat hsv = new Mat();
-    Mat mask = new Mat();
-    Mat hierarchy = new Mat();
-    List<MatOfPoint> contours = new ArrayList<>();
+    private Mat hsv = new Mat();
+    private Mat mask = new Mat();
+    private Mat hierarchy = new Mat();
+    private List<MatOfPoint> contours = new ArrayList<>();
 
     @Override
     public Mat processFrame(Mat input) {

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 public class testop extends LinearOpMode {
     public static boolean invert = false;
     public static boolean enableS2 = false;
-    public static String s1 = "armL";
+    public static String s1 = "wrist";
     public static String s2 = "armR";
     public static String m = "leftFront";
     public static String m2 = "outtakeSL";
@@ -26,9 +26,9 @@ public class testop extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         TouchSensor touch = hardwareMap.get(TouchSensor.class, "touchSlide");
-//        Servo servo = hardwareMap.get(Servo.class, s1);
-//        Servo servo2 = hardwareMap.get(Servo.class, s2);
-//        if (invert) servo.setDirection(Servo.Direction.REVERSE);
+        Servo servo = hardwareMap.get(Servo.class, s1);
+        Servo servo2 = hardwareMap.get(Servo.class, s2);
+        if (invert) servo.setDirection(Servo.Direction.REVERSE);
 
         DcMotorEx motor = hardwareMap.get(DcMotorEx.class, m);
         DcMotorEx motor2 = hardwareMap.get(DcMotorEx.class, m2);
@@ -43,12 +43,12 @@ public class testop extends LinearOpMode {
 
 
         while (opModeIsActive()){
-//            if (gamepad1.left_stick_y != 0){
-//                servo.setPosition(invert? -gamepad1.left_stick_y / 2 + 0.5 : gamepad1.left_stick_y / 2 + 0.5);
-//                if(enableS2){
-//                    servo2.setPosition(gamepad1.left_stick_y / 2 + 0.5);
-//                }
-//            }
+            if (gamepad1.left_stick_y != 0){
+                servo.setPosition(invert? -gamepad1.left_stick_y / 2 + 0.5 : gamepad1.left_stick_y / 2 + 0.5);
+                if(enableS2){
+                    servo2.setPosition(gamepad1.left_stick_y / 2 + 0.5);
+                }
+            }
             telemetry.addData("touch pressed", touch.isPressed());
             motor.setPower(gamepad1.right_stick_y);
             if (enableM2){
@@ -57,15 +57,15 @@ public class testop extends LinearOpMode {
             telemetry.addData("point x", line.getLastControlPoint().getX());
             telemetry.addData("point x", line.getLastControlPoint().getY());
             telemetry.update();
-//            if (gamepad1.square) {
-//                servo.setPosition(0); //open
-//                if (enableS2){
-//                    servo2.setPosition(0);
-//                }
-//            } else if (gamepad1.circle) {
-//                servo.setPosition(.715);
-//                if (enableS2) servo2.setPosition(0.715);
-//            }
+            if (gamepad1.square) {
+                servo.setPosition(0); //open
+                if (enableS2){
+                    servo2.setPosition(0);
+                }
+            } else if (gamepad1.circle) {
+                servo.setPosition(.715);
+                if (enableS2) servo2.setPosition(0.715);
+            }
         }
     }
 }

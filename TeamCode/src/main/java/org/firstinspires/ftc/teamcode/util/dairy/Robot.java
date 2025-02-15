@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
+import android.graphics.ImageFormat;
+
 import com.pedropathing.pathgen.PathBuilder;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -175,21 +177,21 @@ public class Robot {
 
         Paths.init();
 
-        int cameraMonitorViewId = FeatureRegistrar.getActiveOpMode().hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", FeatureRegistrar.getActiveOpMode().hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(FeatureRegistrar.getActiveOpMode().hardwareMap.get(WebcamName.class, "clawcam"), cameraMonitorViewId);
-        pipeline = new YellowAnglePipeline();
-        webcam.setPipeline(pipeline);
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
-            @Override
-            public void onOpened()
-            {
-                webcam.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
-            }
-
-            @Override
-            public void onError(int errorCode) {}
-        });
+//        int cameraMonitorViewId = FeatureRegistrar.getActiveOpMode().hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", FeatureRegistrar.getActiveOpMode().hardwareMap.appContext.getPackageName());
+//        webcam = OpenCvCameraFactory.getInstance().createWebcam(FeatureRegistrar.getActiveOpMode().hardwareMap.get(WebcamName.class, "clawcam"), cameraMonitorViewId);
+//        pipeline = new YellowAnglePipeline();
+//        webcam.setPipeline(pipeline);
+//        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+//        {
+//            @Override
+//            public void onOpened()
+//            {
+//                webcam.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
+//            }
+//
+//            @Override
+//            public void onError(int errorCode) {}
+//        });
 
     }
 
