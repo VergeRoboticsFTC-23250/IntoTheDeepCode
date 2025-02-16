@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.util.opencv;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
@@ -17,43 +18,56 @@ public class YellowAnglePipeline extends OpenCvPipeline {
     private final Mat mask = new Mat();
     private final Mat hierarchy = new Mat();
     public static double MAX_CONTOUR_SIZE = 215000.0;
-    public static double PCB_HEIGHT_IN = 10;
+    public static double PCB_HEIGHT_IN = 8.218;
     public static double LENS_HEIGHT_IN = 0.63;
+    public static Scalar lowerYellow = new Scalar(20, 100, 100);
+    public static Scalar upperYellow = new Scalar(30, 255, 255);
 
     @Override
     public Mat processFrame(Mat input) {
         // Convert to HSV color space
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
-        // Define yellow color range
-        Scalar lowerYellow = new Scalar(20, 100, 100);
-        Scalar upperYellow = new Scalar(30, 255, 255);
-
         // Threshold to detect yellow
         Core.inRange(hsv, lowerYellow, upperYellow, mask);
 
-        // Morphological operations to reduce noise
-        Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3)));
-        Imgproc.dilate(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)));
+        // Check contour size and adjust erosion and dilation accordingly
+        if (Core.countNonZero(mask) > MAX_CONTOUR_SIZE) {
+            Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24)));
+            Imgproc.dilate(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(4, 4)));
+        } else {
+            Imgproc.dilate(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(4, 4)));
+            Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24)));
+        }
 
         List<MatOfPoint> contours = new ArrayList<>();
 
         // Find contours
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        // Find the largest contour
-        MatOfPoint largestContour = null;
+        // Find the largest contour that is closest to the bottom left and less than MAX_CONTOUR_SIZE
+        MatOfPoint bestContour = null;
         double maxArea = 0;
+        double minDistanceToBottomLeft = Double.MAX_VALUE;
+        Point bottomLeft = new Point(0, input.height());
+
         for (MatOfPoint contour : contours) {
             double area = Imgproc.contourArea(contour);
-            if (area > maxArea) {
-                maxArea = area;
-                largestContour = contour;
+            if (area < MAX_CONTOUR_SIZE) {
+                Moments moments = Imgproc.moments(contour);
+                Point contourCenter = new Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
+                double distanceToBottomLeft = Math.hypot(contourCenter.x - bottomLeft.x, contourCenter.y - bottomLeft.y);
+
+                if (area > maxArea || (area == maxArea && distanceToBottomLeft < minDistanceToBottomLeft)) {
+                    maxArea = area;
+                    minDistanceToBottomLeft = distanceToBottomLeft;
+                    bestContour = contour;
+                }
             }
         }
 
-        if (largestContour != null && maxArea < MAX_CONTOUR_SIZE) {
-            MatOfPoint2f contour2f = new MatOfPoint2f(largestContour.toArray());
+        if (bestContour != null) {
+            MatOfPoint2f contour2f = new MatOfPoint2f(bestContour.toArray());
             RotatedRect rect = Imgproc.minAreaRect(contour2f);
             Point[] box = new Point[4];
             rect.points(box);
@@ -82,9 +96,11 @@ public class YellowAnglePipeline extends OpenCvPipeline {
             double x = Math.tan(Math.toRadians(tx)) * (PCB_HEIGHT_IN - LENS_HEIGHT_IN);
             double y = Math.tan(Math.toRadians(ty)) * (PCB_HEIGHT_IN - LENS_HEIGHT_IN);
             String distanceText = String.format("X Distance: %.2f, Y Distance: %.2f", x, y);
+            String sizeText = String.format("Size: %.2f", maxArea);
             Imgproc.putText(input, angleText, new Point(rect.center.x + 10, rect.center.y - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.putText(input, offsetText, new Point(rect.center.x + 10, rect.center.y + 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.putText(input, distanceText, new Point(rect.center.x + 10, rect.center.y + 30), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
+            Imgproc.putText(input, sizeText, new Point(rect.center.x + 10, rect.center.y + 50), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.circle(input, new Point(imageCenterX, imageCenterY), 5, new Scalar(255, 0, 0), -1);
             // the circle is the center of the image
         }
