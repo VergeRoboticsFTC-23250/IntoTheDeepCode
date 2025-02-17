@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 
 import java.lang.annotation.ElementType;
@@ -89,7 +90,7 @@ public class Chassis implements Subsystem {
         dashboardPoseTracker = Chassis.follower.getDashboardPoseTracker();
 
         if (Robot.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
-            follower.setStartingPose(new Pose(9, 65, 0));
+            follower.setStartingPose(Paths.bucketStart);
         } else {
             setDefaultCommand(drive(Mercurial.gamepad1()));
         }
@@ -125,7 +126,7 @@ public class Chassis implements Subsystem {
                 })
                 .setFinish(() -> false);
     }
-    public static Lambda push(double pow, long time){
+    public static Lambda push(double pow, long time) {
         AtomicLong startTime = new AtomicLong();
         return new Lambda("push-drive")
                 .setInit(() -> {
@@ -193,7 +194,7 @@ public class Chassis implements Subsystem {
                 .setInit(() -> follower.followPath(chain, true))
                 .setExecute(() -> {
                     follower.update();
-                    telemetry.addData("pinpoint cooked", follower.isPinpointCooked());
+//                    telemetry.addData("pinpoint cooked", follower.isPinpointCooked());
                 })
                 .setFinish(() -> !follower.isBusy() || follower.isRobotStuck());
     }
