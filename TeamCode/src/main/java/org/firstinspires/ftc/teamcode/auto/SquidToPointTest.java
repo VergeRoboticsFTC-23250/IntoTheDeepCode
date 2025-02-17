@@ -60,6 +60,6 @@ public class SquidToPointTest extends OpMode {
         tejas.dpadUp().onTrue(Chassis.driveToPoint(new Pose(12, 0, 0)));
         tejas.dpadRight().onTrue(Chassis.driveToPoint(new Pose(0, -12, 0)));
 
-        tejas.rightBumper().onTrue(Chassis.driveToPoint(new Pose(10, 10, Math.PI/4)));
+        tejas.rightBumper().onTrue(Chassis.driveToPoint(new Pose(10, 10, 0)));
     }
 }

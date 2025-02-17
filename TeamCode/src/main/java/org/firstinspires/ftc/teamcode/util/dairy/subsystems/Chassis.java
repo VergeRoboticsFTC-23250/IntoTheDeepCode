@@ -51,17 +51,17 @@ public class Chassis implements Subsystem {
     public static DashboardPoseTracker dashboardPoseTracker;
 
     //Custom Follower
-    public static boolean enableSQUID = false;
+    public static boolean enableSQUID = true;
     public static boolean holdPoint = true;
-    public static double Kp_drive = 0.1;
+    public static double Kp_drive = .3;
     public static double Ki_drive = 0;
-    public static double Kd_drive = 0.008;
-    public static double Kp_lateral = 0.1;
+    public static double Kd_drive = 0.03;
+    public static double Kp_lateral = .3;
     public static double Ki_lateral = 0;
-    public static double Kd_lateral = 0.008;
-    public static double Kp_heading = 2;
+    public static double Kd_lateral = 0.03;
+    public static double Kp_heading = 4; //.4
     public static double Ki_heading = 0;
-    public static double Kd_heading = .1;
+    public static double Kd_heading = 0.35; //.025
     static Pose startingPose = new Pose(0, 0, 0);
     public static PIDController driveController = new PIDController(Kp_drive, Ki_drive, Kd_drive, startingPose.getX());
     public static PIDController lateralController = new PIDController(Kp_lateral, Ki_lateral, Kd_lateral, startingPose.getY());
@@ -247,9 +247,9 @@ public class Chassis implements Subsystem {
 
                         //SQUID (Square Root Input Determination)
                         if(enableSQUID){
-                            drivePower = Math.sqrt(Math.abs(drivePower)) * Math.signum(drivePower);
-                            lateralPower = Math.sqrt(Math.abs(lateralPower)) * Math.signum(lateralPower);
-                            headingPower = Math.sqrt(Math.abs(headingPower)) * Math.signum(headingPower);
+                            drivePower = Math.pow(Math.abs(drivePower), 2) * Math.signum(drivePower);
+                            lateralPower = Math.pow(Math.abs(lateralPower), 2) * Math.signum(lateralPower);
+                            headingPower = Math.pow(Math.abs(headingPower), 2) * Math.signum(headingPower);
                         }
 
                         drive(drivePower, lateralPower, -headingPower);
