@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.util.dairy.subsystems;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
@@ -14,6 +16,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 
 import java.lang.annotation.ElementType;
@@ -34,19 +37,35 @@ import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.LConstants;
 import kotlin.annotation.MustBeDocumented;
-
+@Config
 public class Chassis implements Subsystem {
     public static final Chassis INSTANCE = new Chassis();
     public static Follower follower;
     public static boolean isSlowed = false;
     public static double slowSpeed = 0.25;
-
     public static DcMotorEx fl;
     public static DcMotorEx fr;
     public static DcMotorEx bl;
     public static DcMotorEx br;
     public static Telemetry telemetry;
     public static DashboardPoseTracker dashboardPoseTracker;
+
+    //Custom Follower
+    public static boolean enableSQUID = false;
+    public static boolean holdPoint = true;
+    public static double Kp_drive = 0.1;
+    public static double Ki_drive = 0;
+    public static double Kd_drive = 0.008;
+    public static double Kp_lateral = 0.1;
+    public static double Ki_lateral = 0;
+    public static double Kd_lateral = 0.008;
+    public static double Kp_heading = 2;
+    public static double Ki_heading = 0;
+    public static double Kd_heading = .1;
+    static Pose startingPose = new Pose(0, 0, 0);
+    public static PIDController driveController = new PIDController(Kp_drive, Ki_drive, Kd_drive, startingPose.getX());
+    public static PIDController lateralController = new PIDController(Kp_lateral, Ki_lateral, Kd_lateral, startingPose.getY());
+    public static PIDController headingController = new PIDController(Kp_heading, Ki_heading, Kd_heading, startingPose.getHeading());
     public Chassis() {}
 
     public void speedSlow(){
@@ -85,11 +104,12 @@ public class Chassis implements Subsystem {
         telemetry = opMode.getOpMode().telemetry;
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(FeatureRegistrar.getActiveOpMode().hardwareMap);
+        follower.startTeleopDrive();
 
         dashboardPoseTracker = Chassis.follower.getDashboardPoseTracker();
 
         if (Robot.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
-            follower.setStartingPose(new Pose(9, 65, 0));
+            follower.setStartingPose(startingPose);
         } else {
             setDefaultCommand(drive(Mercurial.gamepad1()));
         }
@@ -99,6 +119,12 @@ public class Chassis implements Subsystem {
         bl = hMap.get(DcMotorEx.class, FollowerConstants.leftRearMotorName);
         fr = hMap.get(DcMotorEx.class, FollowerConstants.rightFrontMotorName);
         br = hMap.get(DcMotorEx.class, FollowerConstants.rightRearMotorName);
+
+        //Custom Follower
+        driveController.reset();
+        lateralController.reset();
+        headingController.reset();
+        setDefaultCommand(runFollower());
     }
 
     @Override
@@ -196,5 +222,52 @@ public class Chassis implements Subsystem {
                     telemetry.addData("pinpoint cooked", follower.isPinpointCooked());
                 })
                 .setFinish(() -> !follower.isBusy() || follower.isRobotStuck());
+    }
+
+    //Custom Follower
+    private static void setDrivePoint(Pose pose){
+        driveController.setReference(pose.getX());
+        lateralController.setReference(pose.getY());
+        headingController.setReference(pose.getHeading());
+    }
+
+    public static boolean isAtPoint(){
+        return driveController.isAtReference() && lateralController.isAtReference() && headingController.isAtReference();
+    }
+    public static Lambda runFollower() {
+        return new Lambda("follower-pid")
+                .setInterruptible(false)
+                .setExecute(() -> {
+                    if (holdPoint) {
+                        Pose pose = follower.getPose();
+
+                        double drivePower = driveController.getPower(pose.getX());
+                        double lateralPower = lateralController.getPower(pose.getY());
+                        double headingPower = headingController.getPowerHeading(pose.getHeading());
+
+                        //SQUID (Square Root Input Determination)
+                        if(enableSQUID){
+                            drivePower = Math.sqrt(Math.abs(drivePower)) * Math.signum(drivePower);
+                            lateralPower = Math.sqrt(Math.abs(lateralPower)) * Math.signum(lateralPower);
+                            headingPower = Math.sqrt(Math.abs(headingPower)) * Math.signum(headingPower);
+                        }
+
+                        drive(drivePower, lateralPower, -headingPower);
+
+//                        telemetry.addData("drivePower", drivePower);
+//                        telemetry.addData("lateralPower", lateralPower);
+                        telemetry.addData("headingPower", headingPower);
+                        telemetry.addData("heading", pose.getHeading());
+                        telemetry.addData("error", headingController.getError());
+                    }
+                })
+                .setFinish(() -> false);
+    }
+
+    public static Lambda driveToPoint(Pose pose){
+        return new Lambda("drive-to-point")
+                .setInterruptible(true)
+                .setInit(() -> setDrivePoint(pose))
+                .setFinish(Chassis::isAtPoint);
     }
 }

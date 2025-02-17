@@ -81,6 +81,8 @@ public class Intake implements Subsystem {
 
         spintake = hMap.get(DcMotorEx.class, "spintake");
 
+        setPos(Intake.hoverPos);
+
 //        color = hMap.get(ColorSensor.class, "color");
 //        distance = hMap.get(DistanceSensor.class, "color");
 //
