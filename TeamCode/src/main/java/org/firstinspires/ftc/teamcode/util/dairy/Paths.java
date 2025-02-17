@@ -26,7 +26,6 @@ public class Paths {
     public static double intakeOffset3 = 1;
     public static double intakeOffset4 = 2;
 
-
     public static void init() {
         Collections.addAll(fiveSpecs,
                 createPath( //preload 0
@@ -86,7 +85,7 @@ public class Paths {
                 ),
                 createPath( // plus 1 outtake 8
                         new BezierLine(
-                                new Point(10.500+intakeOffset+intakeOffset1, 33.000+2.5, Point.CARTESIAN),
+                                new Point(10.500, 33.000+2.5, Point.CARTESIAN),
                                 new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),
@@ -106,7 +105,7 @@ public class Paths {
                 ),
                 createPath( // plus 2 outtake 11
                         new BezierLine(
-                                new Point(10.500+ intakeOffset + intakeOffset2, 33.000, Point.CARTESIAN),
+                                new Point(10.500, 33.000, Point.CARTESIAN),
                                 new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),
@@ -126,7 +125,7 @@ public class Paths {
                 ),
                 createPath( // plus 3 outtake 14
                         new BezierLine(
-                                new Point(10.500+ intakeOffset + intakeOffset3, 33.000, Point.CARTESIAN),
+                                new Point(10.500, 33.000, Point.CARTESIAN),
                                 new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),
@@ -146,7 +145,7 @@ public class Paths {
                 ),
                 createPath( // plus 4 outtake 17
                         new BezierLine(
-                                new Point(10.500+ intakeOffset + intakeOffset4, 33.000-1, Point.CARTESIAN),
+                                new Point(10.500, 33.000-1, Point.CARTESIAN),
                                 new Point(40.000, 74.000, Point.CARTESIAN)
                         )
                 ),
