@@ -71,12 +71,8 @@ public class FiveSpecimens extends OpMode {
                         Chassis.followPath(Paths.fiveSpecs.get(1)),
                         Robot.setState(Robot.State.INTAKE_SPEC)
                 ),
-                Chassis.followPath(Paths.fiveSpecs.get(2)),
-                Chassis.followPath(Paths.fiveSpecs.get(3)),
-                Chassis.followPath(Paths.fiveSpecs.get(4)),
-                Chassis.followPath(Paths.fiveSpecs.get(5)),
-                Chassis.followPath(Paths.fiveSpecs.get(6)),
-                Chassis.followPath(Paths.fiveSpecs.get(7)),
+                Chassis.followPathChain(Paths.robotPush),
+                Chassis.followPath(Paths.fiveSpecs.get(7), true),
 
                 // plus 1 intake
                 Chassis.push(intakePower, intakeDelay),

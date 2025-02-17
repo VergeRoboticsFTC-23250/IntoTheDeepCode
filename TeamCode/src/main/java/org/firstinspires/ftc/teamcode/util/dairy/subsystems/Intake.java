@@ -145,7 +145,7 @@ public class Intake implements Subsystem {
         raised = true;
     }
 
-    private static void setPos(double pos) {
+    public static void setPos(double pos) {
         dropL.setPosition(pos);
         dropR.setPosition(pos);
         if (Math.abs(pos - dropPos) < 0.1) {

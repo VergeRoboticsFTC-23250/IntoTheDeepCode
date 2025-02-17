@@ -17,9 +17,9 @@ public class YellowAnglePipeline extends OpenCvPipeline {
     private final Mat hsv = new Mat();
     private final Mat mask = new Mat();
     private final Mat hierarchy = new Mat();
-    public static double MAX_CONTOUR_SIZE = 215000.0;
+    public static double MAX_CONTOUR_SIZE = 62000.0;
     public static double PCB_HEIGHT_IN = 8.218;
-    public static double LENS_HEIGHT_IN = 0.63;
+    public static double LENS_HEIGHT_IN = 0.55;
     public static Scalar lowerYellow = new Scalar(20, 100, 100);
     public static Scalar upperYellow = new Scalar(30, 255, 255);
 
@@ -45,22 +45,22 @@ public class YellowAnglePipeline extends OpenCvPipeline {
         // Find contours
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        // Find the largest contour that is closest to the bottom left and less than MAX_CONTOUR_SIZE
+        // Find the largest contour that is closest to the bottom right and less than MAX_CONTOUR_SIZE
         MatOfPoint bestContour = null;
         double maxArea = 0;
-        double minDistanceToBottomLeft = Double.MAX_VALUE;
-        Point bottomLeft = new Point(0, input.height());
+        double minDistanceToBottomRight = Double.MAX_VALUE;
+        Point bottomRight = new Point(input.width(), input.height());
 
         for (MatOfPoint contour : contours) {
             double area = Imgproc.contourArea(contour);
             if (area < MAX_CONTOUR_SIZE) {
                 Moments moments = Imgproc.moments(contour);
                 Point contourCenter = new Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
-                double distanceToBottomLeft = Math.hypot(contourCenter.x - bottomLeft.x, contourCenter.y - bottomLeft.y);
+                double distanceToBottomRight = Math.hypot(contourCenter.x - bottomRight.x, contourCenter.y - bottomRight.y);
 
-                if (area > maxArea || (area == maxArea && distanceToBottomLeft < minDistanceToBottomLeft)) {
+                if (area > maxArea || (area == maxArea && distanceToBottomRight < minDistanceToBottomRight)) {
                     maxArea = area;
-                    minDistanceToBottomLeft = distanceToBottomLeft;
+                    minDistanceToBottomRight = distanceToBottomRight;
                     bestContour = contour;
                 }
             }
@@ -90,17 +90,17 @@ public class YellowAnglePipeline extends OpenCvPipeline {
             tx = -(rect.center.x - imageCenterX) / imageCenterX * (CAMERA_HORIZONTAL_FOV / 2.0);
             ty = -(rect.center.y - imageCenterY) / imageCenterY * (CAMERA_VERTICAL_FOV / 2.0);
 
-            // Display angle and offsets
+            // Display angle, offsets, and contour size
             String angleText = String.format("Angle: %.2f", angle);
             String offsetText = String.format("X Offset: %.2f, Y Offset: %.2f", tx, ty);
+            String sizeText = String.format("Contour Size: %.2f", maxArea);
             double x = Math.tan(Math.toRadians(tx)) * (PCB_HEIGHT_IN - LENS_HEIGHT_IN);
             double y = Math.tan(Math.toRadians(ty)) * (PCB_HEIGHT_IN - LENS_HEIGHT_IN);
             String distanceText = String.format("X Distance: %.2f, Y Distance: %.2f", x, y);
-            String sizeText = String.format("Size: %.2f", maxArea);
             Imgproc.putText(input, angleText, new Point(rect.center.x + 10, rect.center.y - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.putText(input, offsetText, new Point(rect.center.x + 10, rect.center.y + 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
-            Imgproc.putText(input, distanceText, new Point(rect.center.x + 10, rect.center.y + 30), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
-            Imgproc.putText(input, sizeText, new Point(rect.center.x + 10, rect.center.y + 50), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
+            Imgproc.putText(input, sizeText, new Point(rect.center.x + 10, rect.center.y + 30), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
+            Imgproc.putText(input, distanceText, new Point(rect.center.x + 10, rect.center.y + 50), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.circle(input, new Point(imageCenterX, imageCenterY), 5, new Scalar(255, 0, 0), -1);
             // the circle is the center of the image
         }

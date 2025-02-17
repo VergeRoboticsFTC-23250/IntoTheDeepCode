@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 public class testop extends LinearOpMode {
     public static boolean invert = false;
     public static boolean enableS2 = false;
-    public static String s1 = "wrist";
+    public static String s1 = "armL";
     public static String s2 = "armR";
     public static String m = "leftFront";
     public static String m2 = "outtakeSL";
