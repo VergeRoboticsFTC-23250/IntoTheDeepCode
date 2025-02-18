@@ -16,6 +16,7 @@ import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
+import dev.frozenmilk.mercurial.commands.util.Wait;
 
 @Mercurial.Attach
 @Chassis.Attach
@@ -87,13 +88,17 @@ public class FiveSpecimens extends OpMode {
                         Chassis.push(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
-                Chassis.followPath(Paths.fiveSpecs.get(9)),
+//                Chassis.followPath(Paths.fiveSpecs.get(9)),
                 Outtake.openClaw(),
 
                 // plus 2 intake
                 new Parallel(
-                        Robot.setState(Robot.State.INTAKE_SPEC),
-                        Chassis.followPath(Paths.fiveSpecs.get(10))
+                        Chassis.followPath(Paths.fiveSpecs.get(10)),
+                        new Sequential(
+                                Outtake.openClaw(),
+                                new Wait(0.2),
+                                Robot.setState(Robot.State.INTAKE_SPEC)
+                        )
                 ),
                 Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
@@ -107,13 +112,17 @@ public class FiveSpecimens extends OpMode {
                         Chassis.push(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
-                Chassis.followPath(Paths.fiveSpecs.get(12)),
+//                Chassis.followPath(Paths.fiveSpecs.get(12)),
                 Outtake.openClaw(),
 
                 // plus 3 intake
                 new Parallel(
-                    Robot.setState(Robot.State.INTAKE_SPEC),
-                    Chassis.followPath(Paths.fiveSpecs.get(13))
+                    Chassis.followPath(Paths.fiveSpecs.get(13)),
+                    new Sequential(
+                            Outtake.openClaw(),
+                            new Wait(0.2),
+                            Robot.setState(Robot.State.INTAKE_SPEC)
+                    )
                 ),
                 Chassis.push(intakePower, intakeDelay),
                 Outtake.closeClaw(),
@@ -127,13 +136,17 @@ public class FiveSpecimens extends OpMode {
                         Chassis.push(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
-                Chassis.followPath(Paths.fiveSpecs.get(15)),
+//                Chassis.followPath(Paths.fiveSpecs.get(15)),
                 Outtake.openClaw(),
 
                 // plus 4 intake
                 new Parallel(
-                        Robot.setState(Robot.State.INTAKE_SPEC),
-                        Chassis.followPath(Paths.fiveSpecs.get(16))
+                        Chassis.followPath(Paths.fiveSpecs.get(16)),
+                        new Sequential(
+                                Outtake.openClaw(),
+                                new Wait(0.2),
+                                Robot.setState(Robot.State.INTAKE_SPEC)
+                        )
                 ),
 
                 Chassis.push(intakePower, intakeDelay),
@@ -152,8 +165,12 @@ public class FiveSpecimens extends OpMode {
 
                 // park
                 new Parallel(
-                        Robot.setState(Robot.State.INTAKE_SPEC),
-                        Chassis.followPath(Paths.fiveSpecs.get(18))
+                        Chassis.followPath(Paths.fiveSpecs.get(18)),
+                        new Sequential(
+                                Outtake.openClaw(),
+                                new Wait(0.2),
+                                Robot.setState(Robot.State.INTAKE_SPEC)
+                        )
                 )
             )
         .schedule();

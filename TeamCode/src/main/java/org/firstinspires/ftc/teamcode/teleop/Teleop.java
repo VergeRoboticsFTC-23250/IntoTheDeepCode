@@ -149,6 +149,5 @@ public class Teleop extends OpMode {
 //        telemetry.addData("right current", OuttakeSlides.slideR.getCurrent(CurrentUnit.MILLIAMPS));
 //        telemetry.addData("right current", OuttakeSlides.slideL.getCurrent(CurrentUnit.MILLIAMPS));
 //        telemetry.addData("pipeline", Robot.pipeline.getPosition());
-        telemetry.addData("is robot stuck", Chassis.follower.isRobotStuck());
     }
 }
