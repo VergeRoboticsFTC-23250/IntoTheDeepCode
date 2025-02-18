@@ -65,12 +65,15 @@ public class FiveSpecimens extends OpMode {
                         Chassis.push(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
-                Outtake.openClaw(),
 
                 // Pushing samples
                 new Parallel(
                         Chassis.followPath(Paths.fiveSpecs.get(1)),
-                        Robot.setState(Robot.State.INTAKE_SPEC)
+                        new Sequential(
+                                Outtake.openClaw(),
+                                new Wait(0.2),
+                                Robot.setState(Robot.State.INTAKE_SPEC)
+                        )
                 ),
                 Chassis.followPathChain(Paths.robotPush),
                 Chassis.followPath(Paths.fiveSpecs.get(7), true),

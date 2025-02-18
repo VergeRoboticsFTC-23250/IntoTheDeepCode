@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
-import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
+import dev.frozenmilk.mercurial.commands.util.Wait;
 
 @Mercurial.Attach
 @Chassis.Attach
@@ -26,12 +26,7 @@ import dev.frozenmilk.mercurial.commands.groups.Sequential;
 @LoopTimes.Attach
 @BulkRead.Attach
 @Autonomous
-public class PathingTest extends OpMode {
-
-    public static long intakeDelay = 250;
-    public static double intakePower = -0.5;
-    public static long outtakeDelay = 500;
-    public static double outtakePower = 1;
+public class PathTesting extends OpMode {
 
     @Override
     public void init() {
@@ -40,19 +35,49 @@ public class PathingTest extends OpMode {
         Outtake.isClawOpen = false;
         Outtake.setPosition(Outtake.armSpecPos);
         Outtake.setPivotManual(Outtake.pivotSpecPos);
-        Intake.setPos(Intake.hoverPos);
+
         Robot.stateMachine.setState(Robot.State.INTAKE_SPEC);
     }
 
     @Override
     public void loop() {
-        telemetry.addData("is robot stuck", Chassis.follower.isRobotStuck());
+        telemetry.addData("heading", Chassis.follower.getPose().getHeading());
     }
 
     @Override
     public void start() {
-        IntakeSlides.setPower(-IntakeSlides.constantPower).schedule();
-        Chassis.follower.setMaxPower(0.6);
-        Chassis.followPathChain(Paths.extendoPush).schedule();
+        new Sequential(
+                IntakeSlides.setPower(-0.3),
+                Intake.setIntake(Intake.hoverPos),
+                new Wait(0.5),
+
+//                Chassis.followPathChain(Paths.fourSamps.get(0)),
+//                new Wait(1),
+
+                Chassis.followPathChain(Paths.fourSamps.get(1)),
+                new Wait(1)
+
+//                Chassis.followPathChain(Paths.fourSamps.get(2)),
+//                new Wait(1),
+//
+//                Chassis.followPathChain(Paths.fourSamps.get(3)),
+//                new Wait(1),
+//
+//                Chassis.followPathChain(Paths.fourSamps.get(4)),
+//                new Wait(1),
+//
+//                Chassis.followPathChain(Paths.fourSamps.get(5)),
+//                new Wait(1),
+//
+//                Chassis.followPathChain(Paths.fourSamps.get(6)),
+//                new Wait(1),
+//
+//                Chassis.followPathChain(Paths.fourSamps.get(7)),
+//                new Wait(1),
+//
+//                Chassis.followPathChain(Paths.fourSamps.get(8))
+
+        )
+                .schedule();
     }
 }

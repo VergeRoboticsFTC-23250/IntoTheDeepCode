@@ -90,8 +90,8 @@ public class Chassis implements Subsystem {
         dashboardPoseTracker = Chassis.follower.getDashboardPoseTracker();
 
         if (Robot.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
-            follower.setStartingPose(Paths.bucketStart);
-        } else {
+            follower.setStartingPose(Paths.specStart);
+        } else if (Robot.flavor == OpModeMeta.Flavor.TELEOP) {
             setDefaultCommand(drive(Mercurial.gamepad1()));
         }
 

@@ -17,7 +17,8 @@ public class YellowAnglePipeline extends OpenCvPipeline {
     private final Mat hsv = new Mat();
     private final Mat mask = new Mat();
     private final Mat hierarchy = new Mat();
-    public static double MAX_CONTOUR_SIZE = 62000.0;
+    private final ArrayList<MatOfPoint> contours = new ArrayList<>();
+    public static double MAX_CONTOUR_SIZE = 115000.0;
     public static double PCB_HEIGHT_IN = 8.218;
     public static double LENS_HEIGHT_IN = 0.55;
     public static Scalar lowerYellow = new Scalar(20, 100, 100);
@@ -40,7 +41,7 @@ public class YellowAnglePipeline extends OpenCvPipeline {
             Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24)));
         }
 
-        List<MatOfPoint> contours = new ArrayList<>();
+        contours.clear();
 
         // Find contours
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
