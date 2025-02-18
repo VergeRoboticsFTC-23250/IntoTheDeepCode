@@ -39,7 +39,7 @@ public class Intake implements Subsystem {
     public static final Intake INSTANCE = new Intake();
     public static double dropPos = 0.735;
     public static double flatPos = 0.82;
-    public static double hoverPos = 0.64;
+    public static double hoverPos = 0.72;
     public static double raisePos = 0.48;
     public static double extraRaisePos = 0.35;
     public static Servo dropL;
@@ -183,8 +183,11 @@ public class Intake implements Subsystem {
         return new Lambda("extra-intake")
                 .setInit(Intake::raiseExtra);
     }
+    public static void setIntakeManual(double pos){
+        Intake.setPos(pos);
+    }
     public static Lambda setIntake(double pos) {
         return new  Lambda("set-intake")
-                .setInit(() -> Intake.setPos(pos));
+                .setInit(() -> setIntakeManual(pos));
     }
 }

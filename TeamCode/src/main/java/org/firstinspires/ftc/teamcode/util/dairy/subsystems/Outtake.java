@@ -42,6 +42,7 @@ public class Outtake implements Subsystem {
     public static double armBucketPos = 1;
     public static double armTransferPos = .475;
     public static double armSpecPos = 0.55+.16;
+    public static double armInitPos = 0.2;
 
     //pivot
     public static double pivotSubmersiblePos = 0.79;

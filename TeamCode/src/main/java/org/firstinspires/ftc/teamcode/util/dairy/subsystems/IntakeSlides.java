@@ -3,22 +3,19 @@ package org.firstinspires.ftc.teamcode.util.dairy.subsystems;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.atomic.AtomicLong;
 
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
@@ -76,10 +73,14 @@ public class IntakeSlides implements Subsystem {
         extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    public static void setPowerManual(double power) {
+        extendo.setPower(power);
+    }
+
     public static Lambda setPower(double pow) {
         return new Lambda("power-outtake")
                 .setInit(() -> {
-                    extendo.setPower(pow);
+                    setPowerManual(pow);
                 })
                 .setFinish(() -> true);
     }
@@ -89,5 +90,16 @@ public class IntakeSlides implements Subsystem {
                 .setInit(() -> extendo.setPower(-1))
                 .setFinish(() -> touch.isPressed())
                 .setEnd((interrupted) -> extendo.setPower(-constantPower));
+    }
+
+    public static Lambda extend(){
+        AtomicLong startTime = new AtomicLong();
+        return new Lambda("extend")
+                .setInit(() -> {
+                    extendo.setPower(1);
+                    startTime.set(System.currentTimeMillis());
+                })
+                .setFinish(() -> System.currentTimeMillis() - startTime.get() > 500)
+                .setEnd((interrupted) -> extendo.setPower(constantPower));
     }
 }

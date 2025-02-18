@@ -53,6 +53,8 @@ public class Chassis implements Subsystem {
     //Custom Follower
     public static boolean enableSQUID = true;
     public static boolean holdPoint = true;
+    public static boolean isFollowerBusy = false;
+    private static long currentPathDeltaT = 0;
     public static double Kp_drive = .3;
     public static double Ki_drive = 0;
     public static double Kd_drive = 0.03;
@@ -62,7 +64,7 @@ public class Chassis implements Subsystem {
     public static double Kp_heading = 4; //.4
     public static double Ki_heading = 0;
     public static double Kd_heading = 0.35; //.025
-    static Pose startingPose = new Pose(0, 0, 0);
+    static Pose startingPose = new Pose(9.000, 65.000, 0);
     public static PIDController driveController = new PIDController(Kp_drive, Ki_drive, Kd_drive, startingPose.getX());
     public static PIDController lateralController = new PIDController(Kp_lateral, Ki_lateral, Kd_lateral, startingPose.getY());
     public static PIDController headingController = new PIDController(Kp_heading, Ki_heading, Kd_heading, startingPose.getHeading());
@@ -124,6 +126,9 @@ public class Chassis implements Subsystem {
         driveController.reset();
         lateralController.reset();
         headingController.reset();
+        driveController.setTolerance(1);
+        lateralController.setTolerance(1);
+        headingController.setTolerance(Math.PI/60);
         setDefaultCommand(runFollower());
     }
 
@@ -234,6 +239,28 @@ public class Chassis implements Subsystem {
     public static boolean isAtPoint(){
         return driveController.isAtReference() && lateralController.isAtReference() && headingController.isAtReference();
     }
+
+    public static boolean isStuck(){
+        return follower.getVelocityMagnitude() < 0.5 ;
+    }
+    public static Lambda setSloppy(){
+        return new Lambda("set-sloppy")
+                .setInit(() -> {
+                    driveController.setTolerance(3);
+                    lateralController.setTolerance(3);
+                    headingController.setTolerance(Math.PI/30);
+                })
+                .setFinish(() -> true);
+    }
+    public static Lambda setClean(){
+        return new Lambda("set-clean")
+                .setInit(() -> {
+                    driveController.setTolerance(1);
+                    lateralController.setTolerance(1);
+                    headingController.setTolerance(Math.PI/60);
+                })
+                .setFinish(() -> true);
+    }
     public static Lambda runFollower() {
         return new Lambda("follower-pid")
                 .setInterruptible(false)
@@ -260,20 +287,43 @@ public class Chassis implements Subsystem {
 
                         drive(drivePower, lateralPower, -headingPower);
 
-//                        telemetry.addData("drivePower", drivePower);
-//                        telemetry.addData("lateralPower", lateralPower);
-                        telemetry.addData("headingPower", headingPower);
-                        telemetry.addData("heading", pose.getHeading());
-                        telemetry.addData("error", headingController.getError());
+                        telemetry.addData("velocity", follower.getVelocityMagnitude());
                     }
                 })
                 .setFinish(() -> false);
     }
 
+    private static long startTime = 0;
+
     public static Lambda driveToPoint(Pose pose){
         return new Lambda("drive-to-point")
                 .setInterruptible(true)
-                .setInit(() -> setDrivePoint(pose))
-                .setFinish(() -> true);
+                .setInit(() -> {
+                    setDrivePoint(pose);
+                    startTime = System.currentTimeMillis();
+                })
+                .setExecute(() -> {
+                    telemetry.addData("Drive Error", driveController.getError());
+                    telemetry.addData("Lateral Error", lateralController.getError());
+                    telemetry.addData("Heading Error", headingController.getError());
+                    currentPathDeltaT = System.currentTimeMillis() - startTime;
+                })
+                .setFinish(Chassis::isAtPoint);
+    }
+
+    public static Lambda driveToPointUntilStuck(Pose pose){
+        return new Lambda("drive-to-point-until-stuck")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    setDrivePoint(pose);
+                    startTime = System.currentTimeMillis();
+                })
+                .setExecute(() -> {
+                    telemetry.addData("Drive Error", driveController.getError());
+                    telemetry.addData("Lateral Error", lateralController.getError());
+                    telemetry.addData("Heading Error", headingController.getError());
+                    currentPathDeltaT = System.currentTimeMillis() - startTime;
+                })
+                .setFinish(() -> (Chassis.isAtPoint() || Chassis.isStuck()) && currentPathDeltaT > 800);
     }
 }
