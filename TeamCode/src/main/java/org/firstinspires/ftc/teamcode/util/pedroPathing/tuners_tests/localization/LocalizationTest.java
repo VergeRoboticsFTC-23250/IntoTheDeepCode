@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
+import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.LConstants;
 
@@ -59,6 +60,7 @@ public class LocalizationTest extends OpMode {
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         poseUpdater = new PoseUpdater(hardwareMap);
+        poseUpdater.setStartingPose(Paths.bucketStart);
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
 

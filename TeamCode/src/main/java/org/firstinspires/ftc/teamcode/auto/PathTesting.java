@@ -42,24 +42,40 @@ public class PathTesting extends OpMode {
 
     @Override
     public void loop() {
-        Chassis.follower.telemetryDebug(telemetry);
-
+        telemetry.addData("Pose", Chassis.follower.getPose());
     }
 
     @Override
     public void start() {
         new Sequential(
                 IntakeSlides.setPower(-0.3),
-                Intake.setIntake(Intake.hoverPos)
+                Intake.setIntake(Intake.hoverPos),
+                new Wait(0.5),
 
-//                Chassis.followPathChain(Paths.fourSamps.get(0))
-//                Chassis.followPathChain(Paths.fourSamps.get(1)),
+                Chassis.followPathChain(Paths.fourSamps.get(0)),
+                new Wait(1),
+
+                Chassis.followPathChain(Paths.fourSamps.get(1)),
+                new Wait(1)
+
 //                Chassis.followPathChain(Paths.fourSamps.get(2)),
+//                new Wait(1),
+//
 //                Chassis.followPathChain(Paths.fourSamps.get(3)),
+//                new Wait(1),
+//
 //                Chassis.followPathChain(Paths.fourSamps.get(4)),
+//                new Wait(1),
+//
 //                Chassis.followPathChain(Paths.fourSamps.get(5)),
+//                new Wait(1),
+//
 //                Chassis.followPathChain(Paths.fourSamps.get(6)),
+//                new Wait(1),
+//
 //                Chassis.followPathChain(Paths.fourSamps.get(7)),
+//                new Wait(1),
+//
 //                Chassis.followPathChain(Paths.fourSamps.get(8))
 
         )

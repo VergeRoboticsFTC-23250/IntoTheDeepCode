@@ -194,7 +194,7 @@ public class Chassis implements Subsystem {
                 .setInit(() -> follower.followPath(chain, true))
                 .setExecute(() -> {
                     follower.update();
-//                    telemetry.addData("pinpoint cooked", follower.isPinpointCooked());
+                    follower.telemetryDebug(telemetry);
                 })
                 .setFinish(() -> !follower.isBusy() || follower.isRobotStuck());
     }

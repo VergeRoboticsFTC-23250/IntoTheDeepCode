@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Config
 public class Paths {
 
     public static ArrayList<Path> fiveSpecs = new ArrayList<>();
@@ -20,12 +22,13 @@ public class Paths {
     public static Path parkWithSpecPush;
 
     public static Pose bucketStart = new Pose(6.5, 111, Math.toRadians(270));
-    public static Pose bucketScore = new Pose(14,129, Math.toRadians(315));
-    public static Pose pickup1 = new Pose(24,121, Math.toRadians(0));
+    public static Pose bucketDrop = new Pose(10, 127, Math.toRadians(308));
+    public static Pose bucketScore = new Pose(12.5,125, Math.toRadians(308));
+    public static Pose pickup1 = new Pose(15,130.5, Math.toRadians(0));
     public static Pose pickup2 = new Pose(24,131.5, Math.toRadians(0));
     public static Pose pickup3 = new Pose(29,125, Math.toRadians(45));
-    public static Pose samplePark = new Pose(60,96, Math.toRadians(270));
-    public static Point parkControl = new Point(60.5, 110);
+    public static Pose samplePark = new Pose(60,100, Math.toRadians(270));
+    public static Point parkControl = new Point(60, 110);
 
     public static double intakeOffset = -2;
     public static double intakeOffset1 = 2;
