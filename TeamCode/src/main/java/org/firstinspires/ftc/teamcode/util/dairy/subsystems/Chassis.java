@@ -80,7 +80,7 @@ public class Chassis implements Subsystem {
         follower.setTeleOpMovementVectors(
                 x * (isSlowed? slowSpeed : 1),
                 y * (isSlowed? slowSpeed : 1),
-                z * (isSlowed? slowSpeed : 1)
+                z * (isSlowed? slowSpeed : 1), false
         );
         follower.update();
         telemetry.addData("Chassis Vectors", "x: %f, y: %f, z: %f", x, y, z);
@@ -240,17 +240,23 @@ public class Chassis implements Subsystem {
                 .setExecute(() -> {
                     if (holdPoint) {
                         Pose pose = follower.getPose();
+                        double heading = pose.getHeading();
 
                         double drivePower = driveController.getPower(pose.getX());
                         double lateralPower = lateralController.getPower(pose.getY());
-                        double headingPower = headingController.getPowerHeading(pose.getHeading());
+                        double headingPower = headingController.getPowerHeading(heading);
 
                         //SQUID (Square Root Input Determination)
                         if(enableSQUID){
-                            drivePower = Math.pow(Math.abs(drivePower), 2) * Math.signum(drivePower);
-                            lateralPower = Math.pow(Math.abs(lateralPower), 2) * Math.signum(lateralPower);
-                            headingPower = Math.pow(Math.abs(headingPower), 2) * Math.signum(headingPower);
+                            drivePower = Math.min(Math.pow(Math.abs(drivePower), 2), 1) * Math.signum(drivePower);
+                            lateralPower = Math.min(Math.pow(Math.abs(lateralPower), 2), 1) * Math.signum(lateralPower);
+                            headingPower = Math.min(Math.pow(Math.abs(headingPower), 2), 1) * Math.signum(headingPower);
                         }
+
+//                        double robotDrivePower = drivePower * Math.cos(heading) - lateralPower * Math.sin(heading);
+//                        double robotLateralPower = drivePower * Math.sin(heading) + lateralPower * Math.cos(heading);
+
+
 
                         drive(drivePower, lateralPower, -headingPower);
 
@@ -268,6 +274,6 @@ public class Chassis implements Subsystem {
         return new Lambda("drive-to-point")
                 .setInterruptible(true)
                 .setInit(() -> setDrivePoint(pose))
-                .setFinish(Chassis::isAtPoint);
+                .setFinish(() -> true);
     }
 }

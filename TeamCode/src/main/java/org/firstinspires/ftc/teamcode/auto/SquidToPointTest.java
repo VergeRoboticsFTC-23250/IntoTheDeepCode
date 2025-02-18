@@ -16,6 +16,7 @@ import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
+import dev.frozenmilk.mercurial.commands.util.Wait;
 
 @Mercurial.Attach
 @Chassis.Attach
@@ -46,7 +47,13 @@ public class SquidToPointTest extends OpMode {
     public void start() {
         new Sequential(
                 IntakeSlides.setPower(-0.3),
-                Intake.setIntake(Intake.hoverPos)
+                Intake.setIntake(Intake.hoverPos),
+                Chassis.driveToPoint(new Pose(0, 0, Math.PI/4)),
+                new Wait(3),
+                Chassis.driveToPoint(new Pose(12, 0, Math.PI/4)),
+                new Wait(3),
+                Chassis.driveToPoint(new Pose(0, 0, 0))
+
         ).schedule();
     }
 
