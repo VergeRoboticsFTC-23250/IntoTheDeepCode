@@ -88,5 +88,6 @@ public class CVTesting extends OpMode {
 
     @Override
     public void start() {
+        test.setPosition(1/SERVO_RANGE);
     }
 }
