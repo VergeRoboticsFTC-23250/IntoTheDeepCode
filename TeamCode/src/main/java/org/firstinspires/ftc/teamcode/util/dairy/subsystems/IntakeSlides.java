@@ -102,4 +102,15 @@ public class IntakeSlides implements Subsystem {
                 .setFinish(() -> System.currentTimeMillis() - startTime.get() > 500)
                 .setEnd((interrupted) -> extendo.setPower(constantPower));
     }
+
+    public static Lambda retract(){
+        AtomicLong startTime = new AtomicLong();
+        return new Lambda("retract")
+                .setInit(() -> {
+                    extendo.setPower(-1);
+                    startTime.set(System.currentTimeMillis());
+                })
+                .setFinish(() -> System.currentTimeMillis() - startTime.get() > 500)
+                .setEnd((interrupted) -> extendo.setPower(-constantPower));
+    }
 }

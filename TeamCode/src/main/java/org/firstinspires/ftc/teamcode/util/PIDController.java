@@ -39,7 +39,7 @@ public class PIDController {
 
     public double getPowerHeading(double measured){
         this.measured = measured;
-        error = Util.shortestAngleDistance(reference, measured);
+        error = Util.shortestAngleDistance(measured, reference);
 
         // rate of change of the error
         double derivative = (error - lastError) / timer.seconds();
@@ -58,7 +58,7 @@ public class PIDController {
     }
     public double getPower(double measured){
         this.measured = measured;
-        error = reference - measured;
+        error = measured - reference;
 
         // rate of change of the error
         double derivative = (error - lastError) / timer.seconds();

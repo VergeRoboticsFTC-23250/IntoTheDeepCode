@@ -36,8 +36,11 @@ public class SquidToPointTest extends OpMode {
         Robot.init();
         Outtake.setClaw(Outtake.clawClosePos);
         Outtake.isClawOpen = false;
-        Outtake.setPosition(Outtake.armSpecPos);
-        Outtake.setPivotManual(Outtake.pivotSpecPos);
+        Outtake.setPosition(Outtake.armInitPos);
+        Outtake.setPivotManual(Outtake.pivotOuttakeSpec);
+        IntakeSlides.setPowerManual(-0.3);
+        Intake.setIntakeManual(Intake.hoverPos);
+
         Robot.stateMachine.setState(Robot.State.INTAKE_SPEC);
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
@@ -45,28 +48,11 @@ public class SquidToPointTest extends OpMode {
 
     @Override
     public void start() {
-        new Sequential(
-                IntakeSlides.setPower(-0.3),
-                Intake.setIntake(Intake.hoverPos),
-                Chassis.driveToPoint(new Pose(0, 0, Math.PI/4)),
-                new Wait(3),
-                Chassis.driveToPoint(new Pose(12, 0, Math.PI/4)),
-                new Wait(3),
-                Chassis.driveToPoint(new Pose(0, 0, 0))
-
-        ).schedule();
     }
 
     @Override
     public void loop() {
-        tejas.triangle().onTrue(Chassis.driveToPoint(new Pose(0, 0, Math.PI)));
+        tejas.triangle().onTrue(Chassis.driveToPoint(new Pose(32, 8, 0)));
         tejas.cross().onTrue(Chassis.driveToPoint(new Pose(0, 0, 0)));
-
-        tejas.dpadDown().onTrue(Chassis.driveToPoint(new Pose(0, 0, 0)));
-        tejas.dpadLeft().onTrue(Chassis.driveToPoint(new Pose(0, 12, 0)));
-        tejas.dpadUp().onTrue(Chassis.driveToPoint(new Pose(12, 0, 0)));
-        tejas.dpadRight().onTrue(Chassis.driveToPoint(new Pose(0, -12, 0)));
-
-        tejas.rightBumper().onTrue(Chassis.driveToPoint(new Pose(10, 10, 0)));
     }
 }

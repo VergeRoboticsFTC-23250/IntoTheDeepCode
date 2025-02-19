@@ -5,7 +5,6 @@ import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
@@ -67,7 +66,7 @@ public class SixSpec extends OpMode {
                         Outtake.setPivot(Outtake.pivotSubmersiblePos),
                         OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
                         // Preload
-                        Chassis.driveToPointUntilStuck(new Pose(42, 67 + outtakeOffset1, 0))
+                        Chassis.driveToPoint(new Pose(42, 67 + outtakeOffset1, 0))
                 ),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 Outtake.openClaw(),
@@ -79,21 +78,21 @@ public class SixSpec extends OpMode {
                                 IntakeSlides.extend()
                         ),
                         new Sequential(
-                                Chassis.driveToPointUntilStuck(new Pose(32, 52, Math.toRadians(-130))),
-                                Chassis.driveToPointUntilStuck(new Pose(32, 43, Math.toRadians(-30))),
-                                Chassis.driveToPointUntilStuck(new Pose(28, 44, Math.toRadians(-130))),
+                                Chassis.driveToPoint(new Pose(32, 52, Math.toRadians(-130))),
+                                Chassis.driveToPoint(new Pose(32, 43, Math.toRadians(-30))),
+                                Chassis.driveToPoint(new Pose(28, 44, Math.toRadians(-130))),
                                 Chassis.driveToPoint(new Pose(32, 33, Math.toRadians(-30))),
-                                Chassis.driveToPointUntilStuck(new Pose(28, 34, Math.toRadians(-130)))
+                                Chassis.driveToPoint(new Pose(28, 34, Math.toRadians(-130)))
                         )
                 ),
-                Chassis.driveToPointUntilStuck(new Pose(32, 27, Math.toRadians(-30))),
-                Chassis.driveToPointUntilStuck(new Pose(32, 28, Math.toRadians(-130))),
+                Chassis.driveToPoint(new Pose(32, 27, Math.toRadians(-30))),
+                Chassis.driveToPoint(new Pose(32, 28, Math.toRadians(-130))),
                 Chassis.setClean(),
                 //Intake 1
                 new Parallel(
                         IntakeSlides.home(),
                         new Sequential(
-                                Chassis.driveToPointUntilStuck(new Pose(10.500 + intakeOffset + intakeOffset1, 33.000+3.5, 0)),
+                                Chassis.driveToPoint(new Pose(10.500 + intakeOffset + intakeOffset1, 33.000+3.5, 0)),
                                 //new Wait(0.25),
                                 Outtake.closeClaw()
                         )
@@ -103,14 +102,14 @@ public class SixSpec extends OpMode {
                         Outtake.setArm(Outtake.armSubmersiblePos),
                         Outtake.setPivot(Outtake.pivotSubmersiblePos),
                         OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
-                        Chassis.driveToPointUntilStuck(new Pose(42, 67.000 + outtakeOffset2, 0))
+                        Chassis.driveToPoint(new Pose(42, 67.000 + outtakeOffset2, 0))
                 ),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 //intake2
                 new Parallel(
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         new Sequential(
-                                Chassis.driveToPointUntilStuck(new Pose(10.500 + intakeOffset + intakeOffset2, 33.000+3.5, 0)),
+                                Chassis.driveToPoint(new Pose(10.500 + intakeOffset + intakeOffset2, 33.000+3.5, 0)),
                                 //new Wait(0.25),
                                 Outtake.closeClaw()
                         )
@@ -120,14 +119,14 @@ public class SixSpec extends OpMode {
                         Outtake.setArm(Outtake.armSubmersiblePos),
                         Outtake.setPivot(Outtake.pivotSubmersiblePos),
                         OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
-                        Chassis.driveToPointUntilStuck(new Pose(42, 67.000 + outtakeOffset3, 0))
+                        Chassis.driveToPoint(new Pose(42, 67.000 + outtakeOffset3, 0))
                 ),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 //Intake3
                 new Parallel(
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         new Sequential(
-                                Chassis.driveToPointUntilStuck(new Pose(10.500 + intakeOffset + intakeOffset3, 33.000+3.5, 0)),
+                                Chassis.driveToPoint(new Pose(10.500 + intakeOffset + intakeOffset3, 33.000+3.5, 0)),
                                 //new Wait(0.25),
                                 Outtake.closeClaw()
                         )
@@ -137,14 +136,14 @@ public class SixSpec extends OpMode {
                         Outtake.setArm(Outtake.armSubmersiblePos),
                         Outtake.setPivot(Outtake.pivotSubmersiblePos),
                         OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
-                        Chassis.driveToPointUntilStuck(new Pose(42, 67.000 + outtakeOffset4, 0))
+                        Chassis.driveToPoint(new Pose(42, 67.000 + outtakeOffset4, 0))
                 ),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 //Intake 4
                 new Parallel(
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         new Sequential(
-                                Chassis.driveToPointUntilStuck(new Pose(10.500 + intakeOffset + intakeOffset4, 33.000+3.5, 0)),
+                                Chassis.driveToPoint(new Pose(10.500 + intakeOffset + intakeOffset4, 33.000+3.5, 0)),
                                 //new Wait(0.25),
                                 Outtake.closeClaw()
                         )
@@ -154,14 +153,14 @@ public class SixSpec extends OpMode {
                         Outtake.setArm(Outtake.armSubmersiblePos),
                         Outtake.setPivot(Outtake.pivotSubmersiblePos),
                         OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
-                        Chassis.driveToPointUntilStuck(new Pose(42, 67.000 + outtakeOffset5, 0))
+                        Chassis.driveToPoint(new Pose(42, 67.000 + outtakeOffset5, 0))
                 ),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 //Intake 5
                 new Parallel(
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         new Sequential(
-                                Chassis.driveToPointUntilStuck(new Pose(10.500 + intakeOffset + intakeOffset4, 33.000+3.5, 0)),
+                                Chassis.driveToPoint(new Pose(10.500 + intakeOffset + intakeOffset4, 33.000+3.5, 0)),
                                 //new Wait(0.25),
                                 Outtake.closeClaw()
                         )
@@ -171,7 +170,7 @@ public class SixSpec extends OpMode {
                         Outtake.setArm(Outtake.armSubmersiblePos),
                         Outtake.setPivot(Outtake.pivotSubmersiblePos),
                         OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
-                        Chassis.driveToPointUntilStuck(new Pose(42, 67.000 + outtakeOffset6, 0))
+                        Chassis.driveToPoint(new Pose(42, 67.000 + outtakeOffset6, 0))
                 ),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos)
 
