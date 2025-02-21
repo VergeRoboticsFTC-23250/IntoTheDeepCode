@@ -33,16 +33,16 @@ public class OuttakeSlides implements Subsystem {
     public static DcMotorEx slideL;
     public static DcMotorEx encoder;
     public static Telemetry telemetry;
-    public static int tolerance = 1600;
+    public static int tolerance = 3200;
     public static int safePos = 11200;
     public static int submersiblePos = safePos;
     public static int scoreSubmersiblePos = 26500;
     public static int maxPos = 70000;
     public static int bucketPos = maxPos;
 //    static final OpModeLazyCell<PIDFService> thingy = new OpModeLazyCell<>(() -> new PIDFService(OuttakeSlides.controller, OuttakeSlides.slideL, OuttakeSlides.slideR));
-    public static double Kp = 0.00014;
+    public static double Kp = 0.00018;
     public static double Ki = 0.0000;
-    public static double Kd = 0.0000;
+    public static double Kd = 0.000008;
     public static double Kf = 0.0000;
     public static int minPos = 0;
     public static double currentLimit = 1700;
@@ -119,6 +119,24 @@ public class OuttakeSlides implements Subsystem {
 
     public static boolean isOverCurrent() {
         return slideR.isOverCurrent() || slideL.isOverCurrent();
+    }
+
+    public static Lambda increaseGains(){
+        return new Lambda("increase-gains")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    controller.setP(Kp * 3);
+                })
+                .setFinish(() -> true);
+    }
+
+    public static Lambda resetGains(){
+        return new Lambda("reset-gains")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    controller.setP(Kp);
+                })
+                .setFinish(() -> true);
     }
 
     public static void reset() {

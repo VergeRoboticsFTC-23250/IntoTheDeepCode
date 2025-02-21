@@ -141,6 +141,7 @@ public class Robot {
                 ))
                 .withState(State.OUTTAKE_SUBMERSIBLE_SCORE, (state, name) -> Lambda.from(
                         new Sequential(
+                                OuttakeSlides.increaseGains(),
                                 OuttakeSlides.runToPosition(outtakeSubmersibleScore.slidePos)
                         )
                 ))
@@ -204,6 +205,7 @@ public class Robot {
                                 new Wait(0.15)
                         ).schedule();
                     }
+                    OuttakeSlides.resetGains().schedule();
                     stateMachine.schedule(state);
                 })
                 .setFinish(() -> true);

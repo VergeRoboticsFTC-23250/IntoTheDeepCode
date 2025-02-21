@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis.startingPose;
+
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -15,6 +17,7 @@ import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
+import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
 import dev.frozenmilk.mercurial.commands.util.Wait;
 
@@ -34,6 +37,7 @@ public class SquidToPointTest extends OpMode {
     @Override
     public void init() {
         Robot.init();
+        Chassis.holdPoint = true;
         Outtake.setClaw(Outtake.clawClosePos);
         Outtake.isClawOpen = false;
         Outtake.setPosition(Outtake.armInitPos);
@@ -48,11 +52,43 @@ public class SquidToPointTest extends OpMode {
 
     @Override
     public void start() {
+        Chassis.setCleanManual();
+        new Sequential(
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0))
+        ).schedule();
     }
 
     @Override
     public void loop() {
-        tejas.triangle().onTrue(Chassis.driveToPoint(new Pose(32, 8, 0)));
-        tejas.cross().onTrue(Chassis.driveToPoint(new Pose(0, 0, 0)));
+//        tejas.triangle().onTrue(Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)));
+//        tejas.rightBumper().onTrue(Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), Math.toRadians(90))));
+//        tejas.cross().onTrue(Chassis.driveToPoint(startingPose));
     }
 }

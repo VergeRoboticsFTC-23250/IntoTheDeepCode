@@ -31,8 +31,10 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 public class SixSpecOptimized extends OpMode {
     public static Pose intakePose = new Pose(8, 35, 0);
     public static double[] intakeOffsetsY = {0, 0, 0, 0, 0};
-    public static Pose outtakePose = new Pose(42, 72, 0);
-    public static double[] outtakeOffsetsY = {0, 0, 0, 0, 0, 0};
+    public static double[] intakeOffsetsX = {0, 1, 2, 3, 4};
+    public static Pose outtakePose = new Pose(50, 72, 0);
+    public static double[] outtakeOffsetsY = {0, 8, 16, 24, 32, 40};
+    public static double[] outtakeOffsetsX = {0, 0, 0, 0, 0, 0};
 
     public static double intakeOffsetX = 6;
 
@@ -47,11 +49,11 @@ public class SixSpecOptimized extends OpMode {
                         )),
                         Chassis.driveToPoint(
                                 new Pose(
-                                        outtakePose.getX(),
+                                        outtakePose.getX() + outtakeOffsetsX[outtakeNum-1],
                                         outtakePose.getY() + outtakeOffsetsY[outtakeNum-1],
                                         outtakePose.getHeading())
                         ),
-                        Chassis.setConstantDrivePower(0.7)
+                        Chassis.setConstantDrivePower(1)
                 ),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 Outtake.openClaw(),
@@ -62,7 +64,7 @@ public class SixSpecOptimized extends OpMode {
     Command Intake(int intakeNum){
         return new Parallel(
                 new Sequential(
-                        new Wait(0.25),
+                        new Wait(0.75),
                         Outtake.setArm(Outtake.armSpecPos),
                         Outtake.setPivot(Outtake.pivotSpecPos),
                         OuttakeSlides.runToPosition(OuttakeSlides.minPos)
@@ -71,7 +73,7 @@ public class SixSpecOptimized extends OpMode {
                         Chassis.setSloppy(),
                         Chassis.driveToPoint(
                                 new Pose(
-                                        intakePose.getX() + intakeOffsetX,
+                                        intakePose.getX() + intakeOffsetX + intakeOffsetsX[intakeNum-1],
                                         intakePose.getY() + intakeOffsetsY[intakeNum-1],
                                         intakePose.getHeading()
                                 )
@@ -79,7 +81,7 @@ public class SixSpecOptimized extends OpMode {
                         Chassis.setClean(),
                         Chassis.driveToPoint(
                                 new Pose(
-                                        intakePose.getX(),
+                                        intakePose.getX() + intakeOffsetsX[intakeNum-1],
                                         intakePose.getY() + intakeOffsetsY[intakeNum-1],
                                         intakePose.getHeading()
                                 )
@@ -95,7 +97,7 @@ public class SixSpecOptimized extends OpMode {
     Command PushSamples = new Parallel(
             Robot.setState(Robot.State.INTAKE_SPEC),
             new Sequential(
-                    new Wait(.5),
+                    new Wait(1),
                     IntakeSlides.extend()
             ),
             new Sequential(
@@ -114,6 +116,7 @@ public class SixSpecOptimized extends OpMode {
     @Override
     public void init() {
         Robot.init();
+        Chassis.holdPoint = true;
         Outtake.setClaw(Outtake.clawClosePos);
         Outtake.isClawOpen = false;
         Outtake.setPosition(Outtake.armInitPos);
@@ -141,16 +144,16 @@ public class SixSpecOptimized extends OpMode {
                 Intake(4),
                 Outtake(5),
                 Intake(5),
-                Outtake(6),
-                new Parallel(
-                        new Wait(.5).then(new Parallel(
-                                Outtake.setArm(Outtake.armSpecPos),
-                                Outtake.setPivot(Outtake.pivotSpecPos),
-                                OuttakeSlides.runToPosition(OuttakeSlides.minPos),
-                                IntakeSlides.extend(),
-                                Chassis.driveToPoint(new Pose(32, 28, Math.toRadians(-130)))
-                        ))
-                )
+                Outtake(6)
+//                new Parallel(
+//                        new Wait(.5).then(new Parallel(
+//                                Outtake.setArm(Outtake.armSpecPos),
+//                                Outtake.setPivot(Outtake.pivotSpecPos),
+//                                OuttakeSlides.runToPosition(OuttakeSlides.minPos),
+//                                IntakeSlides.extend(),
+//                                Chassis.driveToPoint(new Pose(32, 28, Math.toRadians(-130)))
+//                        ))
+//                )
         ).schedule();
     }
 

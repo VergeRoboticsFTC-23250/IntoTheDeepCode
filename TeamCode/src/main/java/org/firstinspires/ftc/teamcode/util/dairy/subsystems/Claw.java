@@ -38,7 +38,7 @@ import kotlin.annotation.MustBeDocumented;
 
 public class Claw implements Subsystem {
     public static final Claw INSTANCE = new Claw();
-    public static Servo wrist;
+    //public static Servo wrist;
 
     public Claw() {}
 
@@ -57,7 +57,7 @@ public class Claw implements Subsystem {
 
     @Override
     public void preUserInitHook(@NonNull Wrapper opMode) {
-        wrist = opMode.getOpMode().hardwareMap.get(Servo.class, "wrist");
+        //wrist = opMode.getOpMode().hardwareMap.get(Servo.class, "wrist");
     }
 
     @Override
@@ -74,8 +74,8 @@ public class Claw implements Subsystem {
 
     }
 
-    public static Lambda autoAlign(double angle) {
-        return new Lambda("auto-align")
-                .setInit(() -> wrist.setPosition(angle * (180.0 / 255.0)));
-    }
+//    public static Lambda autoAlign(double angle) {
+//        return new Lambda("auto-align")
+//                .setInit(() -> wrist.setPosition(angle * (180.0 / 255.0)));
+//    }
 }

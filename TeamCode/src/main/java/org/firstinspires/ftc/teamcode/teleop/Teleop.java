@@ -47,9 +47,12 @@ public class Teleop extends OpMode {
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
 
+
 //        tejas.dpadRight().onTrue(
 //                Intake.raiseIntake()
 //        );
+
+        Chassis.holdPoint = false;
 
         tejas.square()
                 .onTrue(

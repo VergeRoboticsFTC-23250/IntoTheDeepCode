@@ -61,7 +61,7 @@ public class FiveSpecimens extends OpMode {
                         Chassis.followPath(Paths.fiveSpecs.get(0))
                 ),
                 new Parallel(
-                        Chassis.push(outtakePower, outtakeDelay),
+                        Chassis.pushOld(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
                 Outtake.openClaw(),
@@ -75,7 +75,7 @@ public class FiveSpecimens extends OpMode {
                 Chassis.followPath(Paths.fiveSpecs.get(7), true),
 
                 // plus 1 intake
-                Chassis.push(intakePower, intakeDelay),
+                Chassis.pushOld(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 1 outtake
@@ -84,7 +84,7 @@ public class FiveSpecimens extends OpMode {
                         Chassis.followPath(Paths.fiveSpecs.get(8))
                 ),
                 new Parallel(
-                        Chassis.push(outtakePower, outtakeDelay),
+                        Chassis.pushOld(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
                 Chassis.followPath(Paths.fiveSpecs.get(9)),
@@ -95,7 +95,7 @@ public class FiveSpecimens extends OpMode {
                         Robot.setState(Robot.State.INTAKE_SPEC),
                         Chassis.followPath(Paths.fiveSpecs.get(10))
                 ),
-                Chassis.push(intakePower, intakeDelay),
+                Chassis.pushOld(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 2 outtake
@@ -104,7 +104,7 @@ public class FiveSpecimens extends OpMode {
                         Chassis.followPath(Paths.fiveSpecs.get(11))
                 ),
                 new Parallel(
-                        Chassis.push(outtakePower, outtakeDelay),
+                        Chassis.pushOld(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
                 Chassis.followPath(Paths.fiveSpecs.get(12)),
@@ -115,7 +115,7 @@ public class FiveSpecimens extends OpMode {
                     Robot.setState(Robot.State.INTAKE_SPEC),
                     Chassis.followPath(Paths.fiveSpecs.get(13))
                 ),
-                Chassis.push(intakePower, intakeDelay),
+                Chassis.pushOld(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 3 outtake
@@ -124,7 +124,7 @@ public class FiveSpecimens extends OpMode {
                         Chassis.followPath(Paths.fiveSpecs.get(14))
                 ),
                 new Parallel(
-                        Chassis.push(outtakePower, outtakeDelay),
+                        Chassis.pushOld(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
                 Chassis.followPath(Paths.fiveSpecs.get(15)),
@@ -136,7 +136,7 @@ public class FiveSpecimens extends OpMode {
                         Chassis.followPath(Paths.fiveSpecs.get(16))
                 ),
 
-                Chassis.push(intakePower, intakeDelay),
+                Chassis.pushOld(intakePower, intakeDelay),
                 Outtake.closeClaw(),
 
                 // plus 4 outtake
@@ -145,7 +145,7 @@ public class FiveSpecimens extends OpMode {
                         Chassis.followPath(Paths.fiveSpecs.get(17))
                 ),
                 new Parallel(
-                        Chassis.push(outtakePower, outtakeDelay),
+                        Chassis.pushOld(outtakePower, outtakeDelay),
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE_SCORE)
                 ),
                 Outtake.openClaw(),

@@ -12,10 +12,12 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.PIDController;
+import org.firstinspires.ftc.teamcode.util.Util;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 
 import java.lang.annotation.ElementType;
@@ -50,49 +52,73 @@ public class Chassis implements Subsystem {
     public static DashboardPoseTracker dashboardPoseTracker;
 
     //Custom Follower
-    public static boolean enableSQUID = true;
+    public static Pose startingPose = new Pose(9.000, 65.000, 0);
+    public static double exponentialTransformHeading = 0.25;
+    public static double exponentialTransformTranslational = 1;
+    public static double headingP = 0.9;
+    public static double headingScaleFactorD = 0.05;
+    public static double translationalP = 0.05;
+    public static double translationalScaleFactorD = 0.06;
+    public static PIDCoefficients headingGains = new PIDCoefficients(headingP * Math.pow(exponentialTransformHeading, 2), 0, headingP*headingScaleFactorD * Math.pow(exponentialTransformHeading, 2));
+    public static PIDCoefficients translationalGains = new PIDCoefficients(translationalP * Math.pow(exponentialTransformTranslational, 2), 0, translationalP*translationalScaleFactorD * Math.pow(exponentialTransformTranslational, 2));
+    public static double headingScaleFactor = 1;
+
     public static boolean holdPoint = true;
-    public static boolean isFollowerBusy = false;
-    private static long currentPathDeltaT = 0;
-    public static double constantDrivePower = 0;
-    //public static Pose startingPose = new Pose(9.000, 65.000, 0);
-    public static Pose startingPose = new Pose(0, 0, 0);
-    public static PIDController translationalErrorController = new PIDController(.3, 0, 0.03, 0);
-    public static PIDController headingController = new PIDController(4, 0, 0.35, startingPose.getHeading());
-    public static double targetX = startingPose.getX();
-    public static double targetY = startingPose.getY();
+    static boolean isFollowerBusy = false;
+    static long currentPathDeltaT = 0;
+    static double constantDrivePower = 0;
+    static PIDController translationalErrorController = new PIDController(translationalGains, 0);
+    static PIDController headingController = new PIDController(headingGains, startingPose.getHeading());
+    static double targetX = 0;
+    static double targetY = 0;
     public Chassis() {}
+    public static Lambda runFollower() {
+        return new Lambda("follower-pid")
+                .setInterruptible(false)
+                .setExecute(() -> {
+                    if (holdPoint) {
+                        //Get Pose
+                        Pose pose = follower.getPose();
 
-    public void speedSlow(){
-        isSlowed = true;
+                        //Raw Heading
+                        double heading = pose.getHeading();
+                        double headingPower = headingController.getPowerHeading(heading);
+
+                        //Raw Translational
+                        double errorX = targetX - pose.getX();
+                        double errorY = targetY - pose.getY();
+                        double errorDist = Math.hypot(errorX, errorY);
+
+                        double translationalAngle = Math.atan2(errorY, errorX);
+
+                        double translationalPower = translationalErrorController.getPower(errorDist);
+                        translationalPower = Util.transformExponential(translationalPower, exponentialTransformTranslational);
+
+                        double drivePower = translationalPower * Math.cos(translationalAngle);
+                        double lateralPower = translationalPower * Math.sin(translationalAngle);
+
+                        //Transform Heading
+                        headingPower = Util.transformExponential(headingPower, exponentialTransformHeading);
+
+                        //Suppress Heading
+                        double scaleFactor = 1 / (1 + headingScaleFactor * Math.abs(translationalPower));
+                        headingPower *= scaleFactor;
+
+                        //Apply Powers
+                        drive(constantDrivePower == 0? -drivePower : constantDrivePower, -lateralPower, headingPower);
+
+                        //drive(0, 0, headingPower);
+
+                        telemetry.addData("velocity", follower.getVelocityMagnitude());
+                        telemetry.addData("Translational Error", translationalErrorController.getError());
+                        telemetry.addData("Heading Error", Math.toDegrees(headingController.getError()));
+                        telemetry.addData("X", pose.getX());
+                        telemetry.addData("Y", pose.getX());
+                    }
+                    follower.update();
+                })
+                .setFinish(() -> false);
     }
-
-    public void speedFast(){
-        isSlowed = false;
-    }
-
-    public static void drive(double x, double y, double z) {
-        follower.setTeleOpMovementVectors(
-                x * (isSlowed? slowSpeed : 1),
-                y * (isSlowed? slowSpeed : 1),
-                z * (isSlowed? slowSpeed : 1), true
-        );
-        follower.update();
-        telemetry.addData("Chassis Vectors", "x: %f, y: %f, z: %f", x, y, z);
-    }
-
-    @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
-    @Inherited
-    public @interface Attach { }
-
-    private Dependency<?> dependency = Subsystem.DEFAULT_DEPENDENCY.and(new SingleAnnotation<>(Attach.class));
-
-    @NonNull
-    @Override
-    public Dependency<?> getDependency() { return dependency; }
-
-    @Override
-    public void setDependency(@NonNull Dependency<?> dependency) { this.dependency = dependency; }
 
     @Override
     public void preUserInitHook(@NonNull Wrapper opMode) {
@@ -118,10 +144,24 @@ public class Chassis implements Subsystem {
         //Custom Follower
         translationalErrorController.reset();
         headingController.reset();
-        translationalErrorController.setTolerance(2);
-        headingController.setTolerance(Math.PI/60);
+        headingController.setDerivativeFilterAlpha(1);
+        translationalErrorController.setDerivativeFilterAlpha(1);
+        setCleanManual();
         setDefaultCommand(runFollower());
     }
+
+    @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
+    @Inherited
+    public @interface Attach { }
+
+    private Dependency<?> dependency = Subsystem.DEFAULT_DEPENDENCY.and(new SingleAnnotation<>(Attach.class));
+
+    @NonNull
+    @Override
+    public Dependency<?> getDependency() { return dependency; }
+
+    @Override
+    public void setDependency(@NonNull Dependency<?> dependency) { this.dependency = dependency; }
 
     @Override
     public void postUserInitHook(@NonNull Wrapper opMode) {
@@ -147,7 +187,25 @@ public class Chassis implements Subsystem {
                 })
                 .setFinish(() -> false);
     }
-    public static Lambda push(double pow, long time){
+
+    public void speedSlow(){
+        isSlowed = true;
+    }
+
+    public void speedFast(){
+        isSlowed = false;
+    }
+
+    public static void drive(double x, double y, double z) {
+        follower.setTeleOpMovementVectors(
+                x * (isSlowed? slowSpeed : 1),
+                y * (isSlowed? slowSpeed : 1),
+                z * (isSlowed? slowSpeed : 1), false
+        );
+        follower.update();
+        telemetry.addData("Chassis Vectors", "x: %f, y: %f, z: %f", x, y, z);
+    }
+    public static Lambda pushOld(double pow, long time){
         AtomicLong startTime = new AtomicLong();
         return new Lambda("push-drive")
                 .setInit(() -> {
@@ -164,12 +222,6 @@ public class Chassis implements Subsystem {
                 .setFinish(() -> System.currentTimeMillis() - startTime.get() > time);
     }
 
-    public static Lambda toggleSlow() {
-        return new Lambda("toggle-slow")
-                .setInit(() -> isSlowed = !isSlowed)
-                .setFinish(() -> true);
-    }
-
     public static Lambda slow(){
         return new Lambda("slow")
                 .setInit(() -> isSlowed = true);
@@ -178,6 +230,68 @@ public class Chassis implements Subsystem {
     public static Lambda fast(){
         return new Lambda("fast")
                 .setInit(() -> isSlowed = false);
+    }
+
+    //Custom Follower
+    public static void setDrivePoint(Pose pose){
+        targetX = pose.getX();
+        targetY = pose.getY();
+        headingController.setReference(pose.getHeading());
+    }
+
+    public static boolean isAtPoint(){
+        return translationalErrorController.isAtReference() && headingController.isAtReference();
+    }
+
+    public static boolean isStuck(){
+        return follower.getVelocityMagnitude() <= 0.00005 ;
+    }
+    public static Lambda setSloppy(){
+        return new Lambda("set-sloppy")
+                .setInit(() -> {
+                    translationalErrorController.setTolerance(8);
+                    headingController.setTolerance(Math.toRadians(14));
+                })
+                .setFinish(() -> true);
+    }
+    public static void setCleanManual(){
+        translationalErrorController.setTolerance(4);
+        headingController.setTolerance(Math.toRadians(7));
+    }
+    public static Lambda setClean(){
+        return new Lambda("set-clean")
+                .setInit(Chassis::setCleanManual)
+                .setFinish(() -> true);
+    }
+
+
+    private static long startTime = 0;
+
+    public static Lambda setConstantDrivePower(double pow){
+        return new Lambda("set-constant-drive-power")
+                .setInit(() -> constantDrivePower = pow)
+                .setFinish(() -> true);
+    }
+
+    public static Lambda releaseConstantDrivePower(){
+        return new Lambda("release-constant-drive-power")
+                .setInit(() -> constantDrivePower = 0)
+                .setFinish(() -> true);
+    }
+
+    public static Lambda driveToPoint(Pose pose){
+        return new Lambda("drive-to-point-until-stuck")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    setDrivePoint(pose);
+                    startTime = System.currentTimeMillis();
+                })
+                .setExecute(() -> {
+                    telemetry.addData("Heading Error", headingController.getError());
+                    telemetry.addData("Translational Error", translationalErrorController.getError());
+                    currentPathDeltaT = System.currentTimeMillis() - startTime;
+                })
+                .setFinish(() -> (Chassis.isAtPoint() || Chassis.isStuck()));
     }
 
     public static Lambda followPath(Path path) {
@@ -218,104 +332,5 @@ public class Chassis implements Subsystem {
                     telemetry.addData("pinpoint cooked", follower.isPinpointCooked());
                 })
                 .setFinish(() -> !follower.isBusy() || follower.isRobotStuck());
-    }
-
-    //Custom Follower
-    private static void setDrivePoint(Pose pose){
-        targetX = pose.getX();
-        targetY = pose.getY();
-        headingController.setReference(pose.getHeading());
-    }
-
-    public static boolean isAtPoint(){
-        return translationalErrorController.isAtReference() && headingController.isAtReference();
-    }
-
-    public static boolean isStuck(){
-        return follower.getVelocityMagnitude() < 0.5 ;
-    }
-    public static Lambda setSloppy(){
-        return new Lambda("set-sloppy")
-                .setInit(() -> {
-                    translationalErrorController.setTolerance(4);
-                    headingController.setTolerance(Math.PI/18);
-                })
-                .setFinish(() -> true);
-    }
-    public static void setCleanManual(){
-        translationalErrorController.setTolerance(2);
-        headingController.setTolerance(Math.PI/60);
-    }
-    public static Lambda setClean(){
-        return new Lambda("set-clean")
-                .setInit(Chassis::setCleanManual)
-                .setFinish(() -> true);
-    }
-    public static Lambda runFollower() {
-        return new Lambda("follower-pid")
-                .setInterruptible(false)
-                .setExecute(() -> {
-                    if (holdPoint) {
-                        Pose pose = follower.getPose();
-                        double heading = pose.getHeading();
-
-                        double errorX = targetX - pose.getX();
-                        double errorY = targetY - pose.getY();
-                        double errorDist = Math.hypot(errorX, errorY);
-
-                        double translationalPower = translationalErrorController.getPower(errorDist);
-                        double translationalAngle = Math.atan2(errorY, errorX);
-
-                        double drivePower = (translationalPower * Math.cos(translationalAngle - heading));
-                        double lateralPower = (translationalPower * Math.sin(translationalAngle - heading));
-
-                        double headingPower = headingController.getPowerHeading(heading);
-
-                        //SQUID (Square Root Input Determination)
-                        if(enableSQUID){
-                            //drivePower = Math.min(Math.pow(Math.abs(drivePower), 2), 1) * Math.signum(drivePower);
-//                            lateralPower = Math.min(Math.pow(Math.abs(lateralPower), 2), 1) * Math.signum(lateralPower);
-                            headingPower = Math.min(Math.pow(Math.abs(headingPower), 2), 1) * Math.signum(headingPower);
-                        }
-
-//                        double robotDrivePower = drivePower * Math.cos(heading) - lateralPower * Math.sin(heading);
-//                        double robotLateralPower = drivePower * Math.sin(heading) + lateralPower * Math.cos(heading);
-
-
-
-                        drive(drivePower, lateralPower, headingPower);
-
-                        telemetry.addData("velocity", follower.getVelocityMagnitude());
-                    }
-                })
-                .setFinish(() -> false);
-    }
-
-    private static long startTime = 0;
-
-    public static Lambda setConstantDrivePower(double pow){
-        return new Lambda("set-constant-drive-power")
-                .setInit(() -> constantDrivePower = pow)
-                .setFinish(() -> true);
-    }
-
-    public static Lambda releaseConstantDrivePower(){
-        return new Lambda("release-constant-drive-power")
-                .setInit(() -> constantDrivePower = 0)
-                .setFinish(() -> true);
-    }
-
-    public static Lambda driveToPoint(Pose pose){
-        return new Lambda("drive-to-point-until-stuck")
-                .setInterruptible(true)
-                .setInit(() -> {
-                    setDrivePoint(pose);
-                    startTime = System.currentTimeMillis();
-                })
-                .setExecute(() -> {
-                    telemetry.addData("Heading Error", Math.toDegrees(headingController.getError()));
-                    currentPathDeltaT = System.currentTimeMillis() - startTime;
-                })
-                .setFinish(() -> (Chassis.isAtPoint() || Chassis.isStuck()) && currentPathDeltaT > 800);
     }
 }
