@@ -27,9 +27,9 @@ public class Paths {
     public static Pose bucketScore2 = new Pose(14, 126.5, Math.toRadians(313));
     public static Pose pickup1 = new Pose(18,120, Math.toRadians(360));
     public static Pose pickup2 = new Pose(18,130, Math.toRadians(360));
-    public static Pose pickup3 = new Pose(29,125, Math.toRadians(45));
-    public static Pose samplePark = new Pose(60,100, Math.toRadians(270));
-    public static Point parkControl = new Point(60, 110);
+    public static Pose pickup3 = new Pose(35,131, Math.toRadians(45));
+    public static Pose samplePark = new Pose(14-2+46,126+4-34, Math.toRadians(270));
+    public static Point parkControl = new Point(64, 126);
 
     public static Pose specStart = new Pose(9, 65, Math.toRadians(0));
     public static PathChain robotPush;
@@ -229,6 +229,31 @@ public class Paths {
                         new Point(bucketScore.getX(), bucketScore.getY()+2),
                         new Point(bucketScore.getX()-2, bucketScore.getY()+2+2)
                 ),bucketScore.getHeading() + Math.toRadians(5)
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(bucketScore.getX()-2, bucketScore.getY()+2+2),
+                        new Point(pickup3)
+                ), bucketScore.getHeading() + Math.toRadians(5), pickup3.getHeading()
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(pickup3),
+                        new Point(bucketScore.getX(), bucketScore.getY()+2)
+                ), pickup3.getHeading(), bucketScore.getHeading() + Math.toRadians(5)
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(bucketScore.getX(), bucketScore.getY()+2),
+                        new Point(bucketScore.getX()-2, bucketScore.getY()+2+2)
+                ),bucketScore.getHeading() + Math.toRadians(5)
+        ));
+        fourSamps.add(createPath(
+                new BezierCurve(
+                        new Point(bucketScore.getX()-2, bucketScore.getY()+2+2),
+                        parkControl,
+                        new Point(samplePark)
+                ), bucketScore.getHeading() + Math.toRadians(5), samplePark.getHeading()
         ));
 
 
