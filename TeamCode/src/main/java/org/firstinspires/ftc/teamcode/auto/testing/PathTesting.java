@@ -90,8 +90,30 @@ public class PathTesting extends OpMode {
                 new Parallel(
                         Chassis.followPath(Paths.fourSamps.get(4)),
                         Outtake.openClaw()
-                )
+                ),
 
+                new Parallel(
+                        Chassis.followPath(Paths.fourSamps.get(5)),
+                        new Sequential(
+                                new Wait(0.35),
+                                Robot.setState(Robot.State.HOME),
+                                new Wait(0.2)
+                        )
+                ),
+
+                IntakeSlides.extend(),
+                new Wait(0.25),
+                IntakeSlides.home(),
+                new Wait(0.3),
+
+                Robot.setState(Robot.State.OUTTAKE_BUCKET),
+                new Wait(0.6),
+                Chassis.followPath(Paths.fourSamps.get(6)),
+
+                new Parallel(
+                        Chassis.followPath(Paths.fourSamps.get(7)),
+                        Outtake.openClaw()
+                )
         )
                 .schedule();
     }

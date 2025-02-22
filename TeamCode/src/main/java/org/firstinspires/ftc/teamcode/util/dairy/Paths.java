@@ -212,11 +212,29 @@ public class Paths {
                         new Point(bucketScore.getX()-2, bucketScore.getY()+2+2)
                 ),bucketScore.getHeading() + Math.toRadians(5)
         ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(bucketScore.getX()-2, bucketScore.getY()+2+2),
+                        new Point(pickup2)
+                ), bucketScore.getHeading() + Math.toRadians(5), pickup2.getHeading()
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(pickup2),
+                        new Point(bucketScore.getX(), bucketScore.getY()+2)
+                ), pickup2.getHeading(), bucketScore.getHeading() + Math.toRadians(5)
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(bucketScore.getX(), bucketScore.getY()+2),
+                        new Point(bucketScore.getX()-2, bucketScore.getY()+2+2)
+                ),bucketScore.getHeading() + Math.toRadians(5)
+        ));
 
 
-        fourSamps.get(0).setPathEndTimeoutConstraint(500);
-        fourSamps.get(1).setPathEndTimeoutConstraint(500);
-        fourSamps.get(2).setPathEndTimeoutConstraint(500);
+//        fourSamps.get(0).setPathEndTimeoutConstraint(500);
+//        fourSamps.get(1).setPathEndTimeoutConstraint(500);
+//        fourSamps.get(2).setPathEndTimeoutConstraint(500);
 //        fourSamps.get(3).setPathEndTimeoutConstraint(500);
 //        fourSamps.get(4).setPathEndTimeoutConstraint(500);
 
