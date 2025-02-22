@@ -203,8 +203,14 @@ public class Paths {
         fourSamps.add(createPath(
                 new BezierLine(
                         new Point(pickup1),
-                        new Point(bucketScore)
-                ), pickup1.getHeading(), bucketScore.getHeading()
+                        new Point(bucketScore.getX(), bucketScore.getY()+2)
+                ), pickup1.getHeading(), bucketScore.getHeading() + Math.toRadians(5)
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(bucketScore.getX(), bucketScore.getY()+2),
+                        new Point(bucketScore.getX()-2, bucketScore.getY()+2+2)
+                ),bucketScore.getHeading() + Math.toRadians(5)
         ));
 
 
@@ -212,7 +218,7 @@ public class Paths {
         fourSamps.get(1).setPathEndTimeoutConstraint(500);
         fourSamps.get(2).setPathEndTimeoutConstraint(500);
 //        fourSamps.get(3).setPathEndTimeoutConstraint(500);
-
+//        fourSamps.get(4).setPathEndTimeoutConstraint(500);
 
         robotPush = new PathChain(fiveSpecs.get(1), fiveSpecs.get(2), fiveSpecs.get(3), fiveSpecs.get(4), fiveSpecs.get(5), fiveSpecs.get(6));
 

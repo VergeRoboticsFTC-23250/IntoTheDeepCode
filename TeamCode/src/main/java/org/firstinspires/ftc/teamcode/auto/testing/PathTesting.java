@@ -65,7 +65,7 @@ public class PathTesting extends OpMode {
                 new Wait(0.3),
 
                 new Parallel(
-                        Chassis.followPath(Paths.pathTo(new Point(Paths.bucketScore.getX()-2, Paths.bucketScore.getY()+2), Paths.bucketScore)),
+                        Chassis.followPath(Paths.fourSamps.get(1)),
                         Outtake.openClaw()
                 ),
 
@@ -73,41 +73,24 @@ public class PathTesting extends OpMode {
                         Chassis.followPath(Paths.fourSamps.get(2)),
                         new Sequential(
                                 new Wait(0.35),
-                                Robot.setState(Robot.State.HOME)
+                                Robot.setState(Robot.State.HOME),
+                                new Wait(0.2)
                         )
                 ),
 
                 IntakeSlides.extend(),
                 new Wait(0.25),
                 IntakeSlides.home(),
+                new Wait(0.3),
+
+                Robot.setState(Robot.State.OUTTAKE_BUCKET),
+                new Wait(0.5),
+                Chassis.followPath(Paths.fourSamps.get(3)),
 
                 new Parallel(
-                        Robot.setState(Robot.State.OUTTAKE_BUCKET),
-                        Chassis.followPath(Paths.fourSamps.get(3))
+                        Chassis.followPath(Paths.fourSamps.get(4)),
+                        Outtake.openClaw()
                 )
-
-//                Chassis.followPath(Paths.fourSamps.get(1),true),
-//                new Wait(1)
-//
-//                Chassis.followPath(Paths.fourSamps.get(2),true),
-//                new Wait(1)
-//
-//                Chassis.followPath(Paths.fourSamps.get(3),true),
-//                new Wait(1),
-//
-//                Chassis.followPath(Paths.fourSamps.get(4),true),
-//                new Wait(1)
-//
-//                Chassis.followPathChain(Paths.fourSamps.get(5)),
-//                new Wait(1),
-//
-//                Chassis.followPathChain(Paths.fourSamps.get(6)),
-//                new Wait(1),
-//
-//                Chassis.followPathChain(Paths.fourSamps.get(7)),
-//                new Wait(1),
-//
-//                Chassis.followPathChain(Paths.fourSamps.get(8))
 
         )
                 .schedule();
