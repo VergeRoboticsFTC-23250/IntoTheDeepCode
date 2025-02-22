@@ -53,7 +53,7 @@ public class Chassis implements Subsystem {
 
     //Custom Follower
     public static Pose startingPose = new Pose(9.000, 65.000, 0);
-    public static double exponentialTransformHeading = 0.25;
+    public static double exponentialTransformHeading = 0.5;
     public static double exponentialTransformTranslational = 1;
     public static double headingP = 0.9;
     public static double headingScaleFactorD = 0.05;
@@ -61,7 +61,7 @@ public class Chassis implements Subsystem {
     public static double translationalScaleFactorD = 0.06;
     public static PIDCoefficients headingGains = new PIDCoefficients(headingP * Math.pow(exponentialTransformHeading, 2), 0, headingP*headingScaleFactorD * Math.pow(exponentialTransformHeading, 2));
     public static PIDCoefficients translationalGains = new PIDCoefficients(translationalP * Math.pow(exponentialTransformTranslational, 2), 0, translationalP*translationalScaleFactorD * Math.pow(exponentialTransformTranslational, 2));
-    public static double headingScaleFactor = 1;
+    public static double headingScaleFactor = 0;
 
     public static boolean holdPoint = true;
     static boolean isFollowerBusy = false;
@@ -71,6 +71,7 @@ public class Chassis implements Subsystem {
     static PIDController headingController = new PIDController(headingGains, startingPose.getHeading());
     static double targetX = 0;
     static double targetY = 0;
+    public static boolean faceSetpoint = false;
     public Chassis() {}
     public static Lambda runFollower() {
         return new Lambda("follower-pid")
@@ -80,22 +81,36 @@ public class Chassis implements Subsystem {
                         //Get Pose
                         Pose pose = follower.getPose();
 
-                        //Raw Heading
-                        double heading = pose.getHeading();
-                        double headingPower = headingController.getPowerHeading(heading);
-
                         //Raw Translational
                         double errorX = targetX - pose.getX();
                         double errorY = targetY - pose.getY();
                         double errorDist = Math.hypot(errorX, errorY);
 
                         double translationalAngle = Math.atan2(errorY, errorX);
+                        if(faceSetpoint){
+                            if(errorX < 0){
+                                headingController.setReference(translationalAngle - Math.PI);
+                            }else{
+                                headingController.setReference(translationalAngle);
+                            }
+                        }
+
+                        //Raw Heading
+                        double heading = pose.getHeading();
+                        double headingPower = headingController.getPowerHeading(heading);
 
                         double translationalPower = translationalErrorController.getPower(errorDist);
                         translationalPower = Util.transformExponential(translationalPower, exponentialTransformTranslational);
 
                         double drivePower = translationalPower * Math.cos(translationalAngle);
                         double lateralPower = translationalPower * Math.sin(translationalAngle);
+
+                        //Scale Translational
+                        double maxTranslationalVal = Math.max(Math.abs(drivePower), Math.abs(lateralPower));
+                        if(maxTranslationalVal > 1){
+                            drivePower /= maxTranslationalVal;
+                            lateralPower /= maxTranslationalVal;
+                        }
 
                         //Transform Heading
                         headingPower = Util.transformExponential(headingPower, exponentialTransformHeading);
@@ -246,6 +261,13 @@ public class Chassis implements Subsystem {
     public static boolean isStuck(){
         return follower.getVelocityMagnitude() <= 0.00005 ;
     }
+    public static Lambda setFaceSetpoint(boolean bool){
+        return new Lambda("set-face-setpoint")
+                .setInit(() -> {
+                    faceSetpoint = bool;
+                })
+                .setFinish(() -> true);
+    }
     public static Lambda setSloppy(){
         return new Lambda("set-sloppy")
                 .setInit(() -> {
@@ -284,6 +306,28 @@ public class Chassis implements Subsystem {
                 .setInterruptible(true)
                 .setInit(() -> {
                     setDrivePoint(pose);
+                    startTime = System.currentTimeMillis();
+                })
+                .setExecute(() -> {
+                    telemetry.addData("Heading Error", headingController.getError());
+                    telemetry.addData("Translational Error", translationalErrorController.getError());
+                    currentPathDeltaT = System.currentTimeMillis() - startTime;
+                })
+                .setFinish(() -> (Chassis.isAtPoint() || Chassis.isStuck()));
+    }
+
+    public static Lambda driveFacingPoint(Pose pose){
+        return new Lambda("drive-to-point-until-stuck")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    Pose startingPose = follower.getPose();
+
+                    double errorX = pose.getX() - startingPose.getX();
+                    double errorY = pose.getY() - startingPose.getY();
+
+                    double angle = Math.atan2(errorX, errorY);
+
+                    setDrivePoint(new Pose(pose.getX(), pose.getY(), angle));
                     startTime = System.currentTimeMillis();
                 })
                 .setExecute(() -> {

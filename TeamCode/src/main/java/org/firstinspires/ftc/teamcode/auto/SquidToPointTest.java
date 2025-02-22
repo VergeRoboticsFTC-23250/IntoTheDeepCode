@@ -54,33 +54,9 @@ public class SquidToPointTest extends OpMode {
     public void start() {
         Chassis.setCleanManual();
         new Sequential(
+                Chassis.setFaceSetpoint(true),
                 Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0)),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
+                //Chassis.setFaceSetpoint(false),
                 Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0))
         ).schedule();
     }

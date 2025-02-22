@@ -36,6 +36,7 @@ public class OuttakeSlides implements Subsystem {
     public static int tolerance = 3200;
     public static int safePos = 11200;
     public static int submersiblePos = safePos;
+    public static int submersiblePushPos = 0;
     public static int scoreSubmersiblePos = 26500;
     public static int maxPos = 70000;
     public static int bucketPos = maxPos;

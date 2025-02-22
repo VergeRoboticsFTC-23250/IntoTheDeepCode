@@ -32,16 +32,16 @@ public class SixSpecOptimized extends OpMode {
     public static Pose intakePose = new Pose(8, 35, 0);
     public static double[] intakeOffsetsY = {0, 0, 0, 0, 0};
     public static double[] intakeOffsetsX = {0, 1, 2, 3, 4};
-    public static Pose outtakePose = new Pose(50, 72, 0);
-    public static double[] outtakeOffsetsY = {0, 8, 16, 24, 32, 40};
+    public static Pose outtakePose = new Pose(42, 64, 0);
+    public static double[] outtakeOffsetsY = {10, 8, 6, 4, 2, 0};
     public static double[] outtakeOffsetsX = {0, 0, 0, 0, 0, 0};
 
-    public static double intakeOffsetX = 6;
+    public static double intakeOffsetX = 12;
 
     Command Outtake(int outtakeNum){
         return new Sequential(
                 new Parallel(
-                        Chassis.setClean(),
+                        Chassis.setSloppy(),
                         OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
                         new Wait(0.25).then(new Parallel(
                                 Outtake.setArm(Outtake.armSubmersiblePos),
@@ -49,12 +49,19 @@ public class SixSpecOptimized extends OpMode {
                         )),
                         Chassis.driveToPoint(
                                 new Pose(
-                                        outtakePose.getX() + outtakeOffsetsX[outtakeNum-1],
+                                        outtakePose.getX() + outtakeOffsetsX[outtakeNum-1] - 12,
                                         outtakePose.getY() + outtakeOffsetsY[outtakeNum-1],
                                         outtakePose.getHeading())
-                        ),
-                        Chassis.setConstantDrivePower(1)
+                        )
                 ),
+                Chassis.setClean(),
+                Chassis.driveToPoint(
+                        new Pose(
+                                outtakePose.getX() + outtakeOffsetsX[outtakeNum-1],
+                                outtakePose.getY() + outtakeOffsetsY[outtakeNum-1],
+                                outtakePose.getHeading())
+                ),
+                Chassis.setConstantDrivePower(1),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 Outtake.openClaw(),
                 Chassis.releaseConstantDrivePower()
@@ -64,7 +71,7 @@ public class SixSpecOptimized extends OpMode {
     Command Intake(int intakeNum){
         return new Parallel(
                 new Sequential(
-                        new Wait(0.75),
+                        new Wait(1),
                         Outtake.setArm(Outtake.armSpecPos),
                         Outtake.setPivot(Outtake.pivotSpecPos),
                         OuttakeSlides.runToPosition(OuttakeSlides.minPos)

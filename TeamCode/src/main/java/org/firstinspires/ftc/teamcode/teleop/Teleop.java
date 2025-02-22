@@ -56,10 +56,23 @@ public class Teleop extends OpMode {
 
         tejas.square()
                 .onTrue(
-                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE)
+//                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE)
+                        new Parallel(
+                                OuttakeSlides.runToPosition(OuttakeSlides.submersiblePushPos),
+                                Outtake.setArm(Outtake.armSubmersiblePos),
+                                Outtake.setPivot(Outtake.pivotPushSpecPos)
+                        )
                 );
         tejas.circle()
-                .onTrue(Robot.setState(Robot.State.INTAKE_SPEC));
+                .onTrue(
+//                        Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE)
+                        new Parallel(
+                                OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
+                                Outtake.setArm(Outtake.armSubmersiblePos),
+                                Outtake.setPivot(Outtake.pivotSubmersiblePos)
+                        )
+                );
+                //.onTrue(Robot.setState(Robot.State.INTAKE_SPEC));
         tejas.triangle()
                 .onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
         tejas.cross()
