@@ -90,7 +90,7 @@ public class Chassis implements Subsystem {
         dashboardPoseTracker = Chassis.follower.getDashboardPoseTracker();
 
         if (Robot.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
-            follower.setStartingPose(Paths.specStart);
+            follower.setStartingPose(Paths.bucketStart);
         } else if (Robot.flavor == OpModeMeta.Flavor.TELEOP) {
             setDefaultCommand(drive(Mercurial.gamepad1()));
         }
@@ -165,12 +165,11 @@ public class Chassis implements Subsystem {
                 .setInit(() -> follower.followPath(path, true))
                 .setExecute(() -> {
                     follower.update();
-                    follower.telemetryDebug(telemetry);
+                    telemetry.addData("x", follower.getPose().getX());
+                    telemetry.addData("y", follower.getPose().getY());
+                    telemetry.addData("heading", follower.getPose().getHeading());
                 })
-                .setFinish(() -> !follower.isBusy() || follower.isRobotStuck())
-                .setEnd((interrupted) -> {
-                    if (interrupted) follower.breakFollowing();
-                });
+                .setFinish(() -> !follower.isBusy() || follower.isRobotStuck());
     }
 
     public static Lambda followPath(Path path, boolean hold) {
@@ -180,12 +179,12 @@ public class Chassis implements Subsystem {
                 .setInit(() -> follower.followPath(path, hold))
                 .setExecute(() -> {
                     follower.update();
-                    follower.telemetryDebug(telemetry);
+                    telemetry.addData("x", follower.getPose().getX());
+                    telemetry.addData("y", follower.getPose().getY());
+                    telemetry.addData("heading", follower.getPose().getHeading());
+
                 })
-                .setFinish(() -> !follower.isBusy() || follower.isRobotStuck())
-                .setEnd((interrupted) -> {
-                    if (interrupted) follower.breakFollowing();
-                });
+                .setFinish(() -> !follower.isBusy());
     }
 
     public static Lambda followPathChain(PathChain chain) {

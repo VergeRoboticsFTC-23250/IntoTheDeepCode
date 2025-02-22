@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto.testing;
 
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -14,6 +17,7 @@ import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
+import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
 import dev.frozenmilk.mercurial.commands.util.Wait;
 
@@ -23,7 +27,7 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 @OuttakeSlides.Attach
 @Intake.Attach
 @IntakeSlides.Attach
-@LoopTimes.Attach
+//@LoopTimes.Attach
 @BulkRead.Attach
 @Autonomous
 public class PathTesting extends OpMode {
@@ -35,13 +39,15 @@ public class PathTesting extends OpMode {
         Outtake.isClawOpen = false;
         Outtake.setPosition(Outtake.armSpecPos);
         Outtake.setPivotManual(Outtake.pivotSpecPos);
-
         Robot.stateMachine.setState(Robot.State.INTAKE_SPEC);
     }
 
     @Override
     public void loop() {
         telemetry.addData("heading", Chassis.follower.getPose().getHeading());
+        telemetry.addData("x", Chassis.follower.getPose().getX());
+        telemetry.addData("y", Chassis.follower.getPose().getY());
+        Chassis.follower.update();
     }
 
     @Override
@@ -51,20 +57,46 @@ public class PathTesting extends OpMode {
                 Intake.setIntake(Intake.hoverPos),
                 new Wait(0.5),
 
-//                Chassis.followPathChain(Paths.fourSamps.get(0)),
-//                new Wait(1),
+                new Parallel(
+                        Robot.setState(Robot.State.OUTTAKE_BUCKET),
+                        Chassis.followPath(Paths.fourSamps.get(0),true)
+                ),
 
-                Chassis.followPathChain(Paths.fourSamps.get(1)),
-                new Wait(1)
+                new Wait(0.3),
 
-//                Chassis.followPathChain(Paths.fourSamps.get(2)),
+                new Parallel(
+                        Chassis.followPath(Paths.pathTo(new Point(Paths.bucketScore.getX()-2, Paths.bucketScore.getY()+2), Paths.bucketScore)),
+                        Outtake.openClaw()
+                ),
+
+                new Parallel(
+                        Chassis.followPath(Paths.fourSamps.get(2)),
+                        new Sequential(
+                                new Wait(0.35),
+                                Robot.setState(Robot.State.HOME)
+                        )
+                ),
+
+                IntakeSlides.extend(),
+                new Wait(0.25),
+                IntakeSlides.home(),
+
+                new Parallel(
+                        Robot.setState(Robot.State.OUTTAKE_BUCKET),
+                        Chassis.followPath(Paths.fourSamps.get(3))
+                )
+
+//                Chassis.followPath(Paths.fourSamps.get(1),true),
+//                new Wait(1)
+//
+//                Chassis.followPath(Paths.fourSamps.get(2),true),
+//                new Wait(1)
+//
+//                Chassis.followPath(Paths.fourSamps.get(3),true),
 //                new Wait(1),
 //
-//                Chassis.followPathChain(Paths.fourSamps.get(3)),
-//                new Wait(1),
-//
-//                Chassis.followPathChain(Paths.fourSamps.get(4)),
-//                new Wait(1),
+//                Chassis.followPath(Paths.fourSamps.get(4),true),
+//                new Wait(1)
 //
 //                Chassis.followPathChain(Paths.fourSamps.get(5)),
 //                new Wait(1),

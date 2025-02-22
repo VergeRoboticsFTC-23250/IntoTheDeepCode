@@ -18,14 +18,15 @@ import java.util.List;
 public class Paths {
 
     public static ArrayList<Path> fiveSpecs = new ArrayList<>();
-    public static ArrayList<PathChain> fourSamps = new ArrayList<>();
+    public static ArrayList<Path> fourSamps = new ArrayList<>();
     public static Path parkWithSpecPush;
 
     public static Pose bucketStart = new Pose(6.5, 111, Math.toRadians(270));
     public static Pose bucketDrop = new Pose(10, 127, Math.toRadians(308));
-    public static Pose bucketScore = new Pose(12.5,125, Math.toRadians(308));
-    public static Pose pickup1 = new Pose(15,130.5, Math.toRadians(0));
-    public static Pose pickup2 = new Pose(24,131.5, Math.toRadians(0));
+    public static Pose bucketScore = new Pose(14,126, Math.toRadians(308)); // 12.5 127
+    public static Pose bucketScore2 = new Pose(14, 126.5, Math.toRadians(313));
+    public static Pose pickup1 = new Pose(18,120, Math.toRadians(360));
+    public static Pose pickup2 = new Pose(18,130, Math.toRadians(360));
     public static Pose pickup3 = new Pose(29,125, Math.toRadians(45));
     public static Pose samplePark = new Pose(60,100, Math.toRadians(270));
     public static Point parkControl = new Point(60, 110);
@@ -182,38 +183,36 @@ public class Paths {
                 ), Math.toRadians(0), Math.toRadians(-45)
         );
 
-        fourSamps.add(new PathBuilder()
-                .addBezierLine(new Point(bucketStart), new Point(bucketScore))
-                .setLinearHeadingInterpolation(bucketStart.getHeading(), bucketScore.getHeading())
-                .build());
-        fourSamps.add(new PathBuilder()
-                .addBezierLine(new Point(bucketScore), new Point(pickup1))
-                .setLinearHeadingInterpolation(bucketScore.getHeading(), pickup1.getHeading())
-                .build());
-        fourSamps.add(new PathBuilder()
-                .addBezierLine(new Point(pickup1), new Point(bucketScore))
-                .setLinearHeadingInterpolation(pickup1.getHeading(), bucketScore.getHeading())
-                .build());
-        fourSamps.add(new PathBuilder()
-                .addPath(new BezierLine(new Point(bucketScore), new Point(pickup2)))
-                .setLinearHeadingInterpolation(bucketScore.getHeading(), pickup2.getHeading())
-                .build());
-        fourSamps.add(new PathBuilder()
-                .addPath(new BezierLine(new Point(pickup2), new Point(bucketScore)))
-                .setLinearHeadingInterpolation(pickup2.getHeading(), bucketScore.getHeading())
-                .build());
-        fourSamps.add(new PathBuilder()
-                .addPath(new BezierLine(new Point(bucketScore), new Point(pickup3)))
-                .setLinearHeadingInterpolation(bucketScore.getHeading(), pickup3.getHeading())
-                .build());
-        fourSamps.add(new PathBuilder()
-                .addPath(new BezierLine(new Point(pickup3), new Point(bucketScore)))
-                .setLinearHeadingInterpolation(pickup3.getHeading(), bucketScore.getHeading())
-                .build());
-        fourSamps.add(new PathBuilder()
-                .addPath(new BezierCurve(new Point(bucketScore), parkControl, new Point(samplePark)))
-                .setLinearHeadingInterpolation(bucketScore.getHeading(), samplePark.getHeading())
-                .build());
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(bucketStart), new Point(bucketScore)
+                ), bucketStart.getHeading(), bucketScore.getHeading()
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(bucketScore),
+                        new Point(Paths.bucketScore.getX()-2, Paths.bucketScore.getY()+2)
+                ), bucketScore.getHeading()
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(Paths.bucketScore.getX()-2, Paths.bucketScore.getY()+2),
+                        new Point(pickup1)
+                ), bucketScore.getHeading(), pickup1.getHeading()
+        ));
+        fourSamps.add(createPath(
+                new BezierLine(
+                        new Point(pickup1),
+                        new Point(bucketScore)
+                ), pickup1.getHeading(), bucketScore.getHeading()
+        ));
+
+
+        fourSamps.get(0).setPathEndTimeoutConstraint(500);
+        fourSamps.get(1).setPathEndTimeoutConstraint(500);
+        fourSamps.get(2).setPathEndTimeoutConstraint(500);
+//        fourSamps.get(3).setPathEndTimeoutConstraint(500);
+
 
         robotPush = new PathChain(fiveSpecs.get(1), fiveSpecs.get(2), fiveSpecs.get(3), fiveSpecs.get(4), fiveSpecs.get(5), fiveSpecs.get(6));
 
@@ -245,6 +244,14 @@ public class Paths {
                         new Point(follower.getPose().getX(), follower.getPose().getY()),
                         new Point(line.getLastControlPoint().getX(), line.getLastControlPoint().getY())
                 )
+        );
+    }
+
+    public static Path pathTo(Point end, Pose current) {
+        return createPath(
+                new BezierLine(
+                        new Point(current), end
+                ), current.getHeading()
         );
     }
 

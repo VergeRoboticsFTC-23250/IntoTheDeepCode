@@ -47,10 +47,6 @@ public class Teleop extends OpMode {
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
 
-//        tejas.dpadRight().onTrue(
-//                Intake.raiseIntake()
-//        );
-
         tejas.square()
                 .onTrue(
                         Robot.setState(Robot.State.OUTTAKE_SUBMERSIBLE)
@@ -66,16 +62,6 @@ public class Teleop extends OpMode {
         tejas.dpadLeft()
                 .onTrue(
                         Robot.setState(Robot.State.TRANSFER)
-                );
-
-        arvind.rightBumper()
-                .onTrue(
-                        Robot.macroNoCook()
-                );
-
-        arvind.dpadRight()
-                .onTrue(
-                        Robot.macroCook()
                 );
 
         tejas.dpadUp()
@@ -123,8 +109,20 @@ public class Teleop extends OpMode {
 
         arvind.cross()
                 .onTrue(
-                        Robot.setState(Robot.State.HOME)
+                        new Sequential(
+                                Intake.raiseIntake(),
+                                new Wait(0.4),
+                                IntakeSlides.home()
+                        )
                 );
+
+        arvind.triangle().onTrue(
+                new Sequential(
+                        Robot.setState(Robot.State.TRANSFER),
+                        new Wait(0.5),
+                        Robot.setState(Robot.State.OUTTAKE_BUCKET)
+                )
+        );
 
         arvTake = arvind.rightStickY().conditionalBindState().greaterThan(0.0).bind();
 
@@ -134,12 +132,26 @@ public class Teleop extends OpMode {
 
         arvind.dpadUp().onTrue(Intake.spintake(0.3)).onFalse(Intake.spintake(0));
 
-        arvind.dpadRight().onTrue(Robot.macroHalfCook());
+        arvind.dpadRight().onTrue(
+                new Sequential(
+                        Robot.setState(Robot.State.HOME),
+                        Intake.raiseIntake(),
+                        new Wait(0.2),
+                        IntakeSlides.home()
+                )
+        );
 
-        arvind.triangle().onTrue(Robot.setState(Robot.State.OUTTAKE_BUCKET));
-
-        arvind.dpadDown().and(arvTake).onTrue(Intake.setIntake(Intake.flatPos))
-                .onFalse(Intake.setIntake(Intake.dropPos));
+        arvind.dpadDown().onTrue(
+                new Sequential(
+                        IntakeSlides.setPower(1),
+                        new Wait(0.5),
+                        IntakeSlides.setPower(IntakeSlides.constantPower),
+                        Intake.setIntake(Intake.hoverPos),
+                        Intake.spintake(1),
+                        new Wait(0.2) ,
+                        Intake.spintake(0)
+                )
+        );
 
 //        arvind.dpadLeft().onTrue(Claw.autoAlign(Robot.pipeline.getPosition()));
     }

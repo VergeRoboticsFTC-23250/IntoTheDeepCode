@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.auto.testing;
 
+import com.ThermalEquilibrium.homeostasis.Filters.FilterAlgorithms.KalmanFilter;
+import com.ThermalEquilibrium.homeostasis.Filters.FilterAlgorithms.LowPassFilter;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -26,13 +29,16 @@ import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
 import dev.frozenmilk.mercurial.commands.util.Wait;
 
-@Autonomous
+@TeleOp
 @Config
 public class CVTesting extends OpMode {
 
     OpenCvWebcam webcam;
     YellowAnglePipeline pipeline;
     Servo test;
+    private long lastLoopTime = 0;
+    private long loopStartTime = 0;
+    private double loopHertz = 0;
     public static final double SERVO_RANGE = 300.0;
 
     @Override
@@ -46,7 +52,7 @@ public class CVTesting extends OpMode {
             @Override
             public void onOpened()
             {
-                webcam.startStreaming(1280,720, OpenCvCameraRotation.SIDEWAYS_RIGHT, OpenCvWebcam.StreamFormat.MJPEG);
+                webcam.startStreaming(1280,720, OpenCvCameraRotation.SENSOR_NATIVE, OpenCvWebcam.StreamFormat.MJPEG);
             }
 
             @Override
@@ -58,14 +64,10 @@ public class CVTesting extends OpMode {
 
     @Override
     public void init_loop() {
-        telemetry.addData("pipeline pos", pipeline.getPosition());
-        telemetry.addData("pipeline x", pipeline.getX());
-        telemetry.addData("pipeline y", pipeline.getY());
-        telemetry.addData("servo pos", pipeline.getPosition() * 180.0 / SERVO_RANGE);
-        FtcDashboard.getInstance().getTelemetry().addData("pipeline pos", pipeline.getPosition());
-        FtcDashboard.getInstance().getTelemetry().addData("pipeline x", pipeline.getX());
-        FtcDashboard.getInstance().getTelemetry().addData("pipeline y", pipeline.getY());
-        FtcDashboard.getInstance().getTelemetry().addData("servo pos", pipeline.getPosition() * 180.0 / SERVO_RANGE);
+        telemetry.addData("pipeline", pipeline.getPosition());
+        telemetry.addData("servo", pipeline.getPosition() * 180.0 / SERVO_RANGE);
+        FtcDashboard.getInstance().getTelemetry().addData("pipeline", pipeline.getPosition());
+        FtcDashboard.getInstance().getTelemetry().addData("servo", pipeline.getPosition() * 180.0 / SERVO_RANGE);
         FtcDashboard.getInstance().getTelemetry().update();
         telemetry.update();
         test.setPosition(pipeline.getPosition() * 180.0 / SERVO_RANGE);
@@ -73,21 +75,28 @@ public class CVTesting extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("pipeline pos", pipeline.getPosition());
-        telemetry.addData("pipeline x", pipeline.getX());
-        telemetry.addData("pipeline y", pipeline.getY());
-        telemetry.addData("servo pos", pipeline.getPosition() * 180.0 / SERVO_RANGE);
-        FtcDashboard.getInstance().getTelemetry().addData("pipeline pos", pipeline.getPosition());
-        FtcDashboard.getInstance().getTelemetry().addData("pipeline x", pipeline.getX());
-        FtcDashboard.getInstance().getTelemetry().addData("pipeline y", pipeline.getY());
-        FtcDashboard.getInstance().getTelemetry().addData("servo pos", pipeline.getPosition() * 180.0 / SERVO_RANGE);
+        telemetry.addData("pipeline", pipeline.getPosition());
+        telemetry.addData("servo", pipeline.getPosition() * 180.0 / SERVO_RANGE);
+        FtcDashboard.getInstance().getTelemetry().addData("pipeline", pipeline.getPosition());
+        FtcDashboard.getInstance().getTelemetry().addData("servo", pipeline.getPosition() * 180.0 / SERVO_RANGE);
+        test.setPosition(pipeline.getPosition() * 180.0 / SERVO_RANGE);
+        long currentTime = System.nanoTime();
+        if (lastLoopTime != 0) {
+            long loopTime = currentTime - lastLoopTime;
+            double loopTimeMs = loopTime / 1e6; // Convert nanoseconds to milliseconds
+            loopHertz = 1e9 / loopTime; // Convert nanoseconds to hertz
+
+            telemetry.addData("Loop Time (ms)", loopTimeMs);
+            telemetry.addData("Loop Frequency (Hz)", loopHertz);
+        }
+        lastLoopTime = currentTime; // Update last loop time
         FtcDashboard.getInstance().getTelemetry().update();
         telemetry.update();
-        test.setPosition(pipeline.getPosition() * 180.0 / SERVO_RANGE);
     }
 
     @Override
     public void start() {
         test.setPosition(1/SERVO_RANGE);
+        loopStartTime = System.nanoTime();
     }
 }

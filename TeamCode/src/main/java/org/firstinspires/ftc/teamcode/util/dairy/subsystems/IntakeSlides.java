@@ -19,6 +19,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.atomic.AtomicLong;
 
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
@@ -85,9 +86,21 @@ public class IntakeSlides implements Subsystem {
     }
 
     public static Lambda home() {
-        return new Lambda("home-outtake")
+        return new Lambda("home-intake")
                 .setInit(() -> extendo.setPower(-1))
                 .setFinish(() -> touch.isPressed())
                 .setEnd((interrupted) -> extendo.setPower(-constantPower));
+    }
+
+    public static Lambda extend() {
+        AtomicLong startTime = new AtomicLong();
+        return new Lambda("extend-intake")
+                .setInit(() -> {
+                    startTime.set(System.currentTimeMillis());
+                    extendo.setPower(1);
+                })
+                .setFinish(() -> System.currentTimeMillis() - startTime.get() > 500)
+                .setEnd((interrupted) -> extendo.setPower(constantPower));
+
     }
 }

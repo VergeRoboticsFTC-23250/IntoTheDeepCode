@@ -19,6 +19,7 @@ public class BlueAnglePipeline extends OpenCvPipeline {
     private final Mat hierarchy = new Mat();
     private final ArrayList<MatOfPoint> contours = new ArrayList<>();
     public static double MAX_CONTOUR_SIZE = 115000.0;
+    public static double MIN_CONTOUR_SIZE = 60000.0;
     public static double PCB_HEIGHT_IN = 8.218;
     public static double LENS_HEIGHT_IN = 0.55;
     public static Scalar lowerBlue = new Scalar(100, 100, 100);
@@ -54,7 +55,7 @@ public class BlueAnglePipeline extends OpenCvPipeline {
 
         for (MatOfPoint contour : contours) {
             double area = Imgproc.contourArea(contour);
-            if (area < MAX_CONTOUR_SIZE) {
+            if (area < MAX_CONTOUR_SIZE && area > MIN_CONTOUR_SIZE) {
                 Moments moments = Imgproc.moments(contour);
                 Point contourCenter = new Point(moments.m10 / moments.m00, moments.m01 / moments.m00);
                 double distanceToBottomRight = Math.hypot(contourCenter.x - bottomRight.x, contourCenter.y - bottomRight.y);
