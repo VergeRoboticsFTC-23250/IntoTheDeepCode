@@ -63,8 +63,8 @@ public class testop extends LinearOpMode {
                     servo2.setPosition(0);
                 }
             } else if (gamepad1.circle) {
-                servo.setPosition(.715);
-                if (enableS2) servo2.setPosition(0.715);
+                servo.setPosition(1);
+                if (enableS2) servo2.setPosition(1);
             }
         }
     }

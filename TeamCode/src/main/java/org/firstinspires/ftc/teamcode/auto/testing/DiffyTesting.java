@@ -17,7 +17,7 @@ public class DiffyTesting extends OpMode {
     public void init() {
         leftDiff = hardwareMap.get(Servo.class, "test");
         rightDiff = hardwareMap.get(Servo.class, "test2");
-//        rightDiff.setDirection(Servo.Direction.REVERSE);
+        rightDiff.setDirection(Servo.Direction.REVERSE);
     }
 
     @Override
@@ -28,11 +28,26 @@ public class DiffyTesting extends OpMode {
     @Override
     public void start() {
         leftDiff.setPosition(0);
-        rightDiff.setPosition(1);
+        rightDiff.setPosition(0);
     }
 
     @Override
     public void loop() {
-
+        if (gamepad1.cross) {
+            leftDiff.setPosition(0);
+            rightDiff.setPosition(0);
+        }
+        if (gamepad1.triangle) {
+            leftDiff.setPosition(1);
+            rightDiff.setPosition(1);
+        }
+        if (gamepad1.square) {
+            leftDiff.setPosition(0.8);
+            rightDiff.setPosition(0.8);
+        }
+        if (gamepad1.circle) {
+            leftDiff.setPosition(0.5);
+            rightDiff.setPosition(0.5);
+        }
     }
 }
