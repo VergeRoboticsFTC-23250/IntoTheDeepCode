@@ -34,6 +34,13 @@ public class SquidToPointTest extends OpMode {
     private BoundGamepad tejas;
     private BoundGamepad arvind;
 
+    Pose[] controlPoints = new Pose[]{
+            new Pose(8, 35, 0),
+            new Pose(24, 35, 0),
+            new Pose(26, 64, 0),
+            new Pose(42, 64, 0),
+    };
+
     @Override
     public void init() {
         Robot.init();
@@ -54,17 +61,13 @@ public class SquidToPointTest extends OpMode {
     public void start() {
         Chassis.setCleanManual();
         new Sequential(
-                Chassis.setFaceSetpoint(true),
-                Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)),
-                //Chassis.setFaceSetpoint(false),
-                Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), 0))
+                Chassis.followBezierCurve(controlPoints, true, true)
+                //Chassis.setDrivePointCommand(controlPoints[0])
         ).schedule();
     }
 
     @Override
     public void loop() {
-//        tejas.triangle().onTrue(Chassis.driveToPoint(new Pose(startingPose.getX()+38, startingPose.getY()+12, 0)));
-//        tejas.rightBumper().onTrue(Chassis.driveToPoint(new Pose(startingPose.getX(), startingPose.getY(), Math.toRadians(90))));
-//        tejas.cross().onTrue(Chassis.driveToPoint(startingPose));
+
     }
 }

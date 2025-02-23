@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.firstinspires.ftc.teamcode.util.BezierSolver;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.Util;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
@@ -52,16 +53,17 @@ public class Chassis implements Subsystem {
     public static DashboardPoseTracker dashboardPoseTracker;
 
     //Custom Follower
-    public static Pose startingPose = new Pose(9.000, 65.000, 0);
+    public static Pose startingPose = new Pose(8, 35, 0);
     public static double exponentialTransformHeading = 0.5;
     public static double exponentialTransformTranslational = 1;
+    public static double exponentialTransformLookahead = 0.125;
     public static double headingP = 0.9;
     public static double headingScaleFactorD = 0.05;
     public static double translationalP = 0.05;
     public static double translationalScaleFactorD = 0.06;
     public static PIDCoefficients headingGains = new PIDCoefficients(headingP * Math.pow(exponentialTransformHeading, 2), 0, headingP*headingScaleFactorD * Math.pow(exponentialTransformHeading, 2));
     public static PIDCoefficients translationalGains = new PIDCoefficients(translationalP * Math.pow(exponentialTransformTranslational, 2), 0, translationalP*translationalScaleFactorD * Math.pow(exponentialTransformTranslational, 2));
-    public static double headingScaleFactor = 0;
+    public static double headingScaleFactor = 1;
 
     public static boolean holdPoint = true;
     static boolean isFollowerBusy = false;
@@ -72,6 +74,8 @@ public class Chassis implements Subsystem {
     static double targetX = 0;
     static double targetY = 0;
     public static boolean faceSetpoint = false;
+    public static boolean faceSetpointReverse = false;
+    public static double lookaheadMultiplier = 200;
     public Chassis() {}
     public static Lambda runFollower() {
         return new Lambda("follower-pid")
@@ -87,14 +91,12 @@ public class Chassis implements Subsystem {
                         double errorDist = Math.hypot(errorX, errorY);
 
                         double translationalAngle = Math.atan2(errorY, errorX);
-                        if(faceSetpoint){
-                            if(errorX < 0){
-                                headingController.setReference(translationalAngle - Math.PI);
-                            }else{
-                                headingController.setReference(translationalAngle);
-                            }
-                        }
 
+                        if(faceSetpoint){
+                            headingController.setReference(translationalAngle);
+                        }else if(faceSetpointReverse){
+                            headingController.setReference(translationalAngle - Math.PI);
+                        }
                         //Raw Heading
                         double heading = pose.getHeading();
                         double headingPower = headingController.getPowerHeading(heading);
@@ -116,7 +118,7 @@ public class Chassis implements Subsystem {
                         headingPower = Util.transformExponential(headingPower, exponentialTransformHeading);
 
                         //Suppress Heading
-                        double scaleFactor = 1 / (1 + headingScaleFactor * Math.abs(translationalPower));
+                        double scaleFactor = constantDrivePower == 0? 1 : 1 / (1 + headingScaleFactor * Math.abs(translationalPower));
                         headingPower *= scaleFactor;
 
                         //Apply Powers
@@ -254,6 +256,15 @@ public class Chassis implements Subsystem {
         headingController.setReference(pose.getHeading());
     }
 
+    public static Lambda setDrivePointCommand(Pose pose){
+        return new Lambda("set-drive-point-command")
+                .setInit(() -> setDrivePoint(pose));
+    }
+
+    public static Pose getDrivePoint(){
+        return new Pose(targetX, targetY, headingController.getReference());
+    }
+
     public static boolean isAtPoint(){
         return translationalErrorController.isAtReference() && headingController.isAtReference();
     }
@@ -261,10 +272,23 @@ public class Chassis implements Subsystem {
     public static boolean isStuck(){
         return follower.getVelocityMagnitude() <= 0.00005 ;
     }
+    public static void setFaceSetpointManual(boolean bool){
+        faceSetpoint = bool;
+    }
     public static Lambda setFaceSetpoint(boolean bool){
         return new Lambda("set-face-setpoint")
                 .setInit(() -> {
-                    faceSetpoint = bool;
+                    setFaceSetpointManual(bool);
+                })
+                .setFinish(() -> true);
+    }
+    public static void setFaceSetpointReverseManual(boolean bool){
+        faceSetpointReverse = bool;
+    }
+    public static Lambda setFaceSetpointReverse(boolean bool){
+        return new Lambda("set-face-setpoint-reverse")
+                .setInit(() -> {
+                    setFaceSetpointReverseManual(bool);
                 })
                 .setFinish(() -> true);
     }
@@ -316,26 +340,57 @@ public class Chassis implements Subsystem {
                 .setFinish(() -> (Chassis.isAtPoint() || Chassis.isStuck()));
     }
 
-    public static Lambda driveFacingPoint(Pose pose){
-        return new Lambda("drive-to-point-until-stuck")
+    public static Lambda followBezierCurve(Pose[] controlPoints, boolean tangent, boolean forward){
+        Pose pathEnd = controlPoints[controlPoints.length - 1];
+        return new Lambda("follow-bezier-curve")
                 .setInterruptible(true)
                 .setInit(() -> {
-                    Pose startingPose = follower.getPose();
-
-                    double errorX = pose.getX() - startingPose.getX();
-                    double errorY = pose.getY() - startingPose.getY();
-
-                    double angle = Math.atan2(errorX, errorY);
-
-                    setDrivePoint(new Pose(pose.getX(), pose.getY(), angle));
                     startTime = System.currentTimeMillis();
+                    if(tangent){
+                        Chassis.setFaceSetpointManual(forward);
+                        Chassis.setFaceSetpointReverseManual(!forward);
+                    }
                 })
                 .setExecute(() -> {
-                    telemetry.addData("Heading Error", headingController.getError());
-                    telemetry.addData("Translational Error", translationalErrorController.getError());
+                    Pose currentPose = follower.getPose();
+                    Pose targetPose = pathEnd;
+
+                    Pose closestPointOnCurve = BezierSolver.getClosestBezierPoseWithX(
+                            currentPose,
+                            controlPoints
+                    );
+
+                    if(closestPointOnCurve != null){
+                        Pose lookAheadPoint = BezierSolver.getClosestBezierPoint(closestPointOnCurve, 7, controlPoints, true);
+
+                        if (lookAheadPoint != null){
+                            if(!lookAheadPoint.roughlyEquals(pathEnd)){
+                                double distX = lookAheadPoint.getX() - closestPointOnCurve.getX();
+                                double distY = lookAheadPoint.getY() - closestPointOnCurve.getY();
+                                double dist = Math.hypot(distX, distY);
+                                dist = Math.sqrt(Math.pow(dist, exponentialTransformLookahead)) * lookaheadMultiplier;
+                                double angle = Math.atan2(distY, distX);
+                                distX = dist * Math.cos(angle);
+                                distY = dist * Math.sin(angle);
+                                targetPose = new Pose(lookAheadPoint.getX() + distX, lookAheadPoint.getY() + distY, 0);
+                            }
+                        }
+                    }
+
+                    setDrivePoint(targetPose);
+
+                    if(Chassis.getDrivePoint().roughlyEquals(pathEnd)){
+                        Chassis.setFaceSetpointManual(false);
+                        Chassis.setFaceSetpointReverseManual(false);
+                    }
                     currentPathDeltaT = System.currentTimeMillis() - startTime;
                 })
-                .setFinish(() -> (Chassis.isAtPoint() || Chassis.isStuck()));
+                .setFinish(() -> Chassis.getDrivePoint().roughlyEquals(pathEnd) && (Chassis.isAtPoint() || Chassis.isStuck()))
+                .setEnd((interrupted) -> {
+                    Chassis.setFaceSetpointManual(false);
+                    Chassis.setFaceSetpointReverseManual(false);
+                    Chassis.setDrivePoint(pathEnd);
+                });
     }
 
     public static Lambda followPath(Path path) {

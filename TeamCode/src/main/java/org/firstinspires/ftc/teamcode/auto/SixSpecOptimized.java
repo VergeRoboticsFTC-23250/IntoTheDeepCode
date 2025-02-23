@@ -35,9 +35,6 @@ public class SixSpecOptimized extends OpMode {
     public static Pose outtakePose = new Pose(42, 64, 0);
     public static double[] outtakeOffsetsY = {10, 8, 6, 4, 2, 0};
     public static double[] outtakeOffsetsX = {0, 0, 0, 0, 0, 0};
-
-    public static double intakeOffsetX = 12;
-
     Command Outtake(int outtakeNum){
         return new Sequential(
                 new Parallel(
@@ -49,18 +46,18 @@ public class SixSpecOptimized extends OpMode {
                         )),
                         Chassis.driveToPoint(
                                 new Pose(
-                                        outtakePose.getX() + outtakeOffsetsX[outtakeNum-1] - 12,
+                                        outtakePose.getX() + outtakeOffsetsX[outtakeNum-1],
                                         outtakePose.getY() + outtakeOffsetsY[outtakeNum-1],
                                         outtakePose.getHeading())
                         )
                 ),
                 Chassis.setClean(),
-                Chassis.driveToPoint(
-                        new Pose(
-                                outtakePose.getX() + outtakeOffsetsX[outtakeNum-1],
-                                outtakePose.getY() + outtakeOffsetsY[outtakeNum-1],
-                                outtakePose.getHeading())
-                ),
+//                Chassis.driveToPoint(
+//                        new Pose(
+//                                outtakePose.getX() + outtakeOffsetsX[outtakeNum-1],
+//                                outtakePose.getY() + outtakeOffsetsY[outtakeNum-1],
+//                                outtakePose.getHeading())
+//                ),
                 Chassis.setConstantDrivePower(1),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 Outtake.openClaw(),
@@ -71,20 +68,13 @@ public class SixSpecOptimized extends OpMode {
     Command Intake(int intakeNum){
         return new Parallel(
                 new Sequential(
-                        new Wait(1),
+                        new Wait(.5),
                         Outtake.setArm(Outtake.armSpecPos),
                         Outtake.setPivot(Outtake.pivotSpecPos),
                         OuttakeSlides.runToPosition(OuttakeSlides.minPos)
                 ),
                 new Sequential(
                         Chassis.setSloppy(),
-                        Chassis.driveToPoint(
-                                new Pose(
-                                        intakePose.getX() + intakeOffsetX + intakeOffsetsX[intakeNum-1],
-                                        intakePose.getY() + intakeOffsetsY[intakeNum-1],
-                                        intakePose.getHeading()
-                                )
-                        ),
                         Chassis.setClean(),
                         Chassis.driveToPoint(
                                 new Pose(
