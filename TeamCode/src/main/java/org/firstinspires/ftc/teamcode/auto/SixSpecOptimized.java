@@ -27,18 +27,17 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 @IntakeSlides.Attach
 @LoopTimes.Attach
 @BulkRead.Attach
-@Autonomous
 public class SixSpecOptimized extends OpMode {
-    public static Pose intakePose = new Pose(8, 35, 0);
+    public static Pose intakePose = new Pose(10, 35, 0);
     public static double[] intakeOffsetsY = {0, 0, 0, 0, 0};
-    public static double[] intakeOffsetsX = {0, 1, 2, 3, 4};
-    public static Pose outtakePose = new Pose(42, 64, 0);
+    public static double[] intakeOffsetsX = {0, 2, 4, 6, 8};
+    public static Pose outtakePose = new Pose(50, 72, 0);
     public static double[] outtakeOffsetsY = {10, 8, 6, 4, 2, 0};
     public static double[] outtakeOffsetsX = {0, 0, 0, 0, 0, 0};
     Command Outtake(int outtakeNum){
         return new Sequential(
                 new Parallel(
-                        Chassis.setSloppy(),
+                        Chassis.setExact(),
                         OuttakeSlides.runToPosition(OuttakeSlides.submersiblePos),
                         new Wait(0.25).then(new Parallel(
                                 Outtake.setArm(Outtake.armSubmersiblePos),
@@ -49,15 +48,9 @@ public class SixSpecOptimized extends OpMode {
                                         outtakePose.getX() + outtakeOffsetsX[outtakeNum-1],
                                         outtakePose.getY() + outtakeOffsetsY[outtakeNum-1],
                                         outtakePose.getHeading())
-                        )
+                        ),
+                        Chassis.setClean()
                 ),
-                Chassis.setClean(),
-//                Chassis.driveToPoint(
-//                        new Pose(
-//                                outtakePose.getX() + outtakeOffsetsX[outtakeNum-1],
-//                                outtakePose.getY() + outtakeOffsetsY[outtakeNum-1],
-//                                outtakePose.getHeading())
-//                ),
                 Chassis.setConstantDrivePower(1),
                 OuttakeSlides.runToPosition(OuttakeSlides.scoreSubmersiblePos),
                 Outtake.openClaw(),
@@ -74,7 +67,6 @@ public class SixSpecOptimized extends OpMode {
                         OuttakeSlides.runToPosition(OuttakeSlides.minPos)
                 ),
                 new Sequential(
-                        Chassis.setSloppy(),
                         Chassis.setClean(),
                         Chassis.driveToPoint(
                                 new Pose(
@@ -83,10 +75,11 @@ public class SixSpecOptimized extends OpMode {
                                         intakePose.getHeading()
                                 )
                         ),
-                        Chassis.setConstantDrivePower(-0.7),
+                        Chassis.setConstantDrivePower(-1),
                         new Wait(.25),
                         Outtake.closeClaw(),
-                        Chassis.releaseConstantDrivePower()
+                        Chassis.releaseConstantDrivePower(),
+                        Chassis.setClean()
                 )
         );
     }
@@ -128,7 +121,6 @@ public class SixSpecOptimized extends OpMode {
     public void start() {
         new Sequential(
                 Outtake(1),
-                PushSamples,
                 new Parallel(
                         IntakeSlides.retract(),
                         Intake(1)

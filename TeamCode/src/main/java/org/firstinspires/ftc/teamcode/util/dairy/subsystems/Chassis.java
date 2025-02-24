@@ -55,7 +55,7 @@ public class Chassis implements Subsystem {
     //Custom Follower
     public static Pose startingPose = new Pose(8, 35, 0);
     public static double exponentialTransformHeading = 0.5;
-    public static double exponentialTransformTranslational = 1;
+    public static double exponentialTransformTranslational = 0.5;
     public static double exponentialTransformLookahead = 0.125;
     public static double headingP = 0.9;
     public static double headingScaleFactorD = 0.05;
@@ -76,6 +76,9 @@ public class Chassis implements Subsystem {
     public static boolean faceSetpoint = false;
     public static boolean faceSetpointReverse = false;
     public static double lookaheadMultiplier = 200;
+    public static boolean suppressHeading = true;
+
+    public static Pose drivePowers = new Pose(0, 0, 0);
     public Chassis() {}
     public static Lambda runFollower() {
         return new Lambda("follower-pid")
@@ -117,20 +120,20 @@ public class Chassis implements Subsystem {
                         //Transform Heading
                         headingPower = Util.transformExponential(headingPower, exponentialTransformHeading);
 
+                        double scaleFactor = 1;
                         //Suppress Heading
-                        double scaleFactor = constantDrivePower == 0? 1 : 1 / (1 + headingScaleFactor * Math.abs(translationalPower));
+                        if(suppressHeading){
+                            scaleFactor = constantDrivePower == 0? 1 : 1 / (1 + headingScaleFactor * Math.abs(translationalPower));
+                        }
+
                         headingPower *= scaleFactor;
 
                         //Apply Powers
-                        drive(constantDrivePower == 0? -drivePower : constantDrivePower, -lateralPower, headingPower);
+                        drive(constantDrivePower == 0? -drivePower : constantDrivePower, -lateralPower * 1.1, headingPower);
 
                         //drive(0, 0, headingPower);
 
-                        telemetry.addData("velocity", follower.getVelocityMagnitude());
-                        telemetry.addData("Translational Error", translationalErrorController.getError());
-                        telemetry.addData("Heading Error", Math.toDegrees(headingController.getError()));
-                        telemetry.addData("X", pose.getX());
-                        telemetry.addData("Y", pose.getX());
+                        logTele();
                     }
                     follower.update();
                 })
@@ -148,6 +151,8 @@ public class Chassis implements Subsystem {
 
         if (Robot.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
             follower.setStartingPose(startingPose);
+            follower.setXOffset(startingPose.getX());
+            follower.setYOffset(startingPose.getY());
         } else {
             setDefaultCommand(drive(Mercurial.gamepad1()));
         }
@@ -220,6 +225,7 @@ public class Chassis implements Subsystem {
                 z * (isSlowed? slowSpeed : 1), false
         );
         follower.update();
+        drivePowers = new Pose(x, y, z);
         telemetry.addData("Chassis Vectors", "x: %f, y: %f, z: %f", x, y, z);
     }
     public static Lambda pushOld(double pow, long time){
@@ -310,6 +316,28 @@ public class Chassis implements Subsystem {
                 .setFinish(() -> true);
     }
 
+    public static Lambda suppressHeading(){
+        return new Lambda("suppress-heading")
+                .setInit(() -> suppressHeading = true)
+                .setFinish(() -> true);
+    }
+
+    public static Lambda releaseHeading(){
+        return new Lambda("suppress-heading")
+                .setInit(() -> suppressHeading = false)
+                .setFinish(() -> true);
+    }
+
+    public static void setExactManual(){
+        translationalErrorController.setTolerance(0);
+        headingController.setTolerance(Math.toRadians(0));
+    }
+    public static Lambda setExact(){
+        return new Lambda("set-exact")
+                .setInit(Chassis::setExactManual)
+                .setFinish(() -> true);
+    }
+
 
     private static long startTime = 0;
 
@@ -326,6 +354,31 @@ public class Chassis implements Subsystem {
     }
 
     public static Lambda driveToPoint(Pose pose){
+        return new Lambda("drive-to-point")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    setDrivePoint(pose);
+                    startTime = System.currentTimeMillis();
+                })
+                .setExecute(() -> {
+                    currentPathDeltaT = System.currentTimeMillis() - startTime;
+                })
+                .setFinish(Chassis::isAtPoint);
+    }
+
+    public static Lambda pushUntilStuck(Pose pose, double pow){
+        return new Lambda("push-to-point")
+                .setInit(() -> {
+                    setDrivePoint(pose);
+                    startTime = System.currentTimeMillis();
+                    constantDrivePower = pow;
+                })
+                .setExecute(() -> {
+                    currentPathDeltaT = System.currentTimeMillis() - startTime;
+                })
+                .setFinish(() -> follower.getVelocityMagnitude() < 0.05);
+    }
+    public static Lambda driveToPointUntilStuck(Pose pose){
         return new Lambda("drive-to-point-until-stuck")
                 .setInterruptible(true)
                 .setInit(() -> {
@@ -333,11 +386,16 @@ public class Chassis implements Subsystem {
                     startTime = System.currentTimeMillis();
                 })
                 .setExecute(() -> {
-                    telemetry.addData("Heading Error", headingController.getError());
-                    telemetry.addData("Translational Error", translationalErrorController.getError());
                     currentPathDeltaT = System.currentTimeMillis() - startTime;
                 })
-                .setFinish(() -> (Chassis.isAtPoint() || Chassis.isStuck()));
+                .setFinish(Chassis::isStuck);
+    }
+
+    public static void logTele(){
+        telemetry.addData("isStuck", Chassis.isStuck());
+        telemetry.addData("isAtPoint", Chassis.isAtPoint());
+        telemetry.addData("driveX", Chassis.follower.driveVector.getXComponent());
+
     }
 
     public static Lambda followBezierCurve(Pose[] controlPoints, boolean tangent, boolean forward){

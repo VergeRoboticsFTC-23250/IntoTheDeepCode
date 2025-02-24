@@ -28,7 +28,6 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 @LoopTimes.Attach
 @BulkRead.Attach
 @Config
-@Autonomous
 public class SixSpec extends OpMode {
     public static double intakeOffset = -4.5;
     public static double intakeOffset1 = 2;
