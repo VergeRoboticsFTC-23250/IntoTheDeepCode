@@ -1,19 +1,13 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
-import android.graphics.ImageFormat;
-
 import com.pedropathing.pathgen.PathBuilder;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
 import org.firstinspires.ftc.teamcode.util.opencv.YellowAnglePipeline;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Map;
@@ -87,8 +81,8 @@ public class Robot {
                 OuttakeSlides.maxPos
         );
         StatePositions transfer = new StatePositions(
-                Outtake.armTransferPos,
-                Outtake.pivotTranferPos,
+                Outtake.armPreTransferPos,
+                Outtake.pivotTransferPos,
                 false,
                 OuttakeSlides.safePos
         );
@@ -259,8 +253,8 @@ public class Robot {
                             Intake.extraIntake(),
                             new Wait(0.25),
                             IntakeSlides.home(),
-                            Outtake.setArm(Outtake.armTransferPos-.04),
-                            Outtake.setPivot(Outtake.pivotTranferPos),
+                            Outtake.setArm(Outtake.armPreTransferPos -.04),
+                            Outtake.setPivot(Outtake.pivotTransferPos),
                             new Wait(0.25),
                             Outtake.closeClaw(),
                             new Wait(0.2),

@@ -12,12 +12,15 @@ public class DiffyTesting extends OpMode {
 
     Servo leftDiff;
     Servo rightDiff;
+    public static double wristPos = 0.55;
+    public static double wristPos2 = 0.45;
+    public static double pivotPos = 0.4;
+    public static double pivotPos2 = 0.6;
 
     @Override
     public void init() {
         leftDiff = hardwareMap.get(Servo.class, "test");
         rightDiff = hardwareMap.get(Servo.class, "test2");
-        rightDiff.setDirection(Servo.Direction.REVERSE);
     }
 
     @Override
@@ -27,27 +30,33 @@ public class DiffyTesting extends OpMode {
 
     @Override
     public void start() {
-        leftDiff.setPosition(0);
-        rightDiff.setPosition(0);
+        rightDiff.setPosition(0.5);
+        leftDiff.setPosition(0.5);
     }
 
     @Override
     public void loop() {
+        telemetry.addData("left", leftDiff.getPosition());
+        telemetry.addData("right", rightDiff.getPosition());
+        FtcDashboard.getInstance().getTelemetry().addData("left", leftDiff.getPosition());
+        FtcDashboard.getInstance().getTelemetry().addData("right", rightDiff.getPosition());
+        FtcDashboard.getInstance().getTelemetry().update();
         if (gamepad1.cross) {
-            leftDiff.setPosition(0);
-            rightDiff.setPosition(0);
-        }
-        if (gamepad1.triangle) {
-            leftDiff.setPosition(1);
-            rightDiff.setPosition(1);
-        }
-        if (gamepad1.square) {
-            leftDiff.setPosition(0.8);
-            rightDiff.setPosition(0.8);
-        }
-        if (gamepad1.circle) {
-            leftDiff.setPosition(0.5);
-            rightDiff.setPosition(0.5);
+//            rightDiff.setDirection(Servo.Direction.FORWARD);
+            rightDiff.setPosition(rightDiff.getPosition()+.05);
+            leftDiff.setPosition(leftDiff.getPosition()+.05);
+        } if (gamepad1.square) {
+            rightDiff.setDirection(Servo.Direction.FORWARD);
+            rightDiff.setPosition(1-pivotPos);
+            leftDiff.setPosition(pivotPos);
+        } if (gamepad1.circle) {
+            rightDiff.setDirection((Servo.Direction.FORWARD));
+            rightDiff.setPosition(1-pivotPos2);
+            leftDiff.setPosition(pivotPos2);
+        } if (gamepad1.triangle) {
+            rightDiff.setDirection(Servo.Direction.FORWARD);
+            rightDiff.setPosition(wristPos2);
+            leftDiff.setPosition(wristPos2);
         }
     }
 }
