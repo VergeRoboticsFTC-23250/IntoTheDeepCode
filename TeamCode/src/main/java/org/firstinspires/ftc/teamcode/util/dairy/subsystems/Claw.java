@@ -27,17 +27,19 @@ public class Claw implements Subsystem {
     public static Servo gripper;
     public static Servo dropL;
     public static Servo dropR;
+    public static boolean isGripperOpen;
     public static double gripperOpenPos = 1;
     public static double gripperFirmClosePos = 0.325;
     public static double gripperLooseClosePos = 0.35;
     public static double diffTransferPos = 0.51;
+    public static double diffHoverPos = 0.6;
     public static double diffGrabPos = 0.45;
     public static double wristGrabPos = 0.05;
     public static double wristTransferPos = 0.05;
     public static double dropGrabPos = 0.015;
     public static double dropTransferPos = 0.55;
-    public static double dropPreGrabPos = 0.048;
-    public static double dropHoverPos = 1;
+    public static double dropPreGrabPos = 0.094;
+    public static double dropHoverPos = 0.73;
     public static Sequential preIntake = new Sequential(
             Outtake.setPivot(Outtake.pivotPreTransferPos),
             Outtake.setArm(Outtake.armPreTransferPos),
@@ -139,5 +141,14 @@ public class Claw implements Subsystem {
                 });
 
     }
-
+    public static Lambda toggleGripper() {
+        return new Lambda("toggle-gripper")
+                .setInit(() -> {
+                    if (isGripperOpen) {
+                        closeGripperLoose().schedule();
+                    } else {
+                        openGripper().schedule();
+                    }
+                });
+    }
 }

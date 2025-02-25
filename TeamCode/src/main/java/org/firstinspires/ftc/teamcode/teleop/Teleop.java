@@ -18,6 +18,7 @@ import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundBooleanSupplier;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
+import dev.frozenmilk.mercurial.commands.util.Wait;
 
 @Mercurial.Attach
 @Chassis.Attach
@@ -99,7 +100,10 @@ public class Teleop extends OpMode {
         arvind.dpadDown().onTrue(
                 new Sequential(
                         IntakeSlides.extend().with(Claw.preIntake),
-                        Claw.openGripper()
+                        new Wait(0.4),
+                        Claw.openGripper(),
+                        new Wait(0.2),
+                        IntakeSlides.home()
                 )
         );
         arvind.dpadRight().onTrue(
@@ -109,10 +113,10 @@ public class Teleop extends OpMode {
                 )
         );
         arvind.rightBumper().onTrue(
-                Claw.incrementWrist(-0.1)
+                Claw.incrementWrist(0.1)
         );
         arvind.leftBumper().onTrue(
-                Claw.incrementWrist(0.1)
+                Claw.incrementWrist(-0.1)
         );
         arvind.rightTrigger().conditionalBindState().greaterThan(0.0).bind().whileTrue(
                 IntakeSlides.setPower(1.0)
@@ -125,6 +129,12 @@ public class Teleop extends OpMode {
         );
         arvind.leftTrigger().conditionalBindState().lessThanEqualTo(0.0).bind().onTrue(
                 IntakeSlides.setPower(-IntakeSlides.constantPower)
+        );
+        arvind.dpadLeft().onTrue(
+                Claw.preIntake
+        );
+        arvind.square().onTrue(
+                Claw.toggleGripper()
         );
     }
 
