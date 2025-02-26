@@ -40,7 +40,8 @@ public class Outtake implements Subsystem {
     public static double armOuttakeSpec = .9;
     public static double armHomePos = 0.575; //0.25
     public static double armBucketPos = 1;
-    public static double armTransferPos = .475;
+    public static double armPreTransferPos = .19;
+    public static double armTransferPos = 0.24;
     public static double armSpecPos = 0.55+.16;
     public static double armInitPos = 0.2;
 
@@ -51,7 +52,8 @@ public class Outtake implements Subsystem {
     public static double pivotOuttakeSpec = 0.86;
     public static double pivotHomePos = 1;
     public static double pivotBucketPos = 0.86;
-    public static double pivotTranferPos = 1; // TODO
+    public static double pivotPreTransferPos = 0;
+    public static double pivotTransferPos = 0.1;
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
     @Inherited

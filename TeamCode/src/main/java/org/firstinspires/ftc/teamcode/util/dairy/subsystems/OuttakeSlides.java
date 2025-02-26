@@ -168,7 +168,6 @@ public class OuttakeSlides implements Subsystem {
 
     public static void logCurrent(){
         telemetry.addData("isOver", isOverCurrent());
-        telemetry.update();
     }
 
     public static double getPos(){
@@ -193,7 +192,7 @@ public class OuttakeSlides implements Subsystem {
                     if (enablePID) {
                         double power = controller.calculate(getPos());
                         setPower(power);
-                        logTele();
+//                        logTele();
                     }
                 })
                 .setFinish(() -> false);

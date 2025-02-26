@@ -15,9 +15,9 @@ import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 @Config
 public class testop extends LinearOpMode {
     public static boolean invert = false;
-    public static boolean enableS2 = false;
-    public static String s1 = "armL";
-    public static String s2 = "armR";
+    public static boolean enableS2 = true;
+    public static String s1 = "diffLeft";
+    public static String s2 = "diffRight";
     public static String m = "leftFront";
     public static String m2 = "outtakeSL";
     public static boolean invertM = false;
@@ -58,13 +58,13 @@ public class testop extends LinearOpMode {
             telemetry.addData("point x", line.getLastControlPoint().getY());
             telemetry.update();
             if (gamepad1.square) {
-                servo.setPosition(0); //open
+                servo.setPosition(0.5); //open
                 if (enableS2){
-                    servo2.setPosition(0);
+                    servo2.setPosition(0.5);
                 }
             } else if (gamepad1.circle) {
-                servo.setPosition(.715);
-                if (enableS2) servo2.setPosition(0.715);
+                servo.setPosition(0.6);
+                if (enableS2) servo2.setPosition(0.6);
             }
         }
     }

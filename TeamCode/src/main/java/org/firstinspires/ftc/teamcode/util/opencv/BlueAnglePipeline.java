@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.util.opencv;
 
-//import com.ThermalEquilibrium.homeostasis.Filters.FilterAlgorithms.KalmanFilter;
-
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
@@ -10,7 +8,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
-public class YellowAnglePipeline extends OpenCvPipeline {
+public class BlueAnglePipeline extends OpenCvPipeline {
     private static final double CAMERA_HORIZONTAL_FOV = 70.42;
     private static final double CAMERA_VERTICAL_FOV = 43.3;
     private static double angle;
@@ -24,8 +22,8 @@ public class YellowAnglePipeline extends OpenCvPipeline {
     public static double MIN_CONTOUR_SIZE = 60000.0;
     public static double PCB_HEIGHT_IN = 8.218;
     public static double LENS_HEIGHT_IN = 0.55;
-    public static Scalar lowerYellow = new Scalar(20, 100, 100);
-    public static Scalar upperYellow = new Scalar(30, 255, 255);
+    public static Scalar lowerBlue = new Scalar(100, 100, 100);
+    public static Scalar upperBlue = new Scalar(130, 255, 255);
 
     @Override
     public Mat processFrame(Mat input) {
@@ -33,7 +31,7 @@ public class YellowAnglePipeline extends OpenCvPipeline {
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
         // Threshold to detect yellow
-        Core.inRange(hsv, lowerYellow, upperYellow, mask);
+        Core.inRange(hsv, lowerBlue, upperBlue, mask);
 
         // Check contour size and adjust erosion and dilation accordingly
         if (Core.countNonZero(mask) > MAX_CONTOUR_SIZE) {

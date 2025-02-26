@@ -86,7 +86,7 @@ public class IntakeSlides implements Subsystem {
     }
 
     public static Lambda home() {
-        return new Lambda("home-outtake")
+        return new Lambda("home-intake")
                 .setInit(() -> extendo.setPower(-1))
                 .setFinish(() -> touch.isPressed())
                 .setEnd((interrupted) -> extendo.setPower(-constantPower));
@@ -94,7 +94,7 @@ public class IntakeSlides implements Subsystem {
 
     public static Lambda extend(){
         AtomicLong startTime = new AtomicLong();
-        return new Lambda("extend")
+        return new Lambda("extend-intake")
                 .setInit(() -> {
                     extendo.setPower(1);
                     startTime.set(System.currentTimeMillis());

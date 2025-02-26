@@ -1,53 +1,58 @@
 package org.firstinspires.ftc.teamcode.util.opencv;
 
-//import com.ThermalEquilibrium.homeostasis.Filters.FilterAlgorithms.KalmanFilter;
-
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class YellowAnglePipeline extends OpenCvPipeline {
+public class RedAnglePipeline extends OpenCvPipeline {
     private static final double CAMERA_HORIZONTAL_FOV = 70.42;
     private static final double CAMERA_VERTICAL_FOV = 43.3;
     private static double angle;
     private static double tx;
     private static double ty;
     private final Mat hsv = new Mat();
-    private final Mat mask = new Mat();
+    private final Mat mask1 = new Mat();
+    private final Mat mask2 = new Mat();
+    private final Mat combinedMask = new Mat();
     private final Mat hierarchy = new Mat();
     private final ArrayList<MatOfPoint> contours = new ArrayList<>();
     public static double MAX_CONTOUR_SIZE = 115000.0;
     public static double MIN_CONTOUR_SIZE = 60000.0;
     public static double PCB_HEIGHT_IN = 8.218;
     public static double LENS_HEIGHT_IN = 0.55;
-    public static Scalar lowerYellow = new Scalar(20, 100, 100);
-    public static Scalar upperYellow = new Scalar(30, 255, 255);
+    public static Scalar lowerRed1 = new Scalar(0, 100, 100);
+    public static Scalar upperRed1 = new Scalar(10, 255, 255);
+    public static Scalar lowerRed2 = new Scalar(160, 100, 100);
+    public static Scalar upperRed2 = new Scalar(180, 255, 255);
 
     @Override
     public Mat processFrame(Mat input) {
         // Convert to HSV color space
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
-        // Threshold to detect yellow
-        Core.inRange(hsv, lowerYellow, upperYellow, mask);
+        // Threshold to detect both red ranges
+        Core.inRange(hsv, lowerRed1, upperRed1, mask1);
+        Core.inRange(hsv, lowerRed2, upperRed2, mask2);
+
+        // Combine masks for red
+        Core.bitwise_or(mask1, mask2, combinedMask);
 
         // Check contour size and adjust erosion and dilation accordingly
-        if (Core.countNonZero(mask) > MAX_CONTOUR_SIZE) {
-            Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24)));
-            Imgproc.dilate(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(4, 4)));
+        if (Core.countNonZero(combinedMask) > MAX_CONTOUR_SIZE) {
+            Imgproc.erode(combinedMask, combinedMask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24)));
+            Imgproc.dilate(combinedMask, combinedMask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(4, 4)));
         } else {
-            Imgproc.dilate(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(4, 4)));
-            Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24)));
+            Imgproc.dilate(combinedMask, combinedMask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(4, 4)));
+            Imgproc.erode(combinedMask, combinedMask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24)));
         }
 
         contours.clear();
 
         // Find contours
-        Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(combinedMask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
         // Find the largest contour that is closest to the bottom right and less than MAX_CONTOUR_SIZE
         MatOfPoint bestContour = null;
@@ -106,7 +111,6 @@ public class YellowAnglePipeline extends OpenCvPipeline {
             Imgproc.putText(input, sizeText, new Point(rect.center.x + 10, rect.center.y + 30), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.putText(input, distanceText, new Point(rect.center.x + 10, rect.center.y + 50), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.circle(input, new Point(imageCenterX, imageCenterY), 5, new Scalar(255, 0, 0), -1);
-            // the circle is the center of the image
         }
 
         return input;
