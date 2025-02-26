@@ -151,8 +151,6 @@ public class Chassis implements Subsystem {
 
         if (Robot.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
             follower.setStartingPose(startingPose);
-            follower.setXOffset(startingPose.getX());
-            follower.setYOffset(startingPose.getY());
         } else {
             setDefaultCommand(drive(Mercurial.gamepad1()));
         }
