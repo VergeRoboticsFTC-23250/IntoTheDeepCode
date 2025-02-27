@@ -32,10 +32,12 @@ public class Differential implements Subsystem {
     //TODO: Tune these values;
     static Util.Scale pivotScale = new Util.Scale(0.25, .75);
     static Util.Scale wristScale = new Util.Scale(-0.25, 0.25);
+    static double offsetR = 0;
+    static double offsetL = 0;
 
     public static void setPositions(){
-        double rightPos = pivotScale.scale(pivot) - wristScale.scale(wrist);
-        double leftPos = pivotScale.scale(pivot) + wristScale.scale(wrist);
+        double rightPos = pivotScale.scale(pivot) - wristScale.scale(wrist) + offsetR;
+        double leftPos = pivotScale.scale(pivot) + wristScale.scale(wrist) + offsetL;
         diffRight.setPosition(rightPos);
         diffLeft.setPosition(leftPos);
     }
