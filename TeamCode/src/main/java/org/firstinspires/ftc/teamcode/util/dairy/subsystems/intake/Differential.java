@@ -6,6 +6,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.util.Util;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -24,17 +26,33 @@ public class Differential implements Subsystem {
     public static Servo diffRight;
     public static Servo diffLeft;
 
-    public static class IntakePivot{
-        public static double home = 0;
-        public static double init = home;
-        public static double intake = 0;
-        public static double camera = 0;
-        public static double pushSamp = 0;
+    private static double wrist = .5;
+    private static double pivot = .5;
 
-        //TODO: Implement set-intake-pivot
+    //TODO: Tune these values;
+    static Util.Scale pivotScale = new Util.Scale(0.25, .75);
+    static Util.Scale wristScale = new Util.Scale(-0.25, 0.25);
+
+    public static void setPositions(){
+        double rightPos = pivotScale.scale(pivot) - wristScale.scale(wrist);
+        double leftPos = pivotScale.scale(pivot) + wristScale.scale(wrist);
+        diffRight.setPosition(rightPos);
+        diffLeft.setPosition(leftPos);
+    }
+
+    public static class IntakePivot{
+        public static double home = 0.5;
+        public static double init = home;
+        public static double intake = 0.5;
+        public static double camera = 0.5;
+        public static double pushSamp = 0.5;
+
         public static Lambda setPos(double pos) {
             return new Lambda("set-intake-pivot")
-                    .setInit(() -> {});
+                    .setInit(() -> {
+                        pivot = pos;
+                        setPositions();
+                    });
         }
     }
 
@@ -45,10 +63,12 @@ public class Differential implements Subsystem {
         public static double camera = 0;
         public static double pushSamp = 0;
 
-        //TODO: Implement set-intake-wrist
         public static Lambda setPos(double pos) {
             return new Lambda("set-intake-wrist")
-                    .setInit(() -> {});
+                    .setInit(() -> {
+                        wrist = pos;
+                        setPositions();
+                    });
         }
     }
 

@@ -9,6 +9,22 @@ public class Util {
         return Math.pow(Math.abs(val), pow) * Math.signum(val);
     }
 
+    public static class Scale{
+        double min;
+        double max;
+        double range;
+
+        public Scale(double min, double max){
+            this.min = min;
+            this.max = max;
+            this.range = max-min;
+        }
+
+        public double scale(double value) {
+            return min + value * (max - min);
+        }
+    }
+
     public static class StatePositions {
         public boolean isIntakeClawOpen;
         public double intakeDropDown;

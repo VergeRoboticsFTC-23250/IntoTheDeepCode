@@ -188,8 +188,8 @@ public class Robot {
                 OuttakeArm.setPos(s.outtakeArm), //0 is home
                 OuttakePivot.setPos(s.outtakePivot), //0 is home
                 IntakeDropDown.setPos(s.intakeDropDown), //0 is intake pos
-//                IntakePivot.setPos(s.intakePivot),
-//                IntakeWrist.setPos(s.intakeWrist),
+                IntakePivot.setPos(s.intakePivot),
+                IntakeWrist.setPos(s.intakeWrist),
                 new IfElse(
                         () -> s.isIntakeClawOpen,
                         IntakeClaw.open(),
@@ -200,13 +200,12 @@ public class Robot {
                         () -> s.isOuttakeClawOpen,
                         OuttakeClaw.open(),
                         OuttakeClaw.closeLoose()
+                ),
+                new IfElse(
+                        () -> s.areIntakeSlidesExtended,
+                        IntakeSlides.extend(),
+                        IntakeSlides.retract()
                 )
-
-//                new IfElse(
-//                        () -> s.areIntakeSlidesExtended,
-//                        IntakeSlides.extend(),
-//                        IntakeSlides.retract()
-//                )
         );
     }
 }
