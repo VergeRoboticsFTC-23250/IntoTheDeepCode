@@ -129,7 +129,7 @@ public class Chassis implements Subsystem {
                         headingPower *= scaleFactor;
 
                         //Apply Powers
-                        drive(constantDrivePower == 0? -drivePower : constantDrivePower, -lateralPower * 1.1, headingPower);
+                        drive(constantDrivePower == 0? -drivePower : constantDrivePower, -lateralPower * 1.2, headingPower);
 
                         //drive(0, 0, headingPower);
 
@@ -254,15 +254,15 @@ public class Chassis implements Subsystem {
     }
 
     //Custom Follower
-    public static void setDrivePoint(Pose pose){
+    public static void setDrivePointManual(Pose pose){
         targetX = pose.getX();
         targetY = pose.getY();
         headingController.setReference(pose.getHeading());
     }
 
-    public static Lambda setDrivePointCommand(Pose pose){
-        return new Lambda("set-drive-point-command")
-                .setInit(() -> setDrivePoint(pose));
+    public static Lambda setDrivePoint(Pose pose){
+        return new Lambda("set-drive-point")
+                .setInit(() -> setDrivePointManual(pose));
     }
 
     public static Pose getDrivePoint(){
@@ -355,7 +355,7 @@ public class Chassis implements Subsystem {
         return new Lambda("drive-to-point")
                 .setInterruptible(true)
                 .setInit(() -> {
-                    setDrivePoint(pose);
+                    setDrivePointManual(pose);
                     startTime = System.currentTimeMillis();
                 })
                 .setExecute(() -> {
@@ -367,7 +367,7 @@ public class Chassis implements Subsystem {
     public static Lambda pushUntilStuck(Pose pose, double pow){
         return new Lambda("push-to-point")
                 .setInit(() -> {
-                    setDrivePoint(pose);
+                    setDrivePointManual(pose);
                     startTime = System.currentTimeMillis();
                     constantDrivePower = pow;
                 })
@@ -380,7 +380,7 @@ public class Chassis implements Subsystem {
         return new Lambda("drive-to-point-until-stuck")
                 .setInterruptible(true)
                 .setInit(() -> {
-                    setDrivePoint(pose);
+                    setDrivePointManual(pose);
                     startTime = System.currentTimeMillis();
                 })
                 .setExecute(() -> {
@@ -433,7 +433,7 @@ public class Chassis implements Subsystem {
                         }
                     }
 
-                    setDrivePoint(targetPose);
+                    setDrivePointManual(targetPose);
 
                     if(Chassis.getDrivePoint().roughlyEquals(pathEnd)){
                         Chassis.setFaceSetpointManual(false);
@@ -445,7 +445,7 @@ public class Chassis implements Subsystem {
                 .setEnd((interrupted) -> {
                     Chassis.setFaceSetpointManual(false);
                     Chassis.setFaceSetpointReverseManual(false);
-                    Chassis.setDrivePoint(pathEnd);
+                    Chassis.setDrivePointManual(pathEnd);
                 });
     }
 

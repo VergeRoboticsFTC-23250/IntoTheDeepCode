@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.util.dairy.subsystems;
+package org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake;
 
 import androidx.annotation.NonNull;
 
@@ -27,15 +27,13 @@ import kotlin.annotation.MustBeDocumented;
 @Config
 public class IntakeSlides implements Subsystem {
     public static final IntakeSlides INSTANCE = new IntakeSlides();
-//    private static final Logger log = LoggerFactory.getLogger(IntakeSlides.class);
+    private static DcMotorEx extendo;
+    private static TouchSensor touch;
+    private static Telemetry telemetry;
 
-    public static DcMotorEx extendo;
-    public static TouchSensor touch;
-    public static Telemetry telemetry;
+    public static double constantPower = 0.2;
 
-    public static double constantPower = 0.1;
-
-    public static boolean enablePID = true;
+    public static boolean isExtended = false;
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
     @Inherited
@@ -63,6 +61,7 @@ public class IntakeSlides implements Subsystem {
         touch = hMap.get(TouchSensor.class, "touchSlide");
 
         reset();
+        setPowerManual(-0.2);
     }
 
     @Override
@@ -77,40 +76,37 @@ public class IntakeSlides implements Subsystem {
         extendo.setPower(power);
     }
 
-    public static Lambda setPower(double pow) {
-        return new Lambda("power-outtake")
-                .setInit(() -> {
-                    setPowerManual(pow);
-                })
-                .setFinish(() -> true);
-    }
-
-    public static Lambda home() {
-        return new Lambda("home-intake")
-                .setInit(() -> extendo.setPower(-1))
-                .setFinish(() -> touch.isPressed())
-                .setEnd((interrupted) -> extendo.setPower(-constantPower));
-    }
-
     public static Lambda extend(){
         AtomicLong startTime = new AtomicLong();
-        return new Lambda("extend-intake")
-                .setInit(() -> {
-                    extendo.setPower(1);
-                    startTime.set(System.currentTimeMillis());
-                })
-                .setFinish(() -> System.currentTimeMillis() - startTime.get() > 500)
-                .setEnd((interrupted) -> extendo.setPower(constantPower));
+        if(isExtended){
+            return new Lambda("extend-intake-alr-extended")
+                    .setInit(() -> isExtended = true);
+        }else{
+            return new Lambda("extend-intake")
+                    .setInit(() -> {
+                        extendo.setPower(1);
+                        startTime.set(System.currentTimeMillis());
+                        isExtended = true;
+                    })
+                    .setFinish(() -> System.currentTimeMillis() - startTime.get() > 500)
+                    .setEnd((interrupted) -> extendo.setPower(constantPower));
+        }
+
     }
 
     public static Lambda retract(){
         AtomicLong startTime = new AtomicLong();
+        if(!isExtended){
+            return new Lambda("retract-intake-alr-retracted")
+                    .setInit(() -> isExtended = false);
+        }
         return new Lambda("retract")
                 .setInit(() -> {
                     extendo.setPower(-1);
                     startTime.set(System.currentTimeMillis());
+                    isExtended = false;
                 })
-                .setFinish(() -> System.currentTimeMillis() - startTime.get() > 500)
+                .setFinish(() -> (System.currentTimeMillis() - startTime.get() > 500) || touch.isPressed())
                 .setEnd((interrupted) -> extendo.setPower(-constantPower));
     }
 }

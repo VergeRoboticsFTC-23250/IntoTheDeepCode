@@ -1,271 +1,212 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
-import com.pedropathing.pathgen.PathBuilder;
-
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.IntakeSlides;
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Outtake;
-import org.firstinspires.ftc.teamcode.util.dairy.subsystems.OuttakeSlides;
+import org.firstinspires.ftc.teamcode.util.Util.StatePositions;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential.IntakeWrist;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential.IntakePivot;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.IntakeClaw;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.IntakeDropDown;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.IntakeSlides;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeArm;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeClaw;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakePivot;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeSlides;
 import org.firstinspires.ftc.teamcode.util.opencv.YellowAnglePipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Map;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
-import dev.frozenmilk.mercurial.commands.Lambda;
+import dev.frozenmilk.mercurial.commands.Command;
+import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
-import dev.frozenmilk.mercurial.commands.util.StateMachine;
-import dev.frozenmilk.mercurial.commands.util.Wait;
+import dev.frozenmilk.mercurial.commands.util.IfElse;
 
 public class Robot {
 
     public static YellowAnglePipeline pipeline;
     public static OpenCvWebcam webcam;
-
-    public static volatile State currentState = State.HOME;
-
     public enum State {
+        INIT,
         HOME,
-        INTAKE_SPEC,
-        OUTTAKE_SUBMERSIBLE,
-        OUTTAKE_SUBMERSIBLE_SCORE,
-        OUTTAKE_BUCKET,
-        TRANSFER,
-        OUTTAKE_SPEC,
-        UNJAM
+        INTAKE_GROUND,
+        INTAKE_BACK,
+        OUTTAKE_BACK,
+        OUTTAKE_FRONT,
+        BUCKET,
+        DROP_SAMPLE,
+        PUSH_SAMPLE,
+        CAMERA,
     }
 
-    public static StateMachine<State> stateMachine;
+    static StatePositions init = new StatePositions(
+            OuttakeSlides.init,
+            OuttakeArm.init,
+            OuttakePivot.init,
+            IntakeDropDown.init,
+            IntakePivot.init,
+            IntakeWrist.init,
+            true,
+            false,
+            false
+    );
+
+    static StatePositions home = new StatePositions(
+            OuttakeSlides.home,
+            OuttakeArm.home,
+            OuttakePivot.home,
+            IntakeDropDown.home,
+            IntakePivot.home,
+            IntakeWrist.home,
+            false,
+            true,
+            false
+    );
+
+    static StatePositions intakeGround = new StatePositions(
+            OuttakeSlides.home,
+            OuttakeArm.home,
+            OuttakePivot.home,
+            IntakeDropDown.intake,
+            IntakePivot.intake,
+            IntakeWrist.intake,
+            true,
+            true,
+            true
+    );
+
+    static StatePositions intakeBack = new StatePositions(
+            OuttakeSlides.home,
+            OuttakeArm.intakeBack,
+            OuttakePivot.intakeBack,
+            IntakeDropDown.home,
+            IntakePivot.home,
+            IntakeWrist.home,
+            true,
+            true,
+            false
+    );
+
+    static StatePositions outtakeBack = new StatePositions(
+            OuttakeSlides.outtakeBack,
+            OuttakeArm.outtakeBack,
+            OuttakePivot.outtakeBack,
+            IntakeDropDown.home,
+            IntakePivot.home,
+            IntakeWrist.home,
+            true,
+            false,
+            true
+    );
+
+    static StatePositions outtakeFront = new StatePositions(
+            OuttakeSlides.outtakeFront,
+            OuttakeArm.outtakeFront,
+            OuttakePivot.outtakeFront,
+            IntakeDropDown.home,
+            IntakePivot.home,
+            IntakeWrist.home,
+            true,
+            false,
+            true
+    );
+
+    static StatePositions bucket = new StatePositions(
+            OuttakeSlides.bucket,
+            OuttakeArm.bucket,
+            OuttakePivot.bucket,
+            IntakeDropDown.home,
+            IntakePivot.home,
+            IntakeWrist.home,
+            true,
+            false,
+            true
+    );
+
+    static StatePositions dropSample = new StatePositions(
+            OuttakeSlides.home,
+            OuttakeArm.dropSamp,
+            OuttakePivot.dropSamp,
+            IntakeDropDown.home,
+            IntakePivot.home,
+            IntakeWrist.home,
+            true,
+            false,
+            true
+    );
+
+    static StatePositions pushSample = new StatePositions(
+            OuttakeSlides.home,
+            OuttakeArm.home,
+            OuttakePivot.home,
+            IntakeDropDown.pushSamp,
+            IntakePivot.pushSamp,
+            IntakeWrist.pushSamp,
+            false,
+            true,
+            true
+    );
+
+    static StatePositions camera = new StatePositions(
+            OuttakeSlides.home,
+            OuttakeArm.home,
+            OuttakePivot.home,
+            IntakeDropDown.camera,
+            IntakePivot.camera,
+            IntakeWrist.camera,
+            false,
+            true,
+            true
+    );
+
+    static Map<State, StatePositions> states = Map.of(
+            State.INIT, init,
+            State.HOME, home,
+            State.INTAKE_GROUND, intakeGround,
+            State.INTAKE_BACK, intakeBack,
+            State.OUTTAKE_BACK, outtakeBack,
+            State.OUTTAKE_FRONT, outtakeFront,
+            State.BUCKET, bucket,
+            State.DROP_SAMPLE, dropSample,
+            State.PUSH_SAMPLE, pushSample,
+            State.CAMERA, camera
+    );
 
     public static OpModeMeta.Flavor flavor;
 
-    static PathBuilder plusThreeBlueSpec = new PathBuilder();
-
     public static void init() {
-
-        StatePositions init = new StatePositions(
-                Outtake.armHomePos,
-                Outtake.pivotHomePos,
-                false,
-                OuttakeSlides.minPos
-        );
-        StatePositions home = new StatePositions(
-                Outtake.armHomePos,
-                Outtake.pivotHomePos,
-                true,
-                OuttakeSlides.minPos
-        );
-        StatePositions intake = new StatePositions(
-                Outtake.armSpecPos,
-                Outtake.pivotSpecPos,
-                true,
-                OuttakeSlides.minPos
-        );
-        StatePositions outtakeSubmersible = new StatePositions(
-                Outtake.armSubmersiblePos,
-                Outtake.pivotSubmersiblePos,
-                false,
-                OuttakeSlides.submersiblePos
-        );
-        StatePositions outtakeSubmersibleScore = new StatePositions(
-                Outtake.armSubmersiblePos,
-                Outtake.pivotSubmersiblePos,
-                false,
-                OuttakeSlides.scoreSubmersiblePos
-        );
-        StatePositions outtakeBucket = new StatePositions(
-                Outtake.armBucketPos,
-                Outtake.pivotBucketPos,
-                false,
-                OuttakeSlides.maxPos
-        );
-        StatePositions transfer = new StatePositions(
-                Outtake.armPreTransferPos,
-                Outtake.pivotTransferPos,
-                false,
-                OuttakeSlides.safePos
-        );
-
-        Map<State, StatePositions> states = Map.of(
-                State.HOME, home,
-                State.INTAKE_SPEC, intake,
-                State.OUTTAKE_SUBMERSIBLE, outtakeSubmersible,
-                State.OUTTAKE_SUBMERSIBLE_SCORE, outtakeSubmersibleScore,
-                State.OUTTAKE_BUCKET, outtakeBucket,
-                State.TRANSFER, transfer
-        );
-
         flavor = FeatureRegistrar.getActiveOpModeWrapper().getOpModeType();
-
-        stateMachine = new StateMachine<>(State.HOME)
-                .withState(State.HOME, (state, name) -> Lambda.from(
-                        new Sequential(
-//                                new IfElse(
-//                                        () -> (Intake.raised && (
-//                                                OuttakeSlides.controller.getSetPoint() == OuttakeSlides.submersiblePos ||
-//                                                OuttakeSlides.controller.getSetPoint() == OuttakeSlides.scoreSubmersiblePos)),
-//                                        Intake.dropIntake().then(new Wait(0.4)),
-//                                        new Wait(0)
-//                                ),
-                                Outtake.openClaw(),
-                                Outtake.setArm(home.armPos),
-                                Outtake.setPivot(home.pivotPos),
-                                OuttakeSlides.runToPosition(OuttakeSlides.minPos)
-                        )
-                ))
-                .withState(State.INTAKE_SPEC, (state, name) -> Lambda.from(
-                        new Sequential(
-                                Outtake.openClaw(),
-                                Outtake.setArm(intake.armPos),
-                                Outtake.setPivot(intake.pivotPos),
-                                new Wait(0.5),
-                                OuttakeSlides.runToPosition(OuttakeSlides.minPos)
-
-                        )
-                ))
-                .withState(State.OUTTAKE_SUBMERSIBLE, (state, name) -> Lambda.from(
-                        new Sequential(
-                                new Wait(0.2),
-                                Outtake.closeClaw(),
-                                OuttakeSlides.runToPosition(outtakeSubmersible.slidePos),
-                                Outtake.setPivot(outtakeSubmersible.pivotPos),
-                                Outtake.setArm(outtakeSubmersible.armPos)
-                        )
-                ))
-                .withState(State.OUTTAKE_SUBMERSIBLE_SCORE, (state, name) -> Lambda.from(
-                        new Sequential(
-                                OuttakeSlides.increaseGains(),
-                                OuttakeSlides.runToPosition(outtakeSubmersibleScore.slidePos)
-                        )
-                ))
-                .withState(State.OUTTAKE_BUCKET, (state, name) -> Lambda.from(
-                        new Sequential(
-                                Outtake.closeClaw(),
-                                OuttakeSlides.runToPosition(OuttakeSlides.safePos),
-                                Outtake.setPivot(outtakeBucket.pivotPos),
-                                Outtake.setArm(outtakeBucket.armPos),
-                                OuttakeSlides.runToPosition(outtakeBucket.slidePos)
-                        )
-                ))
-                .withState(State.TRANSFER, (state, name) -> Lambda.from(
-                        new Sequential(
-                                Outtake.setArm(transfer.armPos),
-                                Outtake.setPivot(transfer.pivotPos),
-                                new Wait(0.25),
-                                Outtake.closeClawPartially(),
-                                new Wait(0.25),
-                                Outtake.setArm(home.armPos),
-                                new Wait(0.25),
-                                Outtake.closeClaw(),
-                                OuttakeSlides.runToPosition(transfer.slidePos)
-                        )
-                ))
-                .withState(State.OUTTAKE_SPEC, (state, name) -> Lambda.from(
-                        new Sequential(
-                                Outtake.closeClaw(),
-                                OuttakeSlides.runToPosition(OuttakeSlides.safePos),
-                                Outtake.setArm(Outtake.armOuttakeSpec),
-                                Outtake.setPivot(Outtake.pivotOuttakeSpec)
-                        )
-                ));
-
-        Paths.init();
-
-//        int cameraMonitorViewId = FeatureRegistrar.getActiveOpMode().hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", FeatureRegistrar.getActiveOpMode().hardwareMap.appContext.getPackageName());
-//        webcam = OpenCvCameraFactory.getInstance().createWebcam(FeatureRegistrar.getActiveOpMode().hardwareMap.get(WebcamName.class, "clawcam"), cameraMonitorViewId);
-//        pipeline = new YellowAnglePipeline();
-//        webcam.setPipeline(pipeline);
-//        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-//        {
-//            @Override
-//            public void onOpened()
-//            {
-//                webcam.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
-//            }
-//
-//            @Override
-//            public void onError(int errorCode) {}
-//        });
-
     }
 
-    public static Lambda setState(State state) {
-        return new Lambda("set-state")
-                .setInit(() -> {
-                    if (stateMachine.getState().equals(State.INTAKE_SPEC) && state.equals(State.OUTTAKE_SUBMERSIBLE)) {
-                        new Sequential(
-                                Intake.setIntake(Intake.hoverPos),
-                                new Wait(0.15)
-                        ).schedule();
-                    }
-                    OuttakeSlides.resetGains().schedule();
-                    stateMachine.schedule(state);
-                })
-                .setFinish(() -> true);
-    }
+    public static Command setState(State state) {
+        StatePositions s = states.get(state);
+        if(s == null){
+            return new Sequential();
+        }
+        return new Parallel(
+                OuttakeSlides.runToPosition(s.outtakeSlides),
+                OuttakeArm.setPos(s.outtakeArm), //0 is home
+                OuttakePivot.setPos(s.outtakePivot), //0 is home
+                IntakeDropDown.setPos(s.intakeDropDown), //0 is intake pos
+//                IntakePivot.setPos(s.intakePivot),
+//                IntakeWrist.setPos(s.intakeWrist),
+                new IfElse(
+                        () -> s.isIntakeClawOpen,
+                        IntakeClaw.open(),
+                        IntakeClaw.closeLoose()
+                ),
 
-    public static Lambda manipulate() {
-        return new Lambda("manipulate")
-                .setInit(() -> {
-                    if (stateMachine.getState().equals(State.OUTTAKE_SUBMERSIBLE))
-                        stateMachine.schedule(State.OUTTAKE_SUBMERSIBLE_SCORE);
+                new IfElse(
+                        () -> s.isOuttakeClawOpen,
+                        OuttakeClaw.open(),
+                        OuttakeClaw.closeLoose()
+                )
 
-                     else Outtake.toggleClaw().schedule();
-                });
-    }
-
-    public static Lambda macroNoCook() {
-        return new Lambda("macro-no-cook")
-                .setInit(() -> {
-                    new Sequential(
-                            Intake.spintake(-1),
-                            Robot.setState(State.HOME),
-                            Intake.raiseIntake(),
-                            new Wait(0.1),
-                            IntakeSlides.home(),
-                            Robot.setState(State.TRANSFER)
-                    ).schedule();
-                });
-    }
-
-    public static Lambda macroCook() {
-        return new Lambda("macro-cook")
-                .setInit(() -> {
-                    new Sequential(
-                            Robot.setState(State.HOME),
-                            Intake.spintake(-1),
-                            new Wait(0.1),
-                            Intake.extraIntake(),
-                            new Wait(0.25),
-                            IntakeSlides.home(),
-                            Robot.setState(State.TRANSFER),
-                            Intake.spintake(-0.1)
-                    ).schedule();
-                });
-    }
-
-    public static Lambda macroHalfCook() {
-        return new Lambda("macro-half-cook")
-                .setInit(() -> {
-                    new Sequential(
-                            Robot.setState(State.HOME),
-                            Intake.spintake(-1),
-                            new Wait(0.1),
-                            Intake.extraIntake(),
-                            new Wait(0.25),
-                            IntakeSlides.home(),
-                            Outtake.setArm(Outtake.armPreTransferPos -.04),
-                            Outtake.setPivot(Outtake.pivotTransferPos),
-                            new Wait(0.25),
-                            Outtake.closeClaw(),
-                            new Wait(0.2),
-                            Outtake.setArm(Outtake.armHomePos),
-                            Outtake.setPivot(Outtake.pivotHomePos),
-                            OuttakeSlides.runToPosition(OuttakeSlides.safePos),
-                            Intake.spintake(-0.1)
-                    ).schedule();
-                    stateMachine.setState(State.TRANSFER);
-                });
+//                new IfElse(
+//                        () -> s.areIntakeSlidesExtended,
+//                        IntakeSlides.extend(),
+//                        IntakeSlides.retract()
+//                )
+        );
     }
 }
