@@ -30,7 +30,6 @@ public class LoopTimes implements Feature {
     private LoopTimes() {}
 
     public static final LoopTimes INSTANCE = new LoopTimes();
-    // todo, this can't be final, needs to be set in init
     private final long startTime = System.nanoTime();
     private long lastTime = startTime;
     private int loops = 0;

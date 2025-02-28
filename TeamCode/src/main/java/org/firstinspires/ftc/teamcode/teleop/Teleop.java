@@ -18,13 +18,8 @@ import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeSlide
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
-import dev.frozenmilk.mercurial.bindings.BoundBooleanSupplier;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
-import dev.frozenmilk.mercurial.commands.Lambda;
-import dev.frozenmilk.mercurial.commands.groups.Parallel;
-import dev.frozenmilk.mercurial.commands.groups.Sequential;
 import dev.frozenmilk.mercurial.commands.util.IfElse;
-import dev.frozenmilk.mercurial.commands.util.Wait;
 
 @Mercurial.Attach
 @BulkRead.Attach
@@ -47,7 +42,6 @@ public class Teleop extends OpMode {
     @Override
     public void init() {
         Robot.init();
-        Chassis.holdPoint = false;
 
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
@@ -55,12 +49,7 @@ public class Teleop extends OpMode {
         tejas.cross().onTrue(Robot.setState(Robot.State.HOME));
         tejas.circle().onTrue(Robot.setState(Robot.State.INTAKE_BACK));
         tejas.square().onTrue(Robot.setState(Robot.State.OUTTAKE_FRONT));
-        tejas.rightBumper()
-                .onTrue(
-                        Chassis.slow()
-                ).onFalse(
-                        Chassis.fast()
-                );
+        tejas.rightBumper().onTrue(Chassis.slow()).onFalse(Chassis.fast());
 
         tejas.leftBumper().onTrue(Robot.manipulate());
 
@@ -70,11 +59,7 @@ public class Teleop extends OpMode {
                 Robot.setState(Robot.State.INTAKE_GROUND)
         ));
 
-        arvind.dpadDown().onTrue(new Sequential(
-                Robot.setState(Robot.State.OUTTAKE_GROUND),
-                IntakeClaw.open(),
-                Robot.setState(Robot.State.HOME)
-        ));
+        arvind.dpadDown().onTrue(Robot.outtakeGroundAndHome());
 
         arvind.rightBumper().onTrue(Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.CLOCKWISE));
         arvind.leftBumper().onTrue(Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.COUNTER_CLOCKWISE));

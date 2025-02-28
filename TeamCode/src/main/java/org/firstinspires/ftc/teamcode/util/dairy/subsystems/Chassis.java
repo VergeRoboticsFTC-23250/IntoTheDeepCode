@@ -152,9 +152,11 @@ public class Chassis implements Subsystem {
         if (Robot.isAuto) {
             follower.setStartingPose(startingPose);
             setDefaultCommand(runFollower());
+            Chassis.holdPoint = true;
         } else {
             follower.startTeleopDrive();
             setDefaultCommand(driveTele(Mercurial.gamepad1()));
+            Chassis.holdPoint = false;
         }
 
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
@@ -185,12 +187,7 @@ public class Chassis implements Subsystem {
     public void setDependency(@NonNull Dependency<?> dependency) { this.dependency = dependency; }
 
     @Override
-    public void postUserInitHook(@NonNull Wrapper opMode) {
-        if (!Robot.isAuto) {
-            follower.startTeleopDrive();
-            setDefaultCommand(driveTele(Mercurial.gamepad1()));
-        }
-    }
+    public void postUserInitHook(@NonNull Wrapper opMode) {}
 
     @Override
     public void preUserStartHook(@NonNull Wrapper opMode) {

@@ -30,7 +30,6 @@ public class Differential implements Subsystem {
     private static double wrist = .5;
     private static double pivot = .5;
 
-    //TODO: Tune these values;
     public static double pivotRange = 0.2;
     public static double wristRange = 0.2025;
     static Util.Scale pivotScale = new Util.Scale(0.5-pivotRange, 0.5+pivotRange);

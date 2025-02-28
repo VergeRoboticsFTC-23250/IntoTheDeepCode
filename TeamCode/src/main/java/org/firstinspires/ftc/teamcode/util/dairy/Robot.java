@@ -241,6 +241,8 @@ public class Robot {
                 true
         );
 
+        setState(State.INIT).schedule();
+
         states = Map.ofEntries(
                 Map.entry(State.INIT, init),
                 Map.entry(State.HOME, home),
@@ -333,5 +335,13 @@ public class Robot {
                         Robot.setState(State.OUTTAKE_FRONT).schedule();
                     }
                 });
+    }
+
+    public static Command outtakeGroundAndHome(){
+        return new Sequential(
+                Robot.setState(Robot.State.OUTTAKE_GROUND),
+                IntakeClaw.open(),
+                Robot.setState(Robot.State.HOME)
+        );
     }
 }
