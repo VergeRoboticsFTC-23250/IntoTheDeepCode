@@ -149,10 +149,12 @@ public class Chassis implements Subsystem {
 
         dashboardPoseTracker = Chassis.follower.getDashboardPoseTracker();
 
-        if (Robot.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
+        if (Robot.isAuto) {
             follower.setStartingPose(startingPose);
+            setDefaultCommand(runFollower());
         } else {
-            setDefaultCommand(drive(Mercurial.gamepad1()));
+            follower.startTeleopDrive();
+            setDefaultCommand(driveTele(Mercurial.gamepad1()));
         }
 
         HardwareMap hMap = opMode.getOpMode().hardwareMap;
@@ -167,7 +169,6 @@ public class Chassis implements Subsystem {
         headingController.setDerivativeFilterAlpha(1);
         translationalErrorController.setDerivativeFilterAlpha(1);
         setCleanManual();
-        setDefaultCommand(runFollower());
     }
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
@@ -185,7 +186,10 @@ public class Chassis implements Subsystem {
 
     @Override
     public void postUserInitHook(@NonNull Wrapper opMode) {
-        if (Robot.flavor.equals(OpModeMeta.Flavor.TELEOP)) follower.startTeleopDrive();
+        if (!Robot.isAuto) {
+            follower.startTeleopDrive();
+            setDefaultCommand(driveTele(Mercurial.gamepad1()));
+        }
     }
 
     @Override
@@ -194,16 +198,15 @@ public class Chassis implements Subsystem {
 
     @Override
     public void postUserLoopHook(@NonNull Wrapper opMode) {}
-
-    public static Lambda drive(BoundGamepad gamepad){
-        return new Lambda("drive")
-                .addRequirements(INSTANCE)
+    public static Lambda driveTele(BoundGamepad gamepad){
+        return new Lambda("drive-tele")
                 .setExecute(() -> {
-                    drive(
-                            gamepad.rightStickY().state(),
-                            -gamepad.rightStickX().state(),
-                            -gamepad.leftStickX().state()
+                    follower.setTeleOpMovementVectors(
+                            gamepad.rightStickY().state() * (isSlowed? slowSpeed : 1),
+                            -gamepad.rightStickX().state() * (isSlowed? slowSpeed : 1),
+                            -gamepad.leftStickX().state() * (isSlowed? slowSpeed : 1)
                     );
+                    follower.update();
                 })
                 .setFinish(() -> false);
     }
@@ -244,12 +247,12 @@ public class Chassis implements Subsystem {
     }
 
     public static Lambda slow(){
-        return new Lambda("slow")
+        return new Lambda("slow-chassis")
                 .setInit(() -> isSlowed = true);
     }
 
     public static Lambda fast(){
-        return new Lambda("fast")
+        return new Lambda("fast-chassis")
                 .setInit(() -> isSlowed = false);
     }
 

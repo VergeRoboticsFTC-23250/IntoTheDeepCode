@@ -14,7 +14,9 @@ import java.lang.annotation.Target;
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
+import dev.frozenmilk.mercurial.commands.Command;
 import dev.frozenmilk.mercurial.commands.Lambda;
+import dev.frozenmilk.mercurial.commands.util.IfElse;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
 @Config
@@ -22,8 +24,9 @@ public class OuttakeClaw implements Subsystem {
     public static final OuttakeClaw INSTANCE = new OuttakeClaw();
     public static Servo gripper;
     public static double open = 0.875;
-    public static double closeFirm = 1;
-    public static double closeLoose = 0.15;
+    public static double closeFirm = 0.2;
+    public static double closeLoose = 0.2;
+    public static boolean isOpen = false;
 
     public OuttakeClaw() {}
 
@@ -60,16 +63,37 @@ public class OuttakeClaw implements Subsystem {
     }
     public static Lambda open() {
         return new Lambda("open-outtake-claw")
-                .setInit(() -> gripper.setPosition(open));
+                .setInit(() -> {
+                    gripper.setPosition(open);
+                    isOpen = true;
+                });
     }
 
     public static Lambda closeFirm() {
         return new Lambda("close-outtake-claw-firm")
-                .setInit(() -> gripper.setPosition(closeFirm));
+                .setInit(() -> {
+                    gripper.setPosition(closeFirm);
+                    isOpen = false;
+                });
     }
 
     public static Lambda closeLoose() {
         return new Lambda("close-outtake-claw-loose")
-                .setInit(() -> gripper.setPosition(closeLoose));
+                .setInit(() -> {
+                    gripper.setPosition(closeLoose);
+                    isOpen = false;
+                });
+    }
+
+    public static Command toggle(boolean isLoose){
+        return new IfElse(
+                () -> isOpen,
+                new IfElse(
+                        () -> isLoose,
+                        closeLoose(),
+                        closeFirm()
+                ),
+                open()
+        );
     }
 }

@@ -14,12 +14,15 @@ import java.lang.annotation.Target;
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
+import dev.frozenmilk.mercurial.commands.Command;
 import dev.frozenmilk.mercurial.commands.Lambda;
+import dev.frozenmilk.mercurial.commands.util.IfElse;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
 @Config
 public class IntakeClaw implements Subsystem {
     public static final IntakeClaw INSTANCE = new IntakeClaw();
+    public static boolean isOpen = false;
     public static Servo gripper;
     public static double open = .7;
     public static double closeFirm = 0.325;
@@ -60,16 +63,37 @@ public class IntakeClaw implements Subsystem {
     }
     public static Lambda open() {
         return new Lambda("open-intake-claw")
-                .setInit(() -> gripper.setPosition(open));
+                .setInit(() -> {
+                    gripper.setPosition(open);
+                    isOpen = true;
+                });
     }
 
     public static Lambda closeFirm() {
         return new Lambda("close-intake-claw-firm")
-                .setInit(() -> gripper.setPosition(closeFirm));
+                .setInit(() -> {
+                    gripper.setPosition(closeFirm);
+                    isOpen = false;
+                });
     }
 
     public static Lambda closeLoose() {
         return new Lambda("close-intake-claw-loose")
-                .setInit(() -> gripper.setPosition(closeLoose));
+                .setInit(() -> {
+                    gripper.setPosition(closeLoose);
+                    isOpen = false;
+                });
+    }
+
+    public static Command toggle(boolean isLoose){
+        return new IfElse(
+                    () -> isOpen,
+                    new IfElse(
+                            () -> isLoose,
+                            closeLoose(),
+                            closeFirm()
+                    ),
+                    open()
+                );
     }
 }

@@ -24,6 +24,8 @@ public class OuttakePivot implements Subsystem {
     public static Servo pivot;
 
     public static double home = .575; //.575 0
+    public static double teleopTransfer = 0.65;
+    public static double homeOuttakeBack = home; //.575 0
     public static double outtakeFront = 0.70;
 
     public static double init = outtakeFront;

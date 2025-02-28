@@ -21,6 +21,7 @@ import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
 import dev.frozenmilk.mercurial.commands.Lambda;
+import dev.frozenmilk.mercurial.commands.groups.Sequential;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
 import kotlin.annotation.MustBeDocumented;
 
@@ -31,7 +32,7 @@ public class IntakeSlides implements Subsystem {
     private static TouchSensor touch;
     private static Telemetry telemetry;
 
-    public static double constantPower = 0.2;
+    public static double constantPower = 0.1;
 
     public static boolean isExtended = false;
 
@@ -78,35 +79,33 @@ public class IntakeSlides implements Subsystem {
 
     public static Lambda extend(){
         AtomicLong startTime = new AtomicLong();
-        if(isExtended){
-            return new Lambda("extend-intake-alr-extended")
-                    .setInit(() -> isExtended = true);
-        }else{
-            return new Lambda("extend-intake")
-                    .setInit(() -> {
+        return new Lambda("extend-intake")
+                .setInit(() -> {
+                    if(!isExtended){
                         extendo.setPower(1);
                         startTime.set(System.currentTimeMillis());
-                        isExtended = true;
-                    })
-                    .setFinish(() -> System.currentTimeMillis() - startTime.get() > 500)
-                    .setEnd((interrupted) -> extendo.setPower(constantPower));
-        }
-
+                    }
+                })
+                .setFinish(() -> isExtended || (System.currentTimeMillis() - startTime.get() > 500))
+                .setEnd((interrupted) -> {
+                    extendo.setPower(constantPower);
+                    isExtended = true;
+                });
     }
 
     public static Lambda retract(){
         AtomicLong startTime = new AtomicLong();
-        if(!isExtended){
-            return new Lambda("retract-intake-alr-retracted")
-                    .setInit(() -> isExtended = false);
-        }
-        return new Lambda("retract")
+        return new Lambda("retract-intake")
                 .setInit(() -> {
-                    extendo.setPower(-1);
-                    startTime.set(System.currentTimeMillis());
-                    isExtended = false;
+                    if(isExtended){
+                        extendo.setPower(-1);
+                        startTime.set(System.currentTimeMillis());
+                    }
                 })
-                .setFinish(() -> (System.currentTimeMillis() - startTime.get() > 500) || touch.isPressed())
-                .setEnd((interrupted) -> extendo.setPower(-constantPower));
+                .setFinish(() -> !isExtended || (System.currentTimeMillis() - startTime.get() > 500))
+                .setEnd((interrupted) -> {
+                    extendo.setPower(-constantPower);
+                    isExtended = false;
+                });
     }
 }

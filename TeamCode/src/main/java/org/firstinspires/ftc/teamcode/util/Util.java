@@ -37,10 +37,10 @@ public class Util {
         public double intakeWrist;
 
 
-        public StatePositions(int outtakeSlides, double outtakeArm, double outtakePivot, double intakeDropDown, double intakePivot, double intakeWrist, boolean isIntakeClawOpen, boolean isOuttakeClawOpen, boolean areSlidesOut) {
+        public StatePositions(int outtakeSlides, double outtakeArm, double outtakePivot, double intakeDropDown, double intakePivot, double intakeWrist, boolean isIntakeClawOpen, boolean isOuttakeClawOpen, boolean areIntakeSlidesExtended) {
             this.isIntakeClawOpen = isIntakeClawOpen;
             this.intakeDropDown = intakeDropDown;
-            this.areIntakeSlidesExtended = areSlidesOut;
+            this.areIntakeSlidesExtended = areIntakeSlidesExtended;
             this.outtakeArm = outtakeArm;
             this.isOuttakeClawOpen = isOuttakeClawOpen;
             this.outtakePivot = outtakePivot;

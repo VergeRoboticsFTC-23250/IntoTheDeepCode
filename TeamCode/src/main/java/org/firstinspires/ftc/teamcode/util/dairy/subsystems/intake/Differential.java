@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.Util;
+import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -30,9 +31,11 @@ public class Differential implements Subsystem {
     private static double pivot = .5;
 
     //TODO: Tune these values;
-    static Util.Scale pivotScale = new Util.Scale(0.25, .75);
-    static Util.Scale wristScale = new Util.Scale(-0.25, 0.25);
-    static double offsetR = 0;
+    public static double pivotRange = 0.2;
+    public static double wristRange = 0.2025;
+    static Util.Scale pivotScale = new Util.Scale(0.5-pivotRange, 0.5+pivotRange);
+    static Util.Scale wristScale = new Util.Scale(-wristRange, wristRange);
+    static double offsetR = 0.075;
     static double offsetL = 0;
 
     public static void setPositions(){
@@ -40,13 +43,16 @@ public class Differential implements Subsystem {
         double leftPos = pivotScale.scale(pivot) + wristScale.scale(wrist) + offsetL;
         diffRight.setPosition(rightPos);
         diffLeft.setPosition(leftPos);
+        diffLeft.setDirection(Servo.Direction.REVERSE);
     }
 
     public static class IntakePivot{
-        public static double home = 0.5;
+        public static double home = 1;
+        public static double homeOuttakeBack = home;
         public static double init = home;
-        public static double intake = 0.5;
-        public static double camera = 0.5;
+        public static double intake = 0.25;
+        public static double intakeGroundSecondary = 0.35;
+        public static double camera = 0;
         public static double pushSamp = 0.5;
 
         public static Lambda setPos(double pos) {
@@ -59,17 +65,31 @@ public class Differential implements Subsystem {
     }
 
     public static class IntakeWrist{
-        public static double home = 0;
+        public enum Direction{
+            COUNTER_CLOCKWISE,
+            CLOCKWISE,
+        }
+        public static double home = 0.5;
         public static double init = home;
         public static double intake = home;
-        public static double camera = 0;
-        public static double pushSamp = 0;
+        public static double camera = 0.5;
+        public static double pushSamp = 0.5;
 
         public static Lambda setPos(double pos) {
             return new Lambda("set-intake-wrist")
                     .setInit(() -> {
                         wrist = pos;
                         setPositions();
+                    });
+        }
+
+        public static Lambda increment(Direction direction){
+            return new Lambda("increment-pivot")
+                    .setInit(() -> {
+                        if(Robot.getCurrentState() == Robot.State.INTAKE_GROUND){
+                            wrist = Math.min(Math.max(wrist + (direction == Direction.CLOCKWISE? 0.25 : -0.25), 0), 1);
+                            setPositions();
+                        }
                     });
         }
     }

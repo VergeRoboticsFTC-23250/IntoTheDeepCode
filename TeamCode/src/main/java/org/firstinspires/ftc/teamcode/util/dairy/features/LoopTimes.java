@@ -43,11 +43,6 @@ public class LoopTimes implements Feature {
         double averageLoopTime = (.000001 * (currentTime - startTime)) / loops;
         double averageHz = loops / (averageLoopTime / 1000);
 
-        telemetry.addData("Instantaneous Loop Time", instantLoopTime);
-        telemetry.addData("Instantaneous Loop Hz", instantHz);
-        telemetry.addData("Average Loop Time", averageLoopTime);
-        telemetry.addData("Average Loop Hz", averageHz);
-
         lastTime = currentTime;
         loops += 1;
 

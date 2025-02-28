@@ -37,7 +37,7 @@ public class OuttakeSlides implements Subsystem {
     private static double currentLimit = 1700;
     public static int minPos = 0;
     public static int maxPos = 0;
-    public static int scoreOffset = 16000;
+    public static int scoreOffset = 20000;
     public static int outtakeFront = 11000;
     public static int outtakeBack = 10000;
     public static int bucket = maxPos;
@@ -117,6 +117,16 @@ public class OuttakeSlides implements Subsystem {
                 })
                 .setFinish(() -> controller.atSetPoint());
     }
+
+    public static Lambda waitForRunToPos(){
+        return new Lambda("wait-for-outtake-slides-run-to-pos")
+                .setInterruptible(true)
+                .setInit(() -> {
+
+                })
+                .setFinish(() -> controller.atSetPoint());
+    }
+
     public static double getPos(){
         return encoder.getCurrentPosition();
     }
