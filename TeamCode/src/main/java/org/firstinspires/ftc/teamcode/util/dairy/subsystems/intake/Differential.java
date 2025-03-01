@@ -51,7 +51,7 @@ public class Differential implements Subsystem {
         public static double init = home;
         public static double intake = 0.25;
         public static double intakeGroundSecondary = 0.35;
-        public static double camera = 0;
+        public static double camera = 0.1;
         public static double pushSamp = 0.5;
 
         public static Lambda setPos(double pos) {
@@ -83,9 +83,9 @@ public class Differential implements Subsystem {
         }
 
         public static Lambda increment(Direction direction){
-            return new Lambda("increment-pivot")
+            return new Lambda("increment-pivot-by-direction")
                     .setInit(() -> {
-                        if(Robot.getCurrentState() == Robot.State.INTAKE_GROUND){
+                        if(Robot.getCurrentIntakeState() == Robot.State.INTAKE_GROUND){
                             wrist = Math.min(Math.max(wrist + (direction == Direction.CLOCKWISE? 0.25 : -0.25), 0), 1);
                             setPositions();
                         }

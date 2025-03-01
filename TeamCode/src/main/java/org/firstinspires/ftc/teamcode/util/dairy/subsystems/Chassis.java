@@ -53,7 +53,7 @@ public class Chassis implements Subsystem {
     public static DashboardPoseTracker dashboardPoseTracker;
 
     //Custom Follower
-    public static Pose startingPose = new Pose(8, 35, 0);
+    public static Pose startingPose = new Pose(8, 65.5, 0);
     public static double exponentialTransformHeading = 0.5;
     public static double exponentialTransformTranslational = 0.5;
     public static double exponentialTransformLookahead = 0.125;

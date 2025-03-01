@@ -33,6 +33,7 @@ public class IntakeSlides implements Subsystem {
     private static Telemetry telemetry;
 
     public static double constantPower = 0.1;
+    public static int timeToExtendOrRetract = 400;
 
     public static boolean isExtended = false;
 
@@ -86,7 +87,7 @@ public class IntakeSlides implements Subsystem {
                         startTime.set(System.currentTimeMillis());
                     }
                 })
-                .setFinish(() -> isExtended || (System.currentTimeMillis() - startTime.get() > 500))
+                .setFinish(() -> isExtended || (System.currentTimeMillis() - startTime.get() > timeToExtendOrRetract))
                 .setEnd((interrupted) -> {
                     extendo.setPower(constantPower);
                     isExtended = true;
@@ -102,7 +103,7 @@ public class IntakeSlides implements Subsystem {
                         startTime.set(System.currentTimeMillis());
                     }
                 })
-                .setFinish(() -> !isExtended || (System.currentTimeMillis() - startTime.get() > 500))
+                .setFinish(() -> !isExtended || (System.currentTimeMillis() - startTime.get() > timeToExtendOrRetract) || touch.isPressed())
                 .setEnd((interrupted) -> {
                     extendo.setPower(-constantPower);
                     isExtended = false;

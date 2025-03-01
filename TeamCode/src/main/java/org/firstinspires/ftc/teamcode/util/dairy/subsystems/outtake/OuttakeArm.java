@@ -27,7 +27,7 @@ public class OuttakeArm implements Subsystem {
     public static double home = 0.12;
     public static double teleopTransfer = 0.025;
     public static double outtakeFront = 0.225;
-    public static double init = outtakeFront;
+    public static double init = home;
     public static double outtakeBack = .70;
     public static double dropSamp = outtakeBack;
     public static double bucket;
@@ -68,6 +68,11 @@ public class OuttakeArm implements Subsystem {
     @Override
     public void postUserLoopHook(@NonNull Wrapper opMode) {
 
+    }
+
+    public static void setPosManual(double pos) {
+        armL.setPosition(pos);
+        armR.setPosition(pos);
     }
     public static Lambda setPos(double pos) {
         return new Lambda("set-outtake-arm-pos")

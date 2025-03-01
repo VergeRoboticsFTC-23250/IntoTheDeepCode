@@ -24,21 +24,34 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 
 public class Robot {
 
-    private static State currentState = State.INIT;
-    private static boolean secondary = false;
-    public static void setCurrentState(State st){
-        currentState = st;
+    private static State currentIntakeState = State.INIT;
+    private static State currentOuttakeState = State.INIT;
+    public static State getCurrentIntakeState(){
+        return currentIntakeState;
     }
 
-    public static State getCurrentState(){
-        return currentState;
+    public static State getCurrentOuttakeState(){
+        return currentOuttakeState;
     }
+
+    public static boolean areBothStatesEqualTo(State state){
+        return currentIntakeState == state && currentOuttakeState == state;
+    }
+
+    public static void setCurrentIntakeState(State state){
+        currentIntakeState = state;
+    }
+
+    public static void setCurrentOuttakeState(State state){
+        currentOuttakeState = state;
+    }
+
 
     public enum State {
         INIT,
         HOME,
-        INTAKE_GROUND,
         OUTTAKE_GROUND,
+        INTAKE_GROUND,
         INTAKE_GROUND_SECONDARY,
         INTAKE_BACK,
         OUTTAKE_BACK,
@@ -49,7 +62,7 @@ public class Robot {
         DROP_SAMPLE,
         PUSH_SAMPLE,
         CAMERA,
-        TELEOP_TRANSFER
+        TELEOP_TRANSFER,
     }
 
     static StatePositions camera, pushSample, dropSample, bucket, outtakeFront, outtakeFrontSecondary, outtakeBack, outtakeBackSecondary, intakeBack, intakeGround, intakeGroundSecondary, home, init, teleopTransfer, outtakeGround;
@@ -241,8 +254,6 @@ public class Robot {
                 true
         );
 
-        setState(State.INIT).schedule();
-
         states = Map.ofEntries(
                 Map.entry(State.INIT, init),
                 Map.entry(State.HOME, home),
@@ -262,77 +273,105 @@ public class Robot {
         );
     }
 
-    public static Command setState(State st) {
+
+    public static Command setOuttakeState(State st) {
         StatePositions s = states.get(st);
 
         return new Parallel(
                 OuttakeSlides.runToPosition(s.outtakeSlides),
                 OuttakeArm.setPos(s.outtakeArm), //0 is home
                 OuttakePivot.setPos(s.outtakePivot), //0 is home
-                IntakePivot.setPos(s.intakePivot),
-                new IfElse(
-                        () -> Robot.getCurrentState() == State.INTAKE_GROUND,
-                        new Parallel(),
-                        IntakeWrist.setPos(s.intakeWrist)
-                ),
-                new IfElse(
-                        () -> Robot.getCurrentState() == State.INTAKE_GROUND_SECONDARY,
-                        IntakeDropDown.setPos(IntakeDropDown.intake),
-                        IntakeDropDown.setPos(s.intakeDropDown)
-                ),
-                new IfElse(
-                        () -> s.isIntakeClawOpen,
-                        IntakeClaw.open(),
-                        IntakeClaw.closeLoose()
-                ),
-
                 new IfElse(
                         () -> s.isOuttakeClawOpen,
                         OuttakeClaw.open(),
                         OuttakeClaw.closeLoose()
+                ),
+                new Lambda("setOuttakeState").setInit(() -> setCurrentOuttakeState(st))
+        );
+    }
+
+    public static Command setIntakeState(State st) {
+        StatePositions s = states.get(st);
+
+        return new Parallel(
+                IntakePivot.setPos(s.intakePivot),
+                new IfElse(
+                        () -> s.isIntakeClawOpen,
+                        IntakeClaw.open(),
+                        IntakeClaw.closeLoose()
                 ),
                 new IfElse(
                         () -> s.areIntakeSlidesExtended,
                         IntakeSlides.extend(),
                         IntakeSlides.retract()
                 ),
-                new Lambda("setCurrentState").setInit(() -> Robot.setCurrentState(st))
+                new IfElse(
+                        () -> Robot.getCurrentIntakeState() == State.INTAKE_GROUND,
+                        new Parallel(),
+                        IntakeWrist.setPos(s.intakeWrist)
+                ),
+                new IfElse(
+                        () -> Robot.getCurrentIntakeState() == State.INTAKE_GROUND_SECONDARY,
+                        IntakeDropDown.setPos(IntakeDropDown.intake),
+                        IntakeDropDown.setPos(s.intakeDropDown)
+                ),
+                new Lambda("setIntakeState").setInit(() -> setCurrentIntakeState(st))
         );
     }
 
-    public static Lambda manipulate(){
-        return new Lambda("manipulate")
+    public static Command setState(State st) {
+        return new Sequential(
+                setIntakeState(st),
+                setOuttakeState(st)
+        );
+    }
+
+    public static Command manipulate(){
+        return new Parallel(
+                manipulateOuttake(),
+                manipulateIntake()
+        );
+    }
+
+    public static Lambda manipulateOuttake(){
+        return new Lambda("manipulate-outtake")
                 .setInit(() -> {
-                    if(Robot.getCurrentState() == State.OUTTAKE_FRONT){
-                        Robot.setState(State.OUTTAKE_FRONT_SECONDARY).schedule();
-                    }else if(Robot.getCurrentState() == State.OUTTAKE_FRONT_SECONDARY){
+                    if(Robot.getCurrentOuttakeState() == State.OUTTAKE_FRONT){
+                        Robot.setOuttakeState(State.OUTTAKE_FRONT_SECONDARY).schedule();
+                    }else if(Robot.getCurrentOuttakeState() == State.OUTTAKE_FRONT_SECONDARY){
                         new Sequential(
-                                OuttakeClaw.open(),
-                                Robot.setState(State.INTAKE_BACK)
+                                OuttakeClaw.open()
                         ).schedule();
-                    }else if(Robot.getCurrentState() == State.INTAKE_GROUND){
-                        new Sequential(
-                                Robot.setState(State.INTAKE_GROUND_SECONDARY),
-                                new Wait(0.125),
-                                IntakeClaw.closeFirm(),
-                                new Wait(0.125),
-                                Robot.setState(State.HOME)
-                        ).schedule();
-                    }else if(Robot.getCurrentState() == State.INTAKE_GROUND_SECONDARY){
-                        IntakeClaw.closeFirm().schedule();
-                    }else if(Robot.getCurrentState() == State.HOME){
+                    }else if(areBothStatesEqualTo(State.HOME)){
                         Robot.setState(Robot.State.TELEOP_TRANSFER).schedule();
-                    }else if(Robot.getCurrentState() == State.TELEOP_TRANSFER){
+                    }else if(areBothStatesEqualTo(State.TELEOP_TRANSFER)){
                         new Parallel(
                                 OuttakeClaw.closeFirm(),
                                 IntakeClaw.open()
                         ).schedule();
-                    }else if(Robot.getCurrentState() == State.OUTTAKE_BACK){
+                    }else if(Robot.getCurrentOuttakeState() == State.OUTTAKE_BACK){
                         Robot.setState(State.OUTTAKE_BACK_SECONDARY).schedule();
-                    }else if(Robot.getCurrentState() == State.OUTTAKE_BACK_SECONDARY){
+                    }else if(Robot.getCurrentOuttakeState() == State.OUTTAKE_BACK_SECONDARY){
                         OuttakeClaw.open().schedule();
-                    }else if(Robot.getCurrentState() == State.INTAKE_BACK){
+                    }else if(Robot.getCurrentOuttakeState() == State.INTAKE_BACK){
                         Robot.setState(State.OUTTAKE_FRONT).schedule();
+                    }
+                });
+    }
+
+    public static Lambda manipulateIntake(){
+        return new Lambda("manipulate-intake")
+                .setInit(() -> {
+                    if(Robot.getCurrentIntakeState() == State.INTAKE_GROUND || Robot.getCurrentIntakeState() == State.CAMERA){
+                        new Sequential(
+                                Robot.setIntakeState(State.INTAKE_GROUND_SECONDARY),
+                                new Wait(0.125),
+                                IntakeClaw.closeFirm(),
+                                new Wait(0.25),
+                                Robot.setIntakeState(State.HOME)
+                        ).schedule();
+                    }else if(Robot.getCurrentIntakeState() == State.INTAKE_GROUND_SECONDARY){
+                        IntakeClaw.closeFirm().schedule();
                     }
                 });
     }
