@@ -9,7 +9,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 
-public class YellowAnglePipeline extends OpenCvPipeline {
+public class VisionPipeline extends OpenCvPipeline {
     private static final double CAMERA_HORIZONTAL_FOV = 70.42;
     private static final double CAMERA_VERTICAL_FOV = 43.3;
     private static double angle;
@@ -17,14 +17,38 @@ public class YellowAnglePipeline extends OpenCvPipeline {
     private static double ty;
     private final Mat hsv = new Mat();
     private final Mat mask = new Mat();
+    private final Mat mask1 = new Mat();
+    private final Mat mask2 = new Mat();
     private final Mat hierarchy = new Mat();
     private final ArrayList<MatOfPoint> contours = new ArrayList<>();
-    public static double MAX_CONTOUR_SIZE = 115000.0;
-    public static double MIN_CONTOUR_SIZE = 60000.0;
+    public static double MAX_CONTOUR_SIZE = 250000.0;
+    public static double MIN_CONTOUR_SIZE = 80000.0;
     public static double PCB_HEIGHT_IN = 8.218;
     public static double LENS_HEIGHT_IN = 0.55;
     public static Scalar lowerYellow = new Scalar(20, 100, 100);
     public static Scalar upperYellow = new Scalar(30, 255, 255);
+
+    public static Scalar lowerRed1 = new Scalar(0, 100, 100);
+    public static Scalar upperRed1 = new Scalar(10, 255, 255);
+    public static Scalar lowerRed2 = new Scalar(160, 100, 100);
+    public static Scalar upperRed2 = new Scalar(180, 255, 255);
+
+    public static Scalar lowerBlue = new Scalar(100, 100, 100);
+    public static Scalar upperBlue = new Scalar(130, 255, 255);
+
+    public static boolean isSampleVisible = false;
+
+    public static enum SampleColor{
+        YELLOW,
+        RED,
+        BLUE
+    }
+
+    private SampleColor color = SampleColor.RED;
+
+    public void setColor(SampleColor color){
+        this.color = color;
+    }
 
     @Override
     public Mat processFrame(Mat input) {
@@ -32,7 +56,17 @@ public class YellowAnglePipeline extends OpenCvPipeline {
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
         // Threshold to detect yellow
-        Core.inRange(hsv, lowerYellow, upperYellow, mask);
+        if(color == SampleColor.RED){
+            Core.inRange(hsv, lowerRed1, upperRed1, mask1);
+            Core.inRange(hsv, lowerRed2, upperRed2, mask2);
+
+            // Combine masks for red
+            Core.bitwise_or(mask1, mask2, mask);
+        }else if(color == SampleColor.BLUE){
+            Core.inRange(hsv, lowerBlue, upperBlue, mask);
+        }else{
+            Core.inRange(hsv, lowerYellow, upperYellow, mask);
+        }
 
         // Check contour size and adjust erosion and dilation accordingly
         if (Core.countNonZero(mask) > MAX_CONTOUR_SIZE) {
@@ -70,6 +104,7 @@ public class YellowAnglePipeline extends OpenCvPipeline {
         }
 
         if (bestContour != null) {
+            isSampleVisible = true;
             MatOfPoint2f contour2f = new MatOfPoint2f(bestContour.toArray());
             RotatedRect rect = Imgproc.minAreaRect(contour2f);
             Point[] box = new Point[4];
@@ -106,12 +141,15 @@ public class YellowAnglePipeline extends OpenCvPipeline {
             Imgproc.putText(input, distanceText, new Point(rect.center.x + 10, rect.center.y + 50), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.circle(input, new Point(imageCenterX, imageCenterY), 5, new Scalar(255, 0, 0), -1);
             // the circle is the center of the image
+        }else{
+            isSampleVisible = false;
         }
 
         return input;
     }
 
-    public double getAngle() { return angle / 180.0; }
+    public double getAngle() { return Math.toRadians(angle); }
     public double getX() { return tx; }
     public double getY() { return ty; }
+    public boolean isSampleVisible() { return isSampleVisible; }
 }

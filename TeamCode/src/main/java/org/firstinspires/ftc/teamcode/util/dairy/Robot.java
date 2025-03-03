@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.Util.StatePositions;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential.IntakeWrist;
@@ -11,6 +13,8 @@ import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeArm;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeClaw;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakePivot;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeSlides;
+import org.firstinspires.ftc.teamcode.util.opencv.Vision;
+import org.firstinspires.ftc.teamcode.util.opencv.VisionPipeline;
 
 import java.util.Map;
 
@@ -23,7 +27,7 @@ import dev.frozenmilk.mercurial.commands.util.IfElse;
 import dev.frozenmilk.mercurial.commands.util.Wait;
 
 public class Robot {
-
+    public static Vision vision;
     private static State currentIntakeState = State.INIT;
     private static State currentOuttakeState = State.INIT;
     public static State getCurrentIntakeState(){
@@ -45,6 +49,7 @@ public class Robot {
     public static void setCurrentOuttakeState(State state){
         currentOuttakeState = state;
     }
+    public static HardwareMap hardwareMap;
 
 
     public enum State {
@@ -71,7 +76,11 @@ public class Robot {
 
     public static boolean isAuto;
 
-    public static void init() {
+    public static void init(HardwareMap hardwareMap) {
+        Robot.hardwareMap = hardwareMap;
+
+        vision = new Vision(hardwareMap, VisionPipeline.SampleColor.RED);
+
         isAuto = FeatureRegistrar.getActiveOpModeWrapper().getOpModeType() == OpModeMeta.Flavor.AUTONOMOUS;
 
         home = new StatePositions(

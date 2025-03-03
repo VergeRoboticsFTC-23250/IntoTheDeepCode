@@ -24,11 +24,11 @@ public class IntakeDropDown implements Subsystem {
     public static final IntakeDropDown INSTANCE = new IntakeDropDown();
     public static double intake = 0.1;
     public static double intakeGroundSecondary = 0.025;
-    public static double home = .3125;
+    public static double home = .335;
     public static double homeSafe = .4;
     public static double init = home;
     public static double homeOuttakeBack = home;
-    public static double camera = 0.2;
+    public static double camera = 0.275;
     public static double pushSamp = 0;
     public static Servo dropL;
     public static Servo dropR;

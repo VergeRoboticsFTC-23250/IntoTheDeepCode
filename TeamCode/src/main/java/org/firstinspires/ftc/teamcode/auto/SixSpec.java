@@ -24,6 +24,7 @@ import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
 import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.Command;
+import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
 import dev.frozenmilk.mercurial.commands.util.Wait;
@@ -44,7 +45,7 @@ import dev.frozenmilk.mercurial.commands.util.Wait;
 @Autonomous
 public class SixSpec extends OpMode {
     //Tuning Values
-    public static int cycles = 0;
+    public static int cycles = 1;
 
     public static Pose outtakePreloadPose = new Pose(40, 70, 0);
 
@@ -52,11 +53,11 @@ public class SixSpec extends OpMode {
     public static double[] outtakeOffsetsY = {0, 0, 0, 0, 0};
     public static double[] outtakeOffsetsX = {0, 0, 0, 0, 0};
 
-    public static Pose dropSampPose = new Pose(24.5, 55, Math.toRadians(-120));
+    public static Pose dropSampPose = new Pose(27, 58, Math.toRadians(-120));
     public static Pose intakePose = dropSampPose;
     public static double[] intakeOffsetsY = {0, 0, 0, 0, 0};
     public static double[] intakeOffsetsX = {0, 0, 0, 0, 0};
-    public static double intakeWristPos = 0.75;
+    public static double intakeWristPos = 0.5;
 
     //Supporting Functions
     public static Pose intakePose(int i) {
@@ -74,19 +75,32 @@ public class SixSpec extends OpMode {
                 outtakePose.getHeading()
         );
     }
+//    Command PreCycle(){
+//        return new Sequential(
+//                Chassis.setSloppy(),
+//                Chassis.driveToPoint(outtakePreloadPose).with(Robot.setIntakeState(Robot.State.INTAKE_GROUND)),
+//                Chassis.setConstantDrivePower(1),
+//                Robot.manipulateOuttake().with(Robot.setIntakeState(Robot.State.CAMERA)),
+//                OuttakeSlides.waitForRunToPos(),
+//                Robot.manipulateOuttake(),
+//                Chassis.setConstantDrivePower(-.25),
+//                new Wait(1),
+//                Robot.manipulateIntake(),
+//                Chassis.releaseConstantDrivePower(),
+//                Chassis.driveToPoint(dropSampPose),
+//                Robot.outtakeGroundAndHome()
+//        ).with(Robot.setState(Robot.State.OUTTAKE_FRONT));
+//    }
+
     Command PreCycle(){
         return new Sequential(
                 Chassis.setSloppy(),
-                Chassis.driveToPoint(outtakePreloadPose).with(Robot.setIntakeState(Robot.State.INTAKE_GROUND)),
+                Chassis.driveToPoint(outtakePreloadPose),
                 Chassis.setConstantDrivePower(1),
-                Robot.manipulateOuttake().with(Robot.setIntakeState(Robot.State.CAMERA)),
+                Robot.manipulateOuttake(),
                 OuttakeSlides.waitForRunToPos(),
                 Robot.manipulateOuttake(),
-                Chassis.setConstantDrivePower(-.25),
-                new Wait(1),
-                Robot.manipulateIntake(),
-                Chassis.releaseConstantDrivePower(),
-                Chassis.driveToPoint(dropSampPose).with(Robot.outtakeGroundAndHome())
+                Chassis.releaseConstantDrivePower()
         ).with(Robot.setState(Robot.State.OUTTAKE_FRONT));
     }
 
@@ -95,35 +109,53 @@ public class SixSpec extends OpMode {
                 Chassis.setClean(),
                 Chassis.driveToPoint(intakePose(i)),
                 Differential.IntakeWrist.setPos(intakeWristPos),
-                Robot.manipulate(),
-                new Wait(0.875),
+                new Wait(1),
+                Robot.setIntakeState(Robot.State.INTAKE_GROUND_SECONDARY),
+                new Wait(0.125),
+                IntakeClaw.closeFirm(),
+                new Wait(0.25),
                 Chassis.setSloppy(),
+                new Lambda("manual-set-intake-state").setInit(() -> Robot.setCurrentIntakeState(Robot.State.INTAKE_GROUND)),
                 new Parallel(
                         Chassis.driveToPoint(outtakePose(i)).then(Chassis.setConstantDrivePower(1)),
                         new Sequential(
+                                Robot.setState(Robot.State.HOME),
                                 Robot.setState(Robot.State.TELEOP_TRANSFER),
-                                new Wait(0.25),
-                                Robot.manipulate()
+                                OuttakeClaw.closeFirm(),
+                                IntakeClaw.open(),
+                                Robot.setState(Robot.State.OUTTAKE_BACK)
                         )
                 ),
                 Robot.setState(Robot.State.OUTTAKE_BACK_SECONDARY),
-                new Wait(0.25),
-                Robot.manipulate(),
+                Robot.setIntakeState(Robot.State.INTAKE_GROUND),
+                Robot.manipulateOuttake(),
                 Chassis.releaseConstantDrivePower()
-        ).with(Robot.setState(Robot.State.INTAKE_GROUND));
+        ).with(Robot.setOuttakeState(Robot.State.HOME));
     }
 
     @Override
     public void init() {
-        Robot.init();
+        Robot.init(hardwareMap);
         OuttakeArm.setPosManual(OuttakeArm.init);
+        Robot.setState(Robot.State.INIT).execute();
+        Robot.setState(Robot.State.INIT).schedule();
     }
 
     @Override
     public void start() {
-        List<Command> commands = IntStream.range(0, cycles).mapToObj(this::Cycle).collect(Collectors.toList());
-        commands.add(0, PreCycle());
-        new Sequential(commands).schedule();
+//        List<Command> commands = IntStream.range(0, cycles).mapToObj(this::Cycle).collect(Collectors.toList());
+//        commands.add(0, PreCycle());
+//        new Sequential(commands).schedule();
+
+        new Sequential(
+                PreCycle(),
+                Chassis.releaseHeading(),
+                Cycle(0).with(new Wait(0.5).then(Robot.setState(Robot.State.INTAKE_GROUND))),
+                Cycle(1),
+                Cycle(2),
+                Cycle(3),
+                Cycle(4)
+        ).schedule();
     }
 
     @Override

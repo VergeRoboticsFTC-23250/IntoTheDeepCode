@@ -16,10 +16,10 @@ import org.firstinspires.ftc.teamcode.util.dairy.Paths;
 public class testop extends LinearOpMode {
     public static boolean invert = false;
     public static boolean enableS2 = false;
-    public static String s1 = "claw";
+    public static String s1 = "gripper";
     public static String s2 = "dropdownR";
-    public static double p1 = 0; // down
-    public static double p2 = 0.875; // up
+    public static double p1 = .6; // down
+    public static double p2 = 0.3625; // up
     @Override
     public void runOpMode() {
         Servo servo = hardwareMap.get(Servo.class, s1);

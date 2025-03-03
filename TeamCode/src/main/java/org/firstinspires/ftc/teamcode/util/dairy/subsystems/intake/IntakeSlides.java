@@ -32,8 +32,8 @@ public class IntakeSlides implements Subsystem {
     private static TouchSensor touch;
     private static Telemetry telemetry;
 
-    public static double constantPower = 0.1;
-    public static int timeToExtendOrRetract = 400;
+    public static double constantPower = 0.3;
+    public static int timeToExtendOrRetract = 500;
 
     public static boolean isExtended = false;
 

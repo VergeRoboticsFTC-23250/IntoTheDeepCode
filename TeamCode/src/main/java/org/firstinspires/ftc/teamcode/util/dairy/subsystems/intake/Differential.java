@@ -51,7 +51,7 @@ public class Differential implements Subsystem {
         public static double init = home;
         public static double intake = 0.25;
         public static double intakeGroundSecondary = 0.35;
-        public static double camera = 0.1;
+        public static double camera = 0;
         public static double pushSamp = 0.5;
 
         public static Lambda setPos(double pos) {

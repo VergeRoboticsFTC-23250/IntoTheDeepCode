@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.BezierSolver;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.Util;
@@ -26,6 +25,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
@@ -44,7 +44,7 @@ public class Chassis implements Subsystem {
     public static final Chassis INSTANCE = new Chassis();
     public static Follower follower;
     public static boolean isSlowed = false;
-    public static double slowSpeed = 0.25;
+    public static double slowSpeed = 0.5;
     public static DcMotorEx fl;
     public static DcMotorEx fr;
     public static DcMotorEx bl;
@@ -53,6 +53,7 @@ public class Chassis implements Subsystem {
     public static DashboardPoseTracker dashboardPoseTracker;
 
     //Custom Follower
+    public static double sampleHomeScaleConstant = 1;
     public static Pose startingPose = new Pose(8, 65.5, 0);
     public static double exponentialTransformHeading = 0.5;
     public static double exponentialTransformTranslational = 0.5;
@@ -79,7 +80,78 @@ public class Chassis implements Subsystem {
     public static boolean suppressHeading = true;
 
     public static Pose drivePowers = new Pose(0, 0, 0);
+
+    public static PIDController sampleHomeTranslationalErrorController = new PIDController(0.0325, 0, 0, 0);
     public Chassis() {}
+
+    public static Lambda homeToSamp(Pose approxPose){
+        AtomicBoolean startHoming = new AtomicBoolean(false);
+        return new Lambda("home-to-samp")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    holdPoint = true;
+                    setDrivePoint(approxPose);
+                    startHoming.set(false);
+                })
+                .setExecute(() -> {
+                    if(Robot.vision.getEuclideanDist() < 24 && !startHoming.get() && Robot.vision.isSampleVisible()){
+                        startHoming.set(true);
+                        holdPoint = false;
+                    }
+
+                    if(startHoming.get() && Robot.vision.isSampleVisible()){
+                        Pose pose = follower.getPose();
+                        double heading = pose.getHeading();
+                        double headingPower = headingController.getPowerHeading(heading);
+                        headingPower = Util.transformExponential(headingPower, exponentialTransformHeading);
+
+                        double errorDist = Robot.vision.getEuclideanDist();
+                        double translationalAngle = Robot.vision.getErrorAngle();
+
+                        double translationalPower = sampleHomeTranslationalErrorController.getPower(errorDist * sampleHomeScaleConstant);
+                        translationalPower = Util.transformExponential(translationalPower, 2);
+                        translationalPower = Math.max(0, Math.min(.25, Math.abs(translationalPower))) *  Math.signum(translationalPower);
+
+                        double drivePower = translationalPower * Math.cos(translationalAngle);
+                        double lateralPower = translationalPower * Math.sin(translationalAngle);
+
+                        double maxTranslationalVal = Math.max(Math.abs(drivePower), Math.abs(lateralPower));
+                        if(maxTranslationalVal > 1){
+                            drivePower /= maxTranslationalVal;
+                            lateralPower /= maxTranslationalVal;
+                        }
+
+                        driveRobotCentric(-drivePower, -lateralPower * 1.1, headingPower);
+                    }
+
+                    if(!Robot.vision.isSampleVisible()){
+                        holdPoint = true;
+                        startHoming.set(false);
+                    }
+                })
+                .setFinish(() -> false);
+    }
+    public static Lambda runToSamp(Pose approxPose){
+        return new Lambda("home-to-samp")
+                .setInit(() -> {
+                    holdPoint = true;
+                    setDrivePoint(approxPose);
+                })
+                .setExecute(() -> {
+                    if(Robot.vision.isSampleVisible()){
+                        Pose pose = follower.getPose();
+
+                        double heading = pose.getHeading();
+                        double headingPower = headingController.getPowerHeading(heading);
+                        headingPower = Util.transformExponential(headingPower, exponentialTransformHeading);
+
+
+
+                        driveRobotCentric(0, 0 * 1.1, headingPower);
+                    }
+                })
+                .setFinish(() -> false);
+    }
     public static Lambda runFollower() {
         return new Lambda("follower-pid")
                 .setInterruptible(false)
@@ -129,7 +201,7 @@ public class Chassis implements Subsystem {
                         headingPower *= scaleFactor;
 
                         //Apply Powers
-                        drive(constantDrivePower == 0? -drivePower : constantDrivePower, -lateralPower * 1.2, headingPower);
+                        driveFieldCentric(constantDrivePower == 0? -drivePower : constantDrivePower, -lateralPower * 1.2, headingPower);
 
                         //drive(0, 0, headingPower);
 
@@ -216,11 +288,22 @@ public class Chassis implements Subsystem {
         isSlowed = false;
     }
 
-    public static void drive(double x, double y, double z) {
+    public static void driveFieldCentric(double x, double y, double z) {
         follower.setTeleOpMovementVectors(
                 x * (isSlowed? slowSpeed : 1),
                 y * (isSlowed? slowSpeed : 1),
                 z * (isSlowed? slowSpeed : 1), false
+        );
+        follower.update();
+        drivePowers = new Pose(x, y, z);
+        telemetry.addData("Chassis Vectors", "x: %f, y: %f, z: %f", x, y, z);
+    }
+
+    public static void driveRobotCentric(double x, double y, double z) {
+        follower.setTeleOpMovementVectors(
+                x * (isSlowed? slowSpeed : 1),
+                y * (isSlowed? slowSpeed : 1),
+                z * (isSlowed? slowSpeed : 1), true
         );
         follower.update();
         drivePowers = new Pose(x, y, z);
