@@ -434,6 +434,15 @@ public class Chassis implements Subsystem {
                 .setFinish(() -> true);
     }
 
+    public static Lambda releaseConstantDrivePowerAndHold(){
+        return new Lambda("release-constant-drive-power-and-hold")
+                .setInit(() -> {
+                    constantDrivePower = 0;
+                    setDrivePointManual(follower.getPose());
+                })
+                .setFinish(() -> true);
+    }
+
     public static Lambda driveToPoint(Pose pose){
         return new Lambda("drive-to-point")
                 .setInterruptible(true)

@@ -24,7 +24,7 @@ public class IntakeDropDown implements Subsystem {
     public static final IntakeDropDown INSTANCE = new IntakeDropDown();
     public static double intake = 0.1;
     public static double intakeGroundSecondary = 0.025;
-    public static double home = .335;
+    public static double home = .3275;
     public static double homeSafe = .4;
     public static double init = home;
     public static double homeOuttakeBack = home;

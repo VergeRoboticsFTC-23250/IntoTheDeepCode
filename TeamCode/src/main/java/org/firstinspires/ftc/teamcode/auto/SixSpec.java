@@ -96,12 +96,78 @@ public class SixSpec extends OpMode {
         return new Sequential(
                 Chassis.setSloppy(),
                 Chassis.driveToPoint(outtakePreloadPose),
-                Chassis.setConstantDrivePower(1),
+                Chassis.setConstantDrivePower(1).with(Robot.setIntakeState(Robot.State.CAMERA)),
                 Robot.manipulateOuttake(),
                 OuttakeSlides.waitForRunToPos(),
                 Robot.manipulateOuttake(),
-                Chassis.releaseConstantDrivePower()
-        ).with(Robot.setState(Robot.State.OUTTAKE_FRONT));
+                Chassis.setConstantDrivePower(-0.2),
+                new Wait(0.75),
+                Chassis.releaseConstantDrivePowerAndHold(),
+                Robot.setIntakeState(Robot.State.INTAKE_GROUND),
+                new Wait(3),
+                Robot.setIntakeState(Robot.State.INTAKE_GROUND_SECONDARY),
+                new Wait(0.125),
+                IntakeClaw.closeLoose(),
+                new Wait(0.125),
+                new Parallel(
+                        Chassis.setClean(),
+                        Chassis.driveToPoint(new Pose(12, 23.5, 0)),
+                        new Sequential(
+                                new Parallel(
+                                        Robot.setIntakeState(Robot.State.HOME).then(Robot.setIntakeState(Robot.State.HOME)),
+                                        Robot.setOuttakeState(Robot.State.HOME)
+                                ),
+                                Robot.setState(Robot.State.TELEOP_TRANSFER),
+                                OuttakeClaw.closeFirm(),
+                                IntakeClaw.open(),
+                                new Wait(0.25),
+                                Robot.setOuttakeState(Robot.State.DROP_SAMPLE).with(Robot.setIntakeState(Robot.State.INTAKE_GROUND))
+                        )
+                ),
+                OuttakeClaw.open().with(Robot.setIntakeState(Robot.State.INTAKE_GROUND_SECONDARY)),
+                new Wait(0.125),
+                IntakeClaw.closeLoose(),
+                new Wait(0.125),
+                new Parallel(
+                        Chassis.driveToPoint(new Pose(12, 13, 0)),
+                        new Sequential(
+                                new Parallel(
+                                        Robot.setIntakeState(Robot.State.HOME).then(Robot.setIntakeState(Robot.State.HOME)),
+                                        Robot.setOuttakeState(Robot.State.HOME)
+                                ),
+                                Robot.setState(Robot.State.TELEOP_TRANSFER),
+                                OuttakeClaw.closeFirm(),
+                                IntakeClaw.open(),
+                                new Wait(0.25),
+                                Robot.setOuttakeState(Robot.State.DROP_SAMPLE).with(Robot.setIntakeState(Robot.State.INTAKE_GROUND))
+                        )
+                ),
+                OuttakeClaw.open().with(Robot.setIntakeState(Robot.State.INTAKE_GROUND_SECONDARY)),
+                new Wait(0.125),
+                IntakeClaw.closeLoose(),
+                new Wait(0.125),
+                new Parallel(
+                        Chassis.driveToPoint(new Pose(17, 19, Math.toRadians(-28))),
+                        new Sequential(
+                                new Parallel(
+                                        Robot.setIntakeState(Robot.State.HOME).then(Robot.setIntakeState(Robot.State.HOME)),
+                                        Robot.setOuttakeState(Robot.State.HOME)
+                                ),
+                                Robot.setState(Robot.State.TELEOP_TRANSFER),
+                                OuttakeClaw.closeFirm(),
+                                IntakeClaw.open(),
+                                new Wait(0.25),
+                                Robot.setOuttakeState(Robot.State.DROP_SAMPLE).with(Robot.setIntakeState(Robot.State.INTAKE_GROUND)),
+                                Differential.IntakeWrist.setPos(0.65)
+                        )
+                ),
+                OuttakeClaw.open().with(Robot.setIntakeState(Robot.State.INTAKE_GROUND_SECONDARY)),
+                new Wait(0.125),
+                IntakeClaw.closeLoose(),
+                new Wait(0.125),
+                IntakeDropDown.setPos(IntakeDropDown.intake),
+                Chassis.driveToPoint(intakePose)
+        ).with(Robot.setOuttakeState(Robot.State.OUTTAKE_FRONT)).with(Robot.setIntakeState(Robot.State.INTAKE_GROUND));
     }
 
     Command Cycle(int i){
@@ -112,7 +178,7 @@ public class SixSpec extends OpMode {
                 new Wait(1),
                 Robot.setIntakeState(Robot.State.INTAKE_GROUND_SECONDARY),
                 new Wait(0.125),
-                IntakeClaw.closeFirm(),
+                IntakeClaw.closeLoose(),
                 new Wait(0.25),
                 Chassis.setSloppy(),
                 new Lambda("manual-set-intake-state").setInit(() -> Robot.setCurrentIntakeState(Robot.State.INTAKE_GROUND)),
@@ -148,13 +214,13 @@ public class SixSpec extends OpMode {
 //        new Sequential(commands).schedule();
 
         new Sequential(
-                PreCycle(),
-                Chassis.releaseHeading(),
-                Cycle(0).with(new Wait(0.5).then(Robot.setState(Robot.State.INTAKE_GROUND))),
-                Cycle(1),
-                Cycle(2),
-                Cycle(3),
-                Cycle(4)
+                PreCycle()
+//                Chassis.releaseHeading(),
+//                Cycle(0).with(new Wait(0.5).then(Robot.setState(Robot.State.INTAKE_GROUND))),
+//                Cycle(1),
+//                Cycle(2),
+//                Cycle(3),
+//                Cycle(4)
         ).schedule();
     }
 

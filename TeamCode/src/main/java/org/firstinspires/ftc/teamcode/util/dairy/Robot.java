@@ -320,7 +320,7 @@ public class Robot {
                         IntakeWrist.setPos(s.intakeWrist)
                 ),
                 new IfElse(
-                        () -> Robot.getCurrentIntakeState() == State.INTAKE_GROUND_SECONDARY,
+                        () -> Robot.getCurrentIntakeState() == State.INTAKE_GROUND_SECONDARY && !Robot.isAuto,
                         IntakeDropDown.setPos(IntakeDropDown.intake),
                         IntakeDropDown.setPos(s.intakeDropDown)
                 ),

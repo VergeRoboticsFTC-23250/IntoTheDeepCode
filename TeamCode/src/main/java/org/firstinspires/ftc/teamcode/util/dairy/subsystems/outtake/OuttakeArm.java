@@ -29,7 +29,7 @@ public class OuttakeArm implements Subsystem {
     public static double outtakeFront = 0.225;
     public static double init = home;
     public static double outtakeBack = .70;
-    public static double dropSamp = outtakeBack;
+    public static double dropSamp = .775;
     public static double bucket;
     public static double intakeBack = .870;
 

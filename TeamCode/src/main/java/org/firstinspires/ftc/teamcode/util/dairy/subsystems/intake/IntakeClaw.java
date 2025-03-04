@@ -26,7 +26,7 @@ public class IntakeClaw implements Subsystem {
     public static Servo gripper;
     public static double open = .6;
     public static double closeFirm = 0.325;
-    public static double closeLoose = 0.3625;
+    public static double closeLoose = 0.4;
 
     public IntakeClaw() {}
 
