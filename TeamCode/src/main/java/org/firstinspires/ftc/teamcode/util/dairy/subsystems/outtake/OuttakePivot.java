@@ -31,7 +31,7 @@ public class OuttakePivot implements Subsystem {
     public static double init = outtakeFront;
     public static double outtakeBack = .82;
     public static double dropSamp = 0.65;
-    public static double bucket = .575;
+    public static double bucket = .75;
     public static double intakeBack = .675;
 
     public OuttakePivot() {}

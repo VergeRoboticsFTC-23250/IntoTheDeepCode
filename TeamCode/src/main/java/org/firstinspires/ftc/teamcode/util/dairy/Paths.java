@@ -25,9 +25,9 @@ public class Paths {
     public static Pose bucketDrop = new Pose(10, 127, Math.toRadians(308));
     public static Pose bucketScore = new Pose(14,126, Math.toRadians(308)); // 12.5 127
     public static Pose bucketScore2 = new Pose(14, 126.5, Math.toRadians(313));
-    public static Pose pickup1 = new Pose(18,120, Math.toRadians(360));
-    public static Pose pickup2 = new Pose(18,130, Math.toRadians(360));
-    public static Pose pickup3 = new Pose(35,131, Math.toRadians(45));
+    public static Pose pickup1 = new Pose(13,121, Math.toRadians(360));
+    public static Pose pickup2 = new Pose(13,131.5, Math.toRadians(360));
+    public static Pose pickup3 = new Pose(35-9-4-0.7,131-15+3, Math.toRadians(45));
     public static Pose samplePark = new Pose(14-2+46,126+4-34, Math.toRadians(270));
     public static Point parkControl = new Point(64, 126);
 

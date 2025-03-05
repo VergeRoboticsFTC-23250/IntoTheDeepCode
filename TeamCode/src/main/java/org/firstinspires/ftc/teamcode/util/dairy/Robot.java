@@ -164,7 +164,7 @@ public class Robot {
                 IntakeWrist.home,
                 true,
                 false,
-                true
+                false
         );
 
         outtakeFront = new StatePositions(
@@ -280,6 +280,8 @@ public class Robot {
                 Map.entry(State.CAMERA, camera),
                 Map.entry(State.OUTTAKE_GROUND, outtakeGround)
         );
+
+        Paths.init();
     }
 
 
