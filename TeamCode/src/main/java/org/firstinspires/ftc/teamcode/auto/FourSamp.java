@@ -74,7 +74,6 @@ public class FourSamp extends OpMode {
                                 Robot.setState(Robot.State.INTAKE_GROUND)
                         )
                 ),
-                new Wait(0.2),
                 new Sequential(
                         Robot.setState(Robot.State.INTAKE_GROUND_SECONDARY),
                         new Wait(0.125),
@@ -83,7 +82,7 @@ public class FourSamp extends OpMode {
                         Robot.setState(Robot.State.HOME)
                 ),
                 Robot.setState(Robot.State.TELEOP_TRANSFER),
-                new Wait(0.5),
+                new Wait(0.3),
                 new Parallel(
                         OuttakeClaw.closeFirm(),
                         IntakeClaw.open()
@@ -93,7 +92,7 @@ public class FourSamp extends OpMode {
                 new Parallel(
                         Robot.setState(Robot.State.BUCKET),
                         new Sequential(
-
+                                new Wait(0.5),
                                 Chassis.followPath(Paths.fourSamps.get(3))
                         )
                 ),
@@ -110,7 +109,6 @@ public class FourSamp extends OpMode {
 
 
                 //pickup 2
-                new Wait(0.2),
                 new Sequential(
                         Robot.setState(Robot.State.INTAKE_GROUND_SECONDARY),
                         new Wait(0.125),
@@ -119,7 +117,7 @@ public class FourSamp extends OpMode {
                         Robot.setState(Robot.State.HOME)
                 ),
                 Robot.setState(Robot.State.TELEOP_TRANSFER),
-                new Wait(0.5),
+                new Wait(0.3),
                 new Parallel(
                         OuttakeClaw.closeFirm(),
                         IntakeClaw.open()
@@ -127,8 +125,13 @@ public class FourSamp extends OpMode {
 
 
                 //outtake 2 and home
-                Robot.setState(Robot.State.BUCKET),
-                Chassis.followPath(Paths.fourSamps.get(6)),
+                new Parallel(
+                        Robot.setState(Robot.State.BUCKET),
+                        new Sequential(
+                                new Wait(0.35),
+                                Chassis.followPath(Paths.fourSamps.get(6))
+                        )
+                ),
                 Chassis.followPath(Paths.fourSamps.get(7)),
                 new Wait(0.3),
                 OuttakeClaw.open(),
@@ -136,13 +139,12 @@ public class FourSamp extends OpMode {
                         Chassis.followPath(Paths.fourSamps.get(8)),
                         new Sequential(
                                 new Wait(0.35),
-                                Robot.setState(Robot.State.INTAKE_GROUND)
+                                Robot.setState(Robot.State.INTAKE_GROUND),
+                                Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.COUNTER_CLOCKWISE)
                         )
                 ),
 
                 //pickup 3
-                Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.COUNTER_CLOCKWISE),
-                new Wait(0.2),
                 new Sequential(
                         Robot.setState(Robot.State.INTAKE_GROUND_SECONDARY),
                         new Wait(0.125),
@@ -151,15 +153,20 @@ public class FourSamp extends OpMode {
                         Robot.setState(Robot.State.HOME)
                 ),
                 Robot.setState(Robot.State.TELEOP_TRANSFER),
-                new Wait(0.5),
+                new Wait(0.3),
                 new Parallel(
                         OuttakeClaw.closeFirm(),
                         IntakeClaw.open()
                 ),
 
                 //outtake 3 and park
-                Robot.setState(Robot.State.BUCKET),
-                Chassis.followPath(Paths.fourSamps.get(9)),
+                new Parallel(
+                        Robot.setState(Robot.State.BUCKET),
+                        new Sequential(
+                                new Wait(0.3),
+                                Chassis.followPath(Paths.fourSamps.get(9))
+                        )
+                ),
                 Chassis.followPath(Paths.fourSamps.get(10)),
                 new Wait(0.3),
                 OuttakeClaw.open(),
