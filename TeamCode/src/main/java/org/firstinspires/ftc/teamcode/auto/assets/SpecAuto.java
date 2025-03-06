@@ -3,10 +3,13 @@ package org.firstinspires.ftc.teamcode.auto.assets;
 import static org.firstinspires.ftc.teamcode.auto.assets.SpecAutoParams.*;
 
 import com.pedropathing.localization.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeClaw;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeSlides;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -20,43 +23,51 @@ import dev.frozenmilk.mercurial.commands.util.IfElse;
 import dev.frozenmilk.mercurial.commands.util.Wait;
 
 public class SpecAuto {
-    int cycles;
     boolean plus1;
     boolean park;
+    HardwareMap hardwareMap;
 
-    public SpecAuto(int cycles, boolean plus1, boolean park){
-        this.cycles = cycles;
+    public SpecAuto(HardwareMap hardwareMap, boolean plus1, boolean park){
         this.plus1 = plus1;
         this.park = park;
+        this.hardwareMap = hardwareMap;
     }
 
-    Command Outtake(){return Outtake(0);}
     Command Outtake(int i){
         Pose pose = outtakePose.copy();
         pose.add(new Pose(outtakeOffsetsX[i], outtakeOffsetsY[i], 0));
         return new Sequential(
                 Chassis.setSloppy(),
                 Chassis.driveToPoint(pose).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
+                OuttakeSlides.setPIDMultiplier(3),
                 Chassis.setConstantDrivePower(outtakePushPower).with(Robot.setState(Robot.State.OUTTAKE_FRONT_SECONDARY)),
                 new Wait(preOuttakeDelay),
-                OuttakeClaw.open().with(Chassis.releaseConstantDrivePower()),
-                new Wait(postOuttakeDelay)
+                OuttakeClaw.open(),
+                new Wait(postOuttakeDelay),
+                Chassis.releaseConstantDrivePower(),
+                OuttakeSlides.resetPID()
         );
     }
+    Command Outtake(){return Outtake(0);}
 
-    Command Intake(){return Intake(intakeOffsetsY.length - 1);}
     Command Intake(int i){
         Pose pose = intakePose.copy();
         pose.add(new Pose(intakeOffsetsX[i], intakeOffsetsY[i], 0));
+        Pose offsetPose = pose.copy();
+        offsetPose.add(new Pose(intakeHelperOffset, 0, 0));
+
         return new Sequential(
                 Chassis.setSloppy(),
-                Chassis.driveToPoint(pose).with(Robot.setState(Robot.State.INTAKE_BACK)),
+                Chassis.driveToPoint(offsetPose).with(Robot.setState(Robot.State.INTAKE_BACK)),
+                Chassis.driveToPoint(pose),
                 Chassis.setConstantDrivePower(-intakePushPower),
                 new Wait(preIntakeDelay),
                 OuttakeClaw.closeFirm().with(Chassis.releaseConstantDrivePower()),
                 new Wait(postIntakeDelay)
         );
     }
+    Command Intake(){return Intake(intakeOffsetsY.length - 1);}
+
     Command Cycle(int i){
         return new Sequential(
             Intake(i),
@@ -65,29 +76,28 @@ public class SpecAuto {
     }
 
     Command PushSamps = new Sequential(Arrays.stream(pushSampPoses).map(Chassis::driveToPoint).collect(Collectors.toList()));
-    Command PreCycle = Outtake().then(PushSamps);
-    Command Cycles = new Sequential(IntStream.range(0, cycles).mapToObj(this::Cycle).collect(Collectors.toList()));
+    Command PreCycle = Outtake().then(Chassis.setSloppy()).then(PushSamps.with(Robot.setState(Robot.State.INTAKE_BACK)));
     Command Plus1 = new Sequential(
             Intake(),
             Chassis.setClean(),
             Chassis.driveToPoint(bucketPose).with(Robot.setState(Robot.State.BUCKET)),
-            OuttakeClaw.open(),
-            new IfElse(
-                    () -> park,
-                    new Parallel(),
-                    Robot.setState(Robot.State.INIT)
-            )
+            OuttakeClaw.open()
     );
-    Command Park = Chassis.driveToPoint(parkPose).with(Robot.setState(Robot.State.CAMERA));
+    Command Park = Chassis.driveToPoint(parkPose).with(Robot.setIntakeState(Robot.State.CAMERA)).with(Robot.setOuttakeState(Robot.State.INIT));
 
     public void init() {
-
+        Robot.init(hardwareMap);
     }
 
     public void start() {
         new Sequential(
                 PreCycle,
-                Cycles
+                Cycle(0),
+                Cycle(1),
+                Cycle(2),
+                Cycle(3),
+                new IfElse(() -> plus1, Plus1, new Wait(0)),
+                new IfElse(() -> park, Park, Robot.setState(Robot.State.INIT))
         ).schedule();
     }
 

@@ -138,7 +138,7 @@ public class Robot {
                 IntakeDropDown.pushSamp,
                 IntakePivot.pushSamp,
                 IntakeWrist.pushSamp,
-                false,
+                true,
                 true,
                 true
         );

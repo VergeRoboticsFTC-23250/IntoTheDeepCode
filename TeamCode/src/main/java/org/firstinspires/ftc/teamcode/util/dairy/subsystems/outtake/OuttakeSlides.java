@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.util.Util;
@@ -44,8 +46,8 @@ public class OuttakeSlides implements Subsystem {
     public static int home = minPos;
     public static int init = minPos;
 
-
-    public static PIDFController controller = new PIDFController(0.00018, 0, 0.000008, 0.0000);
+    static PIDFCoefficients gains = new PIDFCoefficients(0.00018, 0, 0.000008, 0);
+    public static PIDFController controller = new PIDFController(gains.p, gains.i, gains.d, gains.f);
 
     private OuttakeSlides() {}
 
@@ -116,6 +118,28 @@ public class OuttakeSlides implements Subsystem {
                     controller.setSetPoint(pos);
                 })
                 .setFinish(() -> controller.atSetPoint());
+    }
+
+    public static Lambda setPIDMultiplier(double power){
+        return new Lambda("set-pid-aggressive")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    controller.setP(gains.p * power);
+                    controller.setI(gains.i * power);
+                    controller.setD(gains.d * power);
+                    controller.setF(gains.f * power);
+                });
+    }
+
+    public static Lambda resetPID(){
+        return new Lambda("reset-pid")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    controller.setP(gains.p);
+                    controller.setI(gains.i);
+                    controller.setD(gains.d);
+                    controller.setF(gains.f);
+                });
     }
 
     public static Lambda waitForRunToPos(){

@@ -52,7 +52,7 @@ public class Differential implements Subsystem {
         public static double intake = 0.25;
         public static double intakeGroundSecondary = 0.35;
         public static double camera = 0;
-        public static double pushSamp = 0.5;
+        public static double pushSamp = 0.375;
 
         public static Lambda setPos(double pos) {
             return new Lambda("set-intake-pivot")

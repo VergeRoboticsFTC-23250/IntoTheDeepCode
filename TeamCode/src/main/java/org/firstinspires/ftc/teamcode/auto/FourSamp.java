@@ -40,7 +40,6 @@ public class FourSamp extends OpMode {
     @Override
     public void init() {
         Robot.init(hardwareMap);
-        Robot.setState(Robot.State.INIT).schedule();
         Chassis.follower.setStartingPose(Paths.bucketStart);
     }
 

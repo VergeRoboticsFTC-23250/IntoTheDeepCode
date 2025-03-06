@@ -50,11 +50,12 @@ public class Teleop extends OpMode {
         tejas.cross().onTrue(Robot.setState(Robot.State.HOME));
         tejas.circle().onTrue(Robot.setState(Robot.State.INTAKE_BACK));
         tejas.square().onTrue(Robot.setState(Robot.State.OUTTAKE_FRONT));
-        tejas.rightBumper().onTrue(Chassis.slow()).onFalse(Chassis.fast());
 
+        tejas.rightBumper().onTrue(Chassis.slow()).onFalse(Chassis.fast());
         tejas.leftBumper().onTrue(Robot.manipulate());
 
         tejas.triangle().onTrue(Robot.setState(Robot.State.BUCKET));
+        tejas.dpadDown().onTrue(Robot.setState(Robot.State.PUSH_SAMPLE));
 
         arvind.cross().onTrue(new IfElse(
                 () -> Robot.getCurrentIntakeState() == Robot.State.INTAKE_GROUND,
