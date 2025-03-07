@@ -41,7 +41,7 @@ public class Vision {
     }
 
     public double getX(){
-        return pipeline.getX();
+        return -pipeline.getX();
     }
 
     public double getY(){

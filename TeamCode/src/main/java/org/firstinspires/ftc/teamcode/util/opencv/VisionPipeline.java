@@ -148,7 +148,7 @@ public class VisionPipeline extends OpenCvPipeline {
         return input;
     }
 
-    public double getAngle() { return Math.toRadians(angle); }
+    public double getAngle() { return angle / 180.0; }
     public double getX() { return tx; }
     public double getY() { return ty; }
     public boolean isSampleVisible() { return isSampleVisible; }

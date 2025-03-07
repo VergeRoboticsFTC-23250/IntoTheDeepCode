@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.Util.StatePositions;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential.IntakeWrist;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential.IntakePivot;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.IntakeClaw;
@@ -317,7 +318,7 @@ public class Robot {
                         IntakeSlides.retract()
                 ),
                 new IfElse(
-                        () -> Robot.getCurrentIntakeState() == State.INTAKE_GROUND,
+                        () -> st == State.INTAKE_GROUND_SECONDARY || (Robot.getCurrentIntakeState() == State.CAMERA && st == State.INTAKE_GROUND),
                         new Parallel(),
                         IntakeWrist.setPos(s.intakeWrist)
                 ),
@@ -373,7 +374,7 @@ public class Robot {
     public static Lambda manipulateIntake(){
         return new Lambda("manipulate-intake")
                 .setInit(() -> {
-                    if(Robot.getCurrentIntakeState() == State.INTAKE_GROUND || Robot.getCurrentIntakeState() == State.CAMERA){
+                    if(Robot.getCurrentIntakeState() == State.INTAKE_GROUND){
                         new Sequential(
                                 Robot.setIntakeState(State.INTAKE_GROUND_SECONDARY),
                                 new Wait(0.125),
@@ -383,6 +384,12 @@ public class Robot {
                         ).schedule();
                     }else if(Robot.getCurrentIntakeState() == State.INTAKE_GROUND_SECONDARY){
                         IntakeClaw.closeFirm().schedule();
+                    } else if (Robot.getCurrentIntakeState() == State.CAMERA) {
+                        new Sequential(
+                                Differential.IntakeWrist.autoAlign(),
+                                new Wait(0.125),
+                                Robot.setIntakeState(State.INTAKE_GROUND)
+                        ).schedule();
                     }
                 });
     }

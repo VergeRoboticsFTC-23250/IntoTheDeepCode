@@ -10,6 +10,8 @@ import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +32,8 @@ public class Paths {
     public static Pose pickup3 = new Pose(35-9-4-0.7,131-15+3-0.5, Math.toRadians(45));
     public static Pose samplePark = new Pose(14-2+46,126+4-34, Math.toRadians(270));
     public static Point parkControl = new Point(64, 126);
+
+    public static Path autoAlign;
 
     public static Pose specStart = new Pose(9, 65, Math.toRadians(0));
     public static PathChain robotPush;
@@ -256,7 +260,6 @@ public class Paths {
                 ), bucketScore.getHeading() + Math.toRadians(5), samplePark.getHeading()
         ));
 
-
 //        fourSamps.get(0).setPathEndTimeoutConstraint(500);
 //        fourSamps.get(1).setPathEndTimeoutConstraint(500);
 //        fourSamps.get(2).setPathEndTimeoutConstraint(500);
@@ -316,6 +319,15 @@ public class Paths {
         points.addAll(controlPoints);
 
         return createPath(new BezierCurve(points.toArray(new Point[0])));
+    }
+
+    public static Path getAutoAlign() {
+        autoAlign = createPath(
+                new BezierLine(
+                        new Point(Chassis.follower.getPose()), new Point(new Pose(-5,Chassis.follower.getPose().getY(),Chassis.follower.getPose().getHeading()))));
+        autoAlign.setConstantHeadingInterpolation(Chassis.follower.getPose().getHeading());
+
+        return autoAlign;
     }
 
 
