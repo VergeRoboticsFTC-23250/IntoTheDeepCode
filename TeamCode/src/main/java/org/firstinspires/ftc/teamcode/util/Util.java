@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.pedropathing.localization.Pose;
+
 public class Util {
     public static double shortestAngleDistance(double theta1, double theta2) {
         return Math.atan2(Math.sin(theta2 - theta1), Math.cos(theta2 - theta1));
@@ -23,6 +25,28 @@ public class Util {
         public double scale(double value) {
             return min + value * (max - min);
         }
+    }
+
+    public static Pose extrapolateLookaheadPoint(Pose currentPose, Pose targetPose){
+        double errorX = targetPose.getX() - currentPose.getX();
+        double errorY = targetPose.getY() - currentPose.getY();
+
+        double angle = Math.atan2(errorY, errorX);
+
+        double x = 9999 * Math.cos(angle) + currentPose.getX();
+        double y = 9999 * Math.sin(angle) + currentPose.getY();
+
+        return new Pose(x, y, targetPose.getHeading());
+    }
+
+    public static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(value, max));
+    }
+
+    public static double findSlope(Pose pose1, Pose pose2){
+        double deltaY= pose2.getY() - pose1.getY();
+        double deltaX = pose2.getX() - pose1.getX();
+        return (deltaY)/(deltaX);
     }
 
     public static class StatePositions {

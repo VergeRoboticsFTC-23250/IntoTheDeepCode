@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.util.BezierSolver;
+import org.firstinspires.ftc.teamcode.util.BezierCurve;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.Util;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
@@ -25,7 +25,6 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
@@ -57,7 +56,6 @@ public class Chassis implements Subsystem {
     public static Pose startingPose = new Pose(8, 65.5, 0);
     public static double exponentialTransformHeading = 0.5;
     public static double exponentialTransformTranslational = 0.5;
-    public static double exponentialTransformLookahead = 0.125;
     public static double headingP = 0.9;
     public static double headingScaleFactorD = 0.05;
     public static double translationalP = 0.05;
@@ -82,79 +80,21 @@ public class Chassis implements Subsystem {
     public static Pose drivePowers = new Pose(0, 0, 0);
 
     public static PIDController sampleHomeTranslationalErrorController = new PIDController(0.0325, 0, 0, 0);
-
-    public static boolean teleopPathing = false;
     public Chassis() {}
 
-    public static Lambda homeToSamp(Pose approxPose){
-        AtomicBoolean startHoming = new AtomicBoolean(false);
-        return new Lambda("home-to-samp")
-                .setInterruptible(true)
-                .setInit(() -> {
-                    holdPoint = true;
-                    setDrivePoint(approxPose);
-                    startHoming.set(false);
-                })
-                .setExecute(() -> {
-                    if(Robot.vision.getEuclideanDist() < 24 && !startHoming.get() && Robot.vision.isSampleVisible()){
-                        startHoming.set(true);
-                        holdPoint = false;
-                    }
-
-                    if(startHoming.get() && Robot.vision.isSampleVisible()){
-                        Pose pose = follower.getPose();
-                        double heading = pose.getHeading();
-                        double headingPower = headingController.getPowerHeading(heading);
-                        headingPower = Util.transformExponential(headingPower, exponentialTransformHeading);
-
-                        double errorDist = Robot.vision.getEuclideanDist();
-                        double translationalAngle = Robot.vision.getErrorAngle();
-
-                        double translationalPower = sampleHomeTranslationalErrorController.getPower(errorDist * sampleHomeScaleConstant);
-                        translationalPower = Util.transformExponential(translationalPower, 2);
-                        translationalPower = Math.max(0, Math.min(.25, Math.abs(translationalPower))) *  Math.signum(translationalPower);
-
-                        double drivePower = translationalPower * Math.cos(translationalAngle);
-                        double lateralPower = translationalPower * Math.sin(translationalAngle);
-
-                        double maxTranslationalVal = Math.max(Math.abs(drivePower), Math.abs(lateralPower));
-                        if(maxTranslationalVal > 1){
-                            drivePower /= maxTranslationalVal;
-                            lateralPower /= maxTranslationalVal;
-                        }
-
-                        driveRobotCentric(-drivePower, -lateralPower * 1.1, headingPower);
-                    }
-
-                    if(!Robot.vision.isSampleVisible()){
-                        holdPoint = true;
-                        startHoming.set(false);
-                    }
-                })
-                .setFinish(() -> false);
-    }
-    public static Lambda runToSamp(Pose approxPose){
-        return new Lambda("home-to-samp")
-                .setInit(() -> {
-                    holdPoint = true;
-                    setDrivePoint(approxPose);
-                })
-                .setExecute(() -> {
-                    if(Robot.vision.isSampleVisible()){
-                        Pose pose = follower.getPose();
-
-                        double heading = pose.getHeading();
-                        double headingPower = headingController.getPowerHeading(heading);
-                        headingPower = Util.transformExponential(headingPower, exponentialTransformHeading);
-
-
-
-                        driveRobotCentric(0, 0 * 1.1, headingPower);
-                    }
-                })
-                .setFinish(() -> false);
+    public static double getDist(Pose pose1, Pose pose2){
+        return Math.hypot(pose1.getX() - pose2.getX(), pose1.getY() - pose2.getY());
     }
 
+    public static Lambda followBezierCurve(BezierCurve curve){
+        return new Lambda("follow-bezier-curve")
+                .setExecute(() -> {
+                    Pose pose = follower.getPose();
+                    Pose lookaheadPoint = Util.extrapolateLookaheadPoint(pose, curve.getClosestLookaheadPoint(pose));
+                    setDrivePointManual(lookaheadPoint);
+                })
+                .setFinish(() -> getDist(follower.getPose(), curve.getEnd()) < 1);
+    }
     public static Lambda runFollower() {
         return new Lambda("follower-pid")
                 .setInterruptible(false)
@@ -230,7 +170,7 @@ public class Chassis implements Subsystem {
             Chassis.holdPoint = true;
         } else {
             follower.startTeleopDrive();
-            setDefaultCommand(driveTeleSlow(Mercurial.gamepad1()));
+            setDefaultCommand(driveTele(Mercurial.gamepad1()));
             Chassis.holdPoint = false;
         }
 
@@ -245,7 +185,6 @@ public class Chassis implements Subsystem {
         headingController.reset();
         headingController.setDerivativeFilterAlpha(1);
         translationalErrorController.setDerivativeFilterAlpha(1);
-        setCleanManual();
     }
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
@@ -270,36 +209,17 @@ public class Chassis implements Subsystem {
 
     @Override
     public void postUserLoopHook(@NonNull Wrapper opMode) {}
-//    public static Lambda driveTele(BoundGamepad gamepad){
-//        return new Lambda("drive-tele")
-//                .setExecute(() -> {
-//                    follower.setTeleOpMovementVectors(
-//                            gamepad.rightStickY().state() * (isSlowed? slowSpeed : 1),
-//                            -gamepad.rightStickX().state() * (isSlowed? slowSpeed : 1),
-//                            -gamepad.leftStickX().state() * (isSlowed? slowSpeed : 1)
-//                    );
-//                })
-//                .setFinish(() -> false);
-//    }
-
-    public static Lambda driveTeleSlow(BoundGamepad gamepad){
-        return new Lambda("drive-tele-slow")
+    public static Lambda driveTele(BoundGamepad gamepad){
+        return new Lambda("drive-tele")
                 .setExecute(() -> {
                     follower.setTeleOpMovementVectors(
                             gamepad.rightStickY().state() * (isSlowed? slowSpeed : 1),
                             -gamepad.rightStickX().state() * (isSlowed? slowSpeed : 1),
                             -gamepad.leftStickX().state() * (isSlowed? slowSpeed : 1)
                     );
+                    follower.update();
                 })
                 .setFinish(() -> false);
-    }
-
-    public void speedSlow(){
-        isSlowed = true;
-    }
-
-    public void speedFast(){
-        isSlowed = false;
     }
 
     public static void driveFieldCentric(double x, double y, double z) {
@@ -313,40 +233,13 @@ public class Chassis implements Subsystem {
         telemetry.addData("Chassis Vectors", "x: %f, y: %f, z: %f", x, y, z);
     }
 
-    public static void driveRobotCentric(double x, double y, double z) {
-        follower.setTeleOpMovementVectors(
-                x * (isSlowed? slowSpeed : 1),
-                y * (isSlowed? slowSpeed : 1),
-                z * (isSlowed? slowSpeed : 1), true
-        );
-        follower.update();
-        drivePowers = new Pose(x, y, z);
-        telemetry.addData("Chassis Vectors", "x: %f, y: %f, z: %f", x, y, z);
-    }
-    public static Lambda pushOld(double pow, long time){
-        AtomicLong startTime = new AtomicLong();
-        return new Lambda("push-drive")
-                .setInit(() -> {
-                    startTime.set(System.currentTimeMillis());
-                })
-                .setExecute(
-                        () -> {
-                            fl.setPower(pow);
-                            fr.setPower(pow);
-                            bl.setPower(pow);
-                            br.setPower(pow);
-                        }
-                )
-                .setFinish(() -> System.currentTimeMillis() - startTime.get() > time);
-    }
-
     public static Lambda slow(){
-        return new Lambda("slow-chassis-plz")
+        return new Lambda("slow-chassis")
                 .setInit(() -> isSlowed = true);
     }
 
     public static Lambda fast(){
-        return new Lambda("fast-chassis-plz")
+        return new Lambda("fast-chassis")
                 .setInit(() -> isSlowed = false);
     }
 
@@ -373,66 +266,6 @@ public class Chassis implements Subsystem {
     public static boolean isStuck(){
         return follower.getVelocityMagnitude() <= 0.00005 ;
     }
-    public static void setFaceSetpointManual(boolean bool){
-        faceSetpoint = bool;
-    }
-    public static Lambda setFaceSetpoint(boolean bool){
-        return new Lambda("set-face-setpoint")
-                .setInit(() -> {
-                    setFaceSetpointManual(bool);
-                })
-                .setFinish(() -> true);
-    }
-    public static void setFaceSetpointReverseManual(boolean bool){
-        faceSetpointReverse = bool;
-    }
-    public static Lambda setFaceSetpointReverse(boolean bool){
-        return new Lambda("set-face-setpoint-reverse")
-                .setInit(() -> {
-                    setFaceSetpointReverseManual(bool);
-                })
-                .setFinish(() -> true);
-    }
-    public static Lambda setSloppy(){
-        return new Lambda("set-sloppy")
-                .setInit(() -> {
-                    translationalErrorController.setTolerance(8);
-                    headingController.setTolerance(Math.toRadians(14));
-                })
-                .setFinish(() -> true);
-    }
-    public static void setCleanManual(){
-        translationalErrorController.setTolerance(4);
-        headingController.setTolerance(Math.toRadians(7));
-    }
-    public static Lambda setClean(){
-        return new Lambda("set-clean")
-                .setInit(Chassis::setCleanManual)
-                .setFinish(() -> true);
-    }
-
-    public static Lambda suppressHeading(){
-        return new Lambda("suppress-heading")
-                .setInit(() -> suppressHeading = true)
-                .setFinish(() -> true);
-    }
-
-    public static Lambda releaseHeading(){
-        return new Lambda("suppress-heading")
-                .setInit(() -> suppressHeading = false)
-                .setFinish(() -> true);
-    }
-
-    public static void setExactManual(){
-        translationalErrorController.setTolerance(0);
-        headingController.setTolerance(Math.toRadians(0));
-    }
-    public static Lambda setExact(){
-        return new Lambda("set-exact")
-                .setInit(Chassis::setExactManual)
-                .setFinish(() -> true);
-    }
-
 
     private static long startTime = 0;
 
@@ -470,89 +303,11 @@ public class Chassis implements Subsystem {
                 .setFinish(Chassis::isAtPoint);
     }
 
-    public static Lambda pushUntilStuck(Pose pose, double pow){
-        return new Lambda("push-to-point")
-                .setInit(() -> {
-                    setDrivePointManual(pose);
-                    startTime = System.currentTimeMillis();
-                    constantDrivePower = pow;
-                })
-                .setExecute(() -> {
-                    currentPathDeltaT = System.currentTimeMillis() - startTime;
-                })
-                .setFinish(() -> follower.getVelocityMagnitude() < 0.05);
-    }
-    public static Lambda driveToPointUntilStuck(Pose pose){
-        return new Lambda("drive-to-point-until-stuck")
-                .setInterruptible(true)
-                .setInit(() -> {
-                    setDrivePointManual(pose);
-                    startTime = System.currentTimeMillis();
-                })
-                .setExecute(() -> {
-                    currentPathDeltaT = System.currentTimeMillis() - startTime;
-                })
-                .setFinish(Chassis::isStuck);
-    }
-
     public static void logTele(){
         telemetry.addData("isStuck", Chassis.isStuck());
         telemetry.addData("isAtPoint", Chassis.isAtPoint());
         telemetry.addData("driveX", Chassis.follower.driveVector.getXComponent());
 
-    }
-
-    public static Lambda followBezierCurve(Pose[] controlPoints, boolean tangent, boolean forward){
-        Pose pathEnd = controlPoints[controlPoints.length - 1];
-        return new Lambda("follow-bezier-curve")
-                .setInterruptible(true)
-                .setInit(() -> {
-                    startTime = System.currentTimeMillis();
-                    if(tangent){
-                        Chassis.setFaceSetpointManual(forward);
-                        Chassis.setFaceSetpointReverseManual(!forward);
-                    }
-                })
-                .setExecute(() -> {
-                    Pose currentPose = follower.getPose();
-                    Pose targetPose = pathEnd;
-
-                    Pose closestPointOnCurve = BezierSolver.getClosestBezierPoseWithX(
-                            currentPose,
-                            controlPoints
-                    );
-
-                    if(closestPointOnCurve != null){
-                        Pose lookAheadPoint = BezierSolver.getClosestBezierPoint(closestPointOnCurve, 7, controlPoints, true);
-
-                        if (lookAheadPoint != null){
-                            if(!lookAheadPoint.roughlyEquals(pathEnd)){
-                                double distX = lookAheadPoint.getX() - closestPointOnCurve.getX();
-                                double distY = lookAheadPoint.getY() - closestPointOnCurve.getY();
-                                double dist = Math.hypot(distX, distY);
-                                dist = Math.sqrt(Math.pow(dist, exponentialTransformLookahead)) * lookaheadMultiplier;
-                                double angle = Math.atan2(distY, distX);
-                                distX = dist * Math.cos(angle);
-                                distY = dist * Math.sin(angle);
-                                targetPose = new Pose(lookAheadPoint.getX() + distX, lookAheadPoint.getY() + distY, 0);
-                            }
-                        }
-                    }
-
-                    setDrivePointManual(targetPose);
-
-                    if(Chassis.getDrivePoint().roughlyEquals(pathEnd)){
-                        Chassis.setFaceSetpointManual(false);
-                        Chassis.setFaceSetpointReverseManual(false);
-                    }
-                    currentPathDeltaT = System.currentTimeMillis() - startTime;
-                })
-                .setFinish(() -> Chassis.getDrivePoint().roughlyEquals(pathEnd) && (Chassis.isAtPoint() || Chassis.isStuck()))
-                .setEnd((interrupted) -> {
-                    Chassis.setFaceSetpointManual(false);
-                    Chassis.setFaceSetpointReverseManual(false);
-                    Chassis.setDrivePointManual(pathEnd);
-                });
     }
 
     public static Lambda followPath(Path path) {
