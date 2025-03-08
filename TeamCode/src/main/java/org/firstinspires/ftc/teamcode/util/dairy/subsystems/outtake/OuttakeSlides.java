@@ -12,13 +12,13 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.util.Util;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.atomic.AtomicLong;
 
 import dev.frozenmilk.dairy.core.dependency.Dependency;
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
@@ -41,6 +41,8 @@ public class OuttakeSlides implements Subsystem {
     public static int maxPos = 71000;
     public static int scoreOffset = 20000;
     public static int outtakeFront = 11000;
+    public static int outtakeFrontAuto = 23000;
+    public static int outtakeFrontSecondaryAuto = 11000;
     public static int outtakeBack = 10000;
     public static int bucket = maxPos;
     public static int home = minPos;
@@ -109,6 +111,23 @@ public class OuttakeSlides implements Subsystem {
 
         controller.reset();
         controller.setSetPoint(0);
+    }
+
+    public static Lambda score(long millis){
+        AtomicLong startTime = new AtomicLong();
+        return new Lambda("outtake-with-time")
+                .setInterruptible(true)
+                .setInit(() -> {
+                    startTime.set(System.currentTimeMillis());
+                    enablePID = false;
+                    setPower(1);
+                })
+                .setFinish(() -> System.currentTimeMillis() - startTime.get() > millis)
+                .setEnd((interrupted) -> {
+                    setPower(0);
+                    controller.setSetPoint(getPos());
+                    enablePID = true;
+                });
     }
 
     public static Lambda runToPosition(int pos){

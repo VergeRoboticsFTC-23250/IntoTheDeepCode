@@ -15,15 +15,17 @@ public class VisionPipeline extends OpenCvPipeline {
     private static double angle;
     private static double tx;
     private static double ty;
+    private static double distX;
+    private static double distY;
     private final Mat hsv = new Mat();
     private final Mat mask = new Mat();
     private final Mat mask1 = new Mat();
     private final Mat mask2 = new Mat();
     private final Mat hierarchy = new Mat();
     private final ArrayList<MatOfPoint> contours = new ArrayList<>();
-    public static double MAX_CONTOUR_SIZE = 250000.0;
-    public static double MIN_CONTOUR_SIZE = 80000.0;
-    public static double PCB_HEIGHT_IN = 8.218;
+    public static double MAX_CONTOUR_SIZE = 200000.0;
+    public static double MIN_CONTOUR_SIZE = 40000.0;
+    public static double PCB_HEIGHT_IN = 7.625;
     public static double LENS_HEIGHT_IN = 0.55;
     public static Scalar lowerYellow = new Scalar(20, 100, 100);
     public static Scalar upperYellow = new Scalar(30, 255, 255);
@@ -140,6 +142,10 @@ public class VisionPipeline extends OpenCvPipeline {
             Imgproc.putText(input, sizeText, new Point(rect.center.x + 10, rect.center.y + 30), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.putText(input, distanceText, new Point(rect.center.x + 10, rect.center.y + 50), Imgproc.FONT_HERSHEY_SIMPLEX, 0.65, new Scalar(255, 255, 255), 2);
             Imgproc.circle(input, new Point(imageCenterX, imageCenterY), 5, new Scalar(255, 0, 0), -1);
+
+
+            distX = x;
+            distY = y;
             // the circle is the center of the image
         }else{
             isSampleVisible = false;
@@ -149,7 +155,7 @@ public class VisionPipeline extends OpenCvPipeline {
     }
 
     public double getAngle() { return angle / 180.0; }
-    public double getX() { return tx; }
-    public double getY() { return ty; }
+    public double getX() { return distX; }
+    public double getY() { return distY; }
     public boolean isSampleVisible() { return isSampleVisible; }
 }

@@ -97,10 +97,10 @@ public class PIDController {
         this.maxIntegralSum = Math.abs(max);
     }
 
-    public void setGains(double Kp, double Ki, double Kd) {
-        this.Kp = Kp;
-        this.Ki = Ki;
-        this.Kd = Kd;
+    public void setGains(PIDCoefficients gains) {
+        this.Kp = gains.p;
+        this.Ki = gains.i;
+        this.Kd = gains.d;
         reset(); // Reset when gains change
     }
 

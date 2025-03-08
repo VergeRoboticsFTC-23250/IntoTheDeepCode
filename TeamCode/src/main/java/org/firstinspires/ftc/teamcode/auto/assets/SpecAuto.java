@@ -6,6 +6,7 @@ import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.util.BezierCurve;
+import org.firstinspires.ftc.teamcode.util.Util;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeClaw;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import dev.frozenmilk.mercurial.commands.Command;
+import dev.frozenmilk.mercurial.commands.groups.Parallel;
 import dev.frozenmilk.mercurial.commands.groups.Sequential;
 import dev.frozenmilk.mercurial.commands.util.IfElse;
 import dev.frozenmilk.mercurial.commands.util.Wait;
@@ -23,63 +25,59 @@ public class SpecAuto {
     boolean plus1;
     boolean park;
     HardwareMap hardwareMap;
+    Pose intakePoseOffset = intakePose.copy();
 
-    BezierCurve curveToWall = new BezierCurve(
+    static Util.Scale curveToWallScalar = new Util.Scale(0, outtakePose.getX() - intakePose.getX());
+
+    public static BezierCurve curveToWall = new BezierCurve(
             outtakePose,
+            new Pose(outtakePose.getX() - curveToWallScalar.scale(curveToWallAmount), outtakePose.getY(), 0),
+            new Pose(intakePose.getX() + curveToWallScalar.scale(curveToWallAmount), intakePose.getY(), 0),
             intakePose
     );
-
-    BezierCurve curveToTruss = new BezierCurve(
+    static Util.Scale curveToTrussScalar = new Util.Scale(0, outtakePose.getX() - intakePose.getX());
+    public static BezierCurve curveToTruss = new BezierCurve(
             intakePose,
+            new Pose(intakePose.getX() + curveToTrussScalar.scale(curveToTrussAmount), intakePose.getY(), 0),
+            new Pose(outtakePose.getX() - curveToTrussScalar.scale(curveToTrussAmount), outtakePose.getY(), 0),
             outtakePose
     );
-
     public SpecAuto(HardwareMap hardwareMap, boolean plus1, boolean park){
         this.plus1 = plus1;
         this.park = park;
         this.hardwareMap = hardwareMap;
+        intakePoseOffset.add(new Pose(8, 0, 0));
     }
-
     Command OuttakePreload(){
-        Pose pose = outtakePose.copy();
-        pose.add(new Pose(outtakeOffsetsX[0], outtakeOffsetsY[0], 0));
         return new Sequential(
-                Chassis.driveToPoint(pose).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
-                OuttakeSlides.setPIDMultiplier(3),
-                Chassis.setConstantDrivePower(outtakePushPower).with(Robot.setState(Robot.State.OUTTAKE_FRONT_SECONDARY)),
-                new Wait(preOuttakeDelay),
-                OuttakeClaw.open(),
-                new Wait(postOuttakeDelay),
+                Chassis.driveToPoint(outtakePose).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
+                Chassis.setConstantDrivePower(outtakePushPower),
+                OuttakeSlides.score(duringOuttakeDelay),
                 Chassis.releaseConstantDrivePower(),
-                OuttakeSlides.resetPID()
+                OuttakeClaw.open()
         );
     }
-
-    Command Outtake(int i){
-        Pose pose = outtakePose.copy();
-        pose.add(new Pose(outtakeOffsetsX[i], outtakeOffsetsY[i], 0));
+    Command Outtake(){
         return new Sequential(
-                Chassis.driveToPoint(pose).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
-                OuttakeSlides.setPIDMultiplier(3),
-                Chassis.setConstantDrivePower(outtakePushPower).with(Robot.setState(Robot.State.OUTTAKE_FRONT_SECONDARY)),
-                new Wait(preOuttakeDelay),
-                OuttakeClaw.open(),
-                new Wait(postOuttakeDelay),
+                Chassis.followBezierCurve(SpecAuto.curveToTruss).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
+                Chassis.setConstantDrivePower(outtakePushPower),
+                OuttakeSlides.score(duringOuttakeDelay),
                 Chassis.releaseConstantDrivePower(),
-                OuttakeSlides.resetPID()
+                OuttakeClaw.open()
         );
     }
-    Command Outtake(){return Outtake(0);}
-
-    Command IntakePreload(){
-        Pose pose = intakePose.copy();
-        pose.add(new Pose(intakeOffsetsX[0], intakeOffsetsY[0], 0));
-        Pose offsetPose = pose.copy();
-        offsetPose.add(new Pose(intakeHelperOffset, 0, 0));
-
+    Command Intake(){
         return new Sequential(
-                Chassis.driveToPoint(offsetPose).with(Robot.setState(Robot.State.INTAKE_BACK)),
-                Chassis.driveToPoint(pose),
+                Chassis.followBezierCurve(SpecAuto.curveToWall).with(Robot.setState(Robot.State.INTAKE_BACK)),
+                Chassis.setConstantDrivePower(-intakePushPower),
+                new Wait(preIntakeDelay),
+                OuttakeClaw.closeFirm().with(Chassis.releaseConstantDrivePower()),
+                new Wait(postIntakeDelay)
+        );
+    }
+    Command IntakeFirst(){
+        return new Sequential(
+                Chassis.driveToPoint(intakePose).with(Robot.setState(Robot.State.INTAKE_BACK)),
                 Chassis.setConstantDrivePower(-intakePushPower),
                 new Wait(preIntakeDelay),
                 OuttakeClaw.closeFirm().with(Chassis.releaseConstantDrivePower()),
@@ -87,56 +85,40 @@ public class SpecAuto {
         );
     }
 
-    Command Intake(int i){
-        Pose pose = intakePose.copy();
-        pose.add(new Pose(intakeOffsetsX[i], intakeOffsetsY[i], 0));
-        Pose offsetPose = pose.copy();
-        offsetPose.add(new Pose(intakeHelperOffset, 0, 0));
-
-        return new Sequential(
-                Chassis.driveToPoint(offsetPose).with(Robot.setState(Robot.State.INTAKE_BACK)),
-                Chassis.driveToPoint(pose),
-                Chassis.setConstantDrivePower(-intakePushPower),
-                new Wait(preIntakeDelay),
-                OuttakeClaw.closeFirm().with(Chassis.releaseConstantDrivePower()),
-                new Wait(postIntakeDelay)
-        );
+    Command Cycle(){
+        return Cycle(false);
     }
-    Command Intake(){return Intake(intakeOffsetsY.length - 1);}
 
-    Command Cycle(int i){
+    Command Cycle(boolean isFirst){
         return new Sequential(
-            new IfElse(
-                () -> i == 0,
-                    IntakePreload(),
-                    Intake(i)
-            ),
-            Outtake(i+1)
+                new IfElse(() -> isFirst, IntakeFirst(), Intake()),
+                Outtake()
         );
     }
 
-    Command PushSamps = new Sequential(Arrays.stream(pushSampPoses).map(Chassis::driveToPoint).collect(Collectors.toList()));
-    Command PreCycle = OuttakePreload().then(PushSamps.with(Robot.setState(Robot.State.INTAKE_BACK)));
-    Command Plus1 = new Sequential(
-            Intake(),
-            Chassis.driveToPoint(bucketPose).with(Robot.setState(Robot.State.BUCKET)),
-            OuttakeClaw.open()
+    //Command PushSamps = new Sequential(Arrays.stream(pushSampPoses).map(Chassis::driveToPoint).collect(Collectors.toList()));
+
+    Command PushSamps = new Sequential(
+            Chassis.resetTolerance(),
+            Chassis.followBezierCurve(samplePushCurves[0]),
+            Chassis.driveToPoint(samp1),
+            Chassis.followBezierCurve(samplePushCurves[1]),
+            Chassis.driveToPoint(samp2),
+            Chassis.followBezierCurve(samplePushCurves[2]),
+            Chassis.driveToPoint(samp3),
+            Chassis.driveToPoint(intakePoseOffset)
     );
-    Command Park = Chassis.driveToPoint(parkPose).with(Robot.setIntakeState(Robot.State.CAMERA)).with(Robot.setOuttakeState(Robot.State.INIT));
 
-    public void init() {
-        Robot.init(hardwareMap);
-    }
+    Command PreCycle = OuttakePreload().then(PushSamps.with(Robot.setState(Robot.State.INTAKE_BACK)));
 
     public void start() {
         new Sequential(
                 PreCycle,
-                Cycle(0),
-                Cycle(1),
-                Cycle(2),
-                Cycle(3),
-                new IfElse(() -> plus1, Plus1, new Wait(0)),
-                new IfElse(() -> park, Park, Robot.setState(Robot.State.INIT))
+                Cycle(true),
+                Cycle(),
+                Cycle(),
+                Cycle(),
+                Intake()
         ).schedule();
     }
 

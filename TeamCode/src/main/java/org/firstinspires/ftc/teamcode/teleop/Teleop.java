@@ -4,6 +4,7 @@ import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
@@ -50,44 +51,44 @@ public class Teleop extends OpMode {
         arvind = Mercurial.gamepad2();
 
         tejas.cross().onTrue(Robot.setState(Robot.State.HOME));
-        tejas.circle().onTrue(Robot.setState(Robot.State.INTAKE_BACK));
-        tejas.square().onTrue(Robot.setState(Robot.State.OUTTAKE_FRONT));
+        tejas.circle().onTrue(Robot.setOuttakeState(Robot.State.INTAKE_BACK));
+        tejas.square().onTrue(Robot.setOuttakeState(Robot.State.OUTTAKE_FRONT_AUTO));
 
         tejas.rightBumper().onTrue(Chassis.slow()).onFalse(Chassis.fast());
-        tejas.leftBumper().onTrue(Robot.manipulate());
+        tejas.leftBumper().onTrue(Robot.manipulateOuttake());
 
         arvind.cross().onTrue(
                 new IfElse(
                         () -> Robot.getCurrentIntakeState() == Robot.State.HOME || Robot.getCurrentIntakeState() == Robot.State.INIT,
-                        Robot.setState(Robot.State.CAMERA),
-                        Robot.setState(Robot.State.HOME)
+                        Robot.setIntakeState(Robot.State.CAMERA),
+                        Robot.setIntakeState(Robot.State.HOME)
                 )
         );
-        tejas.triangle().onTrue(Robot.setState(Robot.State.BUCKET));
-        tejas.dpadDown().onTrue(Robot.setState(Robot.State.PUSH_SAMPLE));
+        tejas.triangle().onTrue(Robot.setOuttakeState(Robot.State.BUCKET));
+        tejas.dpadDown().onTrue(Robot.setOuttakeState(Robot.State.PUSH_SAMPLE));
 
         arvind.square().onTrue(new IfElse(
                 () -> Robot.getCurrentIntakeState() == Robot.State.HOME,
-                Robot.setState(Robot.State.CAMERA),
+                Robot.setIntakeState(Robot.State.CAMERA),
                 new IfElse(
                         () -> Robot.getCurrentIntakeState() == Robot.State.CAMERA || Robot.getCurrentIntakeState() == Robot.State.INTAKE_GROUND,
-                        Robot.manipulate(),
+                        Robot.manipulateIntake(),
                         new Wait(0)
                 )
         ));
 
-        arvind.leftTrigger().conditionalBindState().greaterThan(0.0).bind().onTrue(Robot.setState(Robot.State.INTAKE_GROUND));
+        tejas.rightTrigger().conditionalBindState().greaterThan(0.0).bind().onTrue(Chassis.slow(.8)).onFalse(Chassis.fast());
         arvind.dpadDown().onTrue(Robot.outtakeGroundAndHome());
-        arvind.rightBumper().onTrue(Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.CLOCKWISE));
-        arvind.leftBumper().onTrue(Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.COUNTER_CLOCKWISE));
+        arvind.rightBumper().onTrue(Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.COUNTER_CLOCKWISE));
+        arvind.leftBumper().onTrue(Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.CLOCKWISE));
+        arvind.dpadLeft().onTrue(IntakeClaw.open());
+
+        arvind.dpadUp().onTrue(Robot.setIntakeState(Robot.State.OUTTAKE_FRONT_AUTO));
+        arvind.dpadRight().onTrue(Robot.setIntakeState(Robot.State.OUTTAKE_FRONT_SECONDARY_AUTO));
     }
 
     @Override
     public void loop() {
-        telemetry.addData("currentIntakeState", Robot.getCurrentIntakeState());
-        telemetry.addData("currentOuttakeState", Robot.getCurrentOuttakeState());
-        telemetry.addData("pivot", Differential.pivot);
-        telemetry.addData("wrist", Differential.wrist);
         Chassis.follower.update();
         telemetry.update();
     }

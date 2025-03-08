@@ -23,10 +23,10 @@ import kotlin.annotation.MustBeDocumented;
 public class IntakeDropDown implements Subsystem {
     public static final IntakeDropDown INSTANCE = new IntakeDropDown();
     static double offset = 0.2;
-    public static double intake = 0.1 + offset;
+    public static double intake = 0.125 + offset;
     public static double intakeGroundSecondary = 0.025 + offset;
     public static double home = .3 + offset;
-    public static double homeSafe = .4 + offset;
+    public static double homeSafe = .5 + offset;
     public static double init = home;
     public static double homeOuttakeBack = home;
     public static double camera = 0.275 + offset;

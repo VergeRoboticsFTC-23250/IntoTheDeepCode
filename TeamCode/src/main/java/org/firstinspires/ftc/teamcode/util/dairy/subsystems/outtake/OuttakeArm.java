@@ -27,11 +27,13 @@ public class OuttakeArm implements Subsystem {
     public static double home = 0.12;
     public static double teleopTransfer = 0.025;
     public static double outtakeFront = 0.225;
+    public static double outtakeFrontAuto = 0.00;
+    public static double outtakeFrontSecondaryAuto = 0.125;
     public static double init = home;
     public static double outtakeBack = .70;
     public static double dropSamp = .775;
     public static double bucket = 0.61;
-    public static double intakeBack = .870;
+    public static double intakeBack = .895;
 
 
     public OuttakeArm() {}

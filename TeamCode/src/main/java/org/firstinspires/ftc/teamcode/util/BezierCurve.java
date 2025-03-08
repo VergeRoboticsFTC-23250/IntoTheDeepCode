@@ -8,8 +8,8 @@ import java.util.List;
 public class BezierCurve {
     private Pose[] controlPoints;
     private Pose[] sampledPoints;
-    public static double SAMPLE_DISTANCE = 1; // Adjustable sample distance
-    public static int LOOKAHEAD_DIST = 10;
+    public static double SAMPLE_DISTANCE = .1; // Adjustable sample distance
+    public static int LOOKAHEAD_DIST = 30;
 
     public BezierCurve(Pose... controlPoints) {
         this.controlPoints = controlPoints;
@@ -107,5 +107,9 @@ public class BezierCurve {
 
     public Pose getEnd(){
         return controlPoints[controlPoints.length - 1];
+    }
+
+    public Pose getStart(){
+        return controlPoints[0];
     }
 }

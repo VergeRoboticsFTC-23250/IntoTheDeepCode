@@ -25,7 +25,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.dependency.Dependency;
@@ -33,8 +33,10 @@ import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
 import dev.frozenmilk.dairy.core.wrapper.Wrapper;
 import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.bindings.BoundGamepad;
+import dev.frozenmilk.mercurial.commands.Command;
 import dev.frozenmilk.mercurial.commands.Lambda;
 import dev.frozenmilk.mercurial.subsystems.Subsystem;
+
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.util.pedroPathing.constants.LConstants;
 import kotlin.annotation.MustBeDocumented;
@@ -43,7 +45,7 @@ public class Chassis implements Subsystem {
     public static final Chassis INSTANCE = new Chassis();
     public static Follower follower;
     public static boolean isSlowed = false;
-    public static double slowSpeed = 0.49;
+    public static double slowSpeed = 0.25;
     public static DcMotorEx fl;
     public static DcMotorEx fr;
     public static DcMotorEx bl;
@@ -52,13 +54,14 @@ public class Chassis implements Subsystem {
     public static DashboardPoseTracker dashboardPoseTracker;
 
     //Custom Follower
-    public static double sampleHomeScaleConstant = 1;
     public static Pose startingPose = new Pose(8, 65.5, 0);
     public static double exponentialTransformHeading = 0.5;
-    public static double exponentialTransformTranslational = 0.5;
+    public static double exponentialTransformTranslationalDefault = 0.5;
+    public static double exponentialTransformTranslational = exponentialTransformTranslationalDefault;
     public static double headingP = 0.9;
     public static double headingScaleFactorD = 0.05;
-    public static double translationalP = 0.05;
+    public static double defaultTranslationalP = 0.05;
+    public static double translationalP = defaultTranslationalP;
     public static double translationalScaleFactorD = 0.06;
     public static PIDCoefficients headingGains = new PIDCoefficients(headingP * Math.pow(exponentialTransformHeading, 2), 0, headingP*headingScaleFactorD * Math.pow(exponentialTransformHeading, 2));
     public static PIDCoefficients translationalGains = new PIDCoefficients(translationalP * Math.pow(exponentialTransformTranslational, 2), 0, translationalP*translationalScaleFactorD * Math.pow(exponentialTransformTranslational, 2));
@@ -68,22 +71,60 @@ public class Chassis implements Subsystem {
     static boolean isFollowerBusy = false;
     static long currentPathDeltaT = 0;
     static double constantDrivePower = 0;
-    static PIDController translationalErrorController = new PIDController(translationalGains, 0);
+    public static PIDController translationalErrorController = new PIDController(translationalGains, 0);
     static PIDController headingController = new PIDController(headingGains, startingPose.getHeading());
     static double targetX = 0;
     static double targetY = 0;
     public static boolean faceSetpoint = false;
     public static boolean faceSetpointReverse = false;
-    public static double lookaheadMultiplier = 200;
     public static boolean suppressHeading = true;
 
     public static Pose drivePowers = new Pose(0, 0, 0);
 
-    public static PIDController sampleHomeTranslationalErrorController = new PIDController(0.0325, 0, 0, 0);
+    public static double translationalTolerance = 3;
+    public static double headingTolerance = 5;
+
     public Chassis() {}
+
+    public static Lambda runWhenBelowX(double x, Command command){
+        return new Lambda("run-when-below-x").setFinish(() -> follower.getPose().getX() < x).setEnd((interrupted) -> command.schedule());
+    }
+
+    public static Lambda runWhenDeltaX(double delta, Command command){
+        AtomicReference<Double> x = new AtomicReference<>((double) 0);
+        return new Lambda("run-when-delta-x")
+                .setInit(() -> {
+                    x.set(follower.getPose().getX());
+                })
+                .setFinish(() -> Math.abs(x.get() - follower.getPose().getX()) > delta)
+                .setEnd((interrupted) -> command.schedule());
+    }
 
     public static double getDist(Pose pose1, Pose pose2){
         return Math.hypot(pose1.getX() - pose2.getX(), pose1.getY() - pose2.getY());
+    }
+
+    public static Lambda setHoldPoint(boolean bool){
+        return new Lambda("set-hold-point").setInit(() -> {
+            driveFieldCentric(0, 0, 0);
+            holdPoint = bool;
+        });
+    }
+
+    public static Lambda setSloppy(){
+        return new Lambda("set-sloppy")
+                .setExecute(() -> {
+                    translationalErrorController.setTolerance(8);
+                    headingController.setTolerance(10);
+                });
+    }
+
+    public static Lambda resetTolerance(){
+        return new Lambda("reset-tolerance")
+                .setExecute(() -> {
+                    translationalErrorController.setTolerance(translationalTolerance);
+                    headingController.setTolerance(headingTolerance);
+                });
     }
 
     public static Lambda followBezierCurve(BezierCurve curve){
@@ -91,9 +132,13 @@ public class Chassis implements Subsystem {
                 .setExecute(() -> {
                     Pose pose = follower.getPose();
                     Pose lookaheadPoint = Util.extrapolateLookaheadPoint(pose, curve.getClosestLookaheadPoint(pose));
+                    telemetry.addData("lookahead", lookaheadPoint);
                     setDrivePointManual(lookaheadPoint);
                 })
-                .setFinish(() -> getDist(follower.getPose(), curve.getEnd()) < 1);
+                .setFinish(() -> getDist(follower.getPose(), curve.getEnd()) < translationalTolerance)
+                .setEnd((interrupted) -> {
+                    setDrivePointManual(curve.getEnd());
+                });
     }
     public static Lambda runFollower() {
         return new Lambda("follower-pid")
@@ -183,8 +228,10 @@ public class Chassis implements Subsystem {
         //Custom Follower
         translationalErrorController.reset();
         headingController.reset();
-        headingController.setDerivativeFilterAlpha(1);
         translationalErrorController.setDerivativeFilterAlpha(1);
+        headingController.setDerivativeFilterAlpha(1);
+        translationalErrorController.setTolerance(translationalTolerance);
+        headingController.setTolerance(Math.toRadians(headingTolerance));
     }
 
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
@@ -235,7 +282,18 @@ public class Chassis implements Subsystem {
 
     public static Lambda slow(){
         return new Lambda("slow-chassis")
-                .setInit(() -> isSlowed = true);
+                .setInit(() -> {
+                    slowSpeed = .25;
+                    isSlowed = true;
+                });
+    }
+
+    public static Lambda slow(double val){
+        return new Lambda("slow-chassis")
+                .setInit(() -> {
+                    isSlowed = true;
+                    slowSpeed = val;
+                });
     }
 
     public static Lambda fast(){
@@ -288,6 +346,46 @@ public class Chassis implements Subsystem {
                     setDrivePointManual(follower.getPose());
                 })
                 .setFinish(() -> true);
+    }
+
+    public static void offsetRobotCentric(double errx, double erry){
+        Pose pose = follower.getPose().copy();
+        double heading = pose.getHeading();
+
+        double x = (errx * Math.cos(heading)) - erry * Math.sin(heading);
+        double y = (errx * Math.sin(heading)) + erry * Math.cos(heading);
+
+        pose.add(new Pose(x, y, 0));
+
+        setDrivePointManual(new Pose(pose.getX(), pose.getY(), headingController.getReference()));
+    }
+
+    public static Lambda setAggressiveGains(){
+        return new Lambda("set-aggressive-gains")
+                .setInit(() -> {
+                    translationalP = defaultTranslationalP * 2;
+                    //exponentialTransformTranslational = exponentialTransformTranslationalDefault/2;
+                    translationalGains = new PIDCoefficients(translationalP * Math.pow(exponentialTransformTranslational, 2), 0, translationalP*translationalScaleFactorD * Math.pow(exponentialTransformTranslational, 2));
+                    translationalErrorController.setGains(translationalGains);
+                });
+    }
+
+    public static Lambda setNormalGains(){
+        return new Lambda("set-normal-gains")
+                .setInit(() -> {
+                    translationalP = defaultTranslationalP;
+                    exponentialTransformTranslational = exponentialTransformTranslationalDefault;
+                    translationalGains = new PIDCoefficients(translationalP * Math.pow(exponentialTransformTranslational, 2), 0, translationalP*translationalScaleFactorD * Math.pow(exponentialTransformTranslational, 2));
+                    translationalErrorController.setGains(translationalGains);
+                });
+    }
+
+    public static Lambda homeToSamp(){
+        return new Lambda("home-to-samp")
+                .setFinish(() -> Robot.vision.isSampleVisible())
+                .setEnd((interrupted) -> {
+                    offsetRobotCentric(Robot.vision.getY() - 1, -Robot.vision.getX() * 0.975);
+                });
     }
 
     public static Lambda driveToPoint(Pose pose){

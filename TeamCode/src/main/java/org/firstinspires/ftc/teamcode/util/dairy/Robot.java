@@ -1,9 +1,17 @@
 package org.firstinspires.ftc.teamcode.util.dairy;
 
+import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.util.Util.StatePositions;
+import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential.IntakeWrist;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.intake.Differential.IntakePivot;
@@ -64,6 +72,8 @@ public class Robot {
         OUTTAKE_BACK_SECONDARY,
         OUTTAKE_FRONT,
         OUTTAKE_FRONT_SECONDARY,
+        OUTTAKE_FRONT_AUTO,
+        OUTTAKE_FRONT_SECONDARY_AUTO,
         BUCKET,
         DROP_SAMPLE,
         PUSH_SAMPLE,
@@ -71,7 +81,7 @@ public class Robot {
         TELEOP_TRANSFER,
     }
 
-    static StatePositions camera, pushSample, dropSample, bucket, outtakeFront, outtakeFrontSecondary, outtakeBack, outtakeBackSecondary, intakeBack, intakeGround, intakeGroundSecondary, home, init, teleopTransfer, outtakeGround;
+    static StatePositions camera, pushSample, dropSample, bucket, outtakeFront, outtakeFrontSecondary, outtakeBack, outtakeBackSecondary, intakeBack, intakeGround, intakeGroundSecondary, home, init, teleopTransfer, outtakeGround, outtakeFrontAuto, outtakeFrontSecondaryAuto;
 
     static Map<State, StatePositions> states;
 
@@ -81,6 +91,7 @@ public class Robot {
         Robot.hardwareMap = hardwareMap;
 
         vision = new Vision(hardwareMap, VisionPipeline.SampleColor.RED);
+
 
         isAuto = FeatureRegistrar.getActiveOpModeWrapper().getOpModeType() == OpModeMeta.Flavor.AUTONOMOUS;
 
@@ -192,6 +203,30 @@ public class Robot {
                 false
         );
 
+        outtakeFrontAuto = new StatePositions(
+                OuttakeSlides.outtakeFrontAuto,
+                OuttakeArm.outtakeFrontAuto,
+                OuttakePivot.outtakeFrontAuto,
+                IntakeDropDown.homeSafe,
+                IntakePivot.home,
+                IntakeWrist.home,
+                true,
+                false,
+                false
+        );
+
+        outtakeFrontSecondaryAuto = new StatePositions(
+                OuttakeSlides.outtakeFrontAuto,
+                OuttakeArm.outtakeFrontSecondaryAuto,
+                OuttakePivot.outtakeFrontSecondaryAuto,
+                IntakeDropDown.homeSafe,
+                IntakePivot.home,
+                IntakeWrist.home,
+                true,
+                false,
+                false
+        );
+
         outtakeBack = new StatePositions(
                 OuttakeSlides.outtakeBack,
                 OuttakeArm.home,
@@ -275,6 +310,8 @@ public class Robot {
                 Map.entry(State.OUTTAKE_BACK_SECONDARY, outtakeBackSecondary),
                 Map.entry(State.OUTTAKE_FRONT, outtakeFront),
                 Map.entry(State.OUTTAKE_FRONT_SECONDARY, outtakeFrontSecondary),
+                Map.entry(State.OUTTAKE_FRONT_AUTO, outtakeFrontAuto),
+                Map.entry(State.OUTTAKE_FRONT_SECONDARY_AUTO, outtakeFrontSecondaryAuto),
                 Map.entry(State.BUCKET, bucket),
                 Map.entry(State.DROP_SAMPLE, dropSample),
                 Map.entry(State.PUSH_SAMPLE, pushSample),
@@ -284,7 +321,6 @@ public class Robot {
 
         Paths.init();
     }
-
 
     public static Command setOuttakeState(State st) {
         StatePositions s = states.get(st);
@@ -308,9 +344,9 @@ public class Robot {
         return new Parallel(
                 IntakePivot.setPos(s.intakePivot),
                 new IfElse(
-                        () -> s.isIntakeClawOpen,
-                        IntakeClaw.open(),
-                        IntakeClaw.closeLoose()
+                        () -> !s.isIntakeClawOpen || Robot.currentIntakeState == State.INTAKE_GROUND_SECONDARY && st == State.INTAKE_GROUND,
+                        IntakeClaw.closeFirm(),
+                        IntakeClaw.open()
                 ),
                 new IfElse(
                         () -> s.areIntakeSlidesExtended,
@@ -318,7 +354,7 @@ public class Robot {
                         IntakeSlides.retract()
                 ),
                 new IfElse(
-                        () -> st == State.INTAKE_GROUND_SECONDARY || (Robot.getCurrentIntakeState() == State.CAMERA && st == State.INTAKE_GROUND),
+                        () -> st == State.INTAKE_GROUND_SECONDARY || st == State.INTAKE_GROUND,
                         new Parallel(),
                         IntakeWrist.setPos(s.intakeWrist)
                 ),
@@ -345,28 +381,35 @@ public class Robot {
         );
     }
 
-    public static Lambda manipulateOuttake(){
+    public static Lambda    manipulateOuttake(){
         return new Lambda("manipulate-outtake")
                 .setInit(() -> {
                     if(Robot.getCurrentOuttakeState() == State.OUTTAKE_FRONT){
                         Robot.setOuttakeState(State.OUTTAKE_FRONT_SECONDARY).schedule();
                     }else if(Robot.getCurrentOuttakeState() == State.OUTTAKE_FRONT_SECONDARY){
                         new Sequential(
-                                OuttakeClaw.open()
+                                OuttakeClaw.open(),
+                                Robot.setOuttakeState(State.INTAKE_BACK)
+                        ).schedule();
+                    }if(Robot.getCurrentOuttakeState() == State.OUTTAKE_FRONT_AUTO){
+                        Robot.setOuttakeState(State.OUTTAKE_FRONT_SECONDARY_AUTO).with(Chassis.runWhenDeltaX(1.5, Robot.setOuttakeState(Robot.State.INTAKE_BACK))).schedule();
+                    }else if(Robot.getCurrentOuttakeState() == State.OUTTAKE_FRONT_SECONDARY_AUTO){
+                        new Sequential(
+
                         ).schedule();
                     }else if(areBothStatesEqualTo(State.HOME)){
-                        Robot.setState(Robot.State.TELEOP_TRANSFER).schedule();
+                        Robot.setOuttakeState(Robot.State.TELEOP_TRANSFER).schedule();
                     }else if(areBothStatesEqualTo(State.TELEOP_TRANSFER)){
                         new Parallel(
                                 OuttakeClaw.closeFirm(),
                                 IntakeClaw.open()
                         ).schedule();
                     }else if(Robot.getCurrentOuttakeState() == State.OUTTAKE_BACK){
-                        Robot.setState(State.OUTTAKE_BACK_SECONDARY).schedule();
+                        Robot.setOuttakeState(State.OUTTAKE_BACK_SECONDARY).schedule();
                     }else if(Robot.getCurrentOuttakeState() == State.OUTTAKE_BACK_SECONDARY){
                         OuttakeClaw.open().schedule();
                     }else if(Robot.getCurrentOuttakeState() == State.INTAKE_BACK){
-                        Robot.setState(State.OUTTAKE_FRONT).schedule();
+                        Robot.setOuttakeState(State.OUTTAKE_FRONT_AUTO).schedule();
                     }
                 });
     }
@@ -380,7 +423,8 @@ public class Robot {
                                 new Wait(0.125),
                                 IntakeClaw.closeFirm(),
                                 new Wait(0.25),
-                                Robot.setIntakeState(State.HOME)
+                                Robot.setIntakeState(State.INTAKE_GROUND)
+                                //Robot.setIntakeState(State.HOME)
                         ).schedule();
                     }else if(Robot.getCurrentIntakeState() == State.INTAKE_GROUND_SECONDARY){
                         IntakeClaw.closeFirm().schedule();
@@ -396,9 +440,10 @@ public class Robot {
 
     public static Command outtakeGroundAndHome(){
         return new Sequential(
-                Robot.setState(Robot.State.OUTTAKE_GROUND),
+                Robot.setIntakeState(Robot.State.OUTTAKE_GROUND),
                 IntakeClaw.open(),
-                Robot.setState(Robot.State.HOME)
+                new Wait(0.25),
+                Robot.setIntakeState(Robot.State.HOME)
         );
     }
 }

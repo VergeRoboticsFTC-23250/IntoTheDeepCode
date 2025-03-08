@@ -27,12 +27,14 @@ public class OuttakePivot implements Subsystem {
     public static double teleopTransfer = 0.65;
     public static double homeOuttakeBack = home; //.575 0
     public static double outtakeFront = 0.70;
+    public static double outtakeFrontAuto = 0.925;
+    public static double outtakeFrontSecondaryAuto = .925;
 
     public static double init = outtakeFront;
     public static double outtakeBack = .82;
     public static double dropSamp = 0.65;
     public static double bucket = .75;
-    public static double intakeBack = .675;
+    public static double intakeBack = .665;
 
     public OuttakePivot() {}
 

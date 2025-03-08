@@ -38,12 +38,6 @@ public class Paths {
     public static Pose specStart = new Pose(9, 65, Math.toRadians(0));
     public static PathChain robotPush;
 
-    public static double intakeOffset = -2;
-    public static double intakeOffset1 = 2;
-    public static double intakeOffset2 = 1;
-    public static double intakeOffset3 = 1;
-    public static double intakeOffset4 = 2;
-
     public static void init() {
         Collections.addAll(fiveSpecs,
                 createPath( //preload 0
@@ -54,7 +48,7 @@ public class Paths {
                 ),
                 createPath( // curve to first sample 1
                         new BezierCurve(
-                                new Point(42.000, 67.000, Point.CARTESIAN),
+                                new Point(39, 70, Point.CARTESIAN),
                                 new Point(31.500, 66.000, Point.CARTESIAN),
                                 new Point(11.000, 12.000, Point.CARTESIAN),
                                 new Point(68.000, 49.500, Point.CARTESIAN),

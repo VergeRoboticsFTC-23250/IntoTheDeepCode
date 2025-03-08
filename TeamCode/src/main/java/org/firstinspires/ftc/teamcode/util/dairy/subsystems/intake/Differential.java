@@ -104,6 +104,7 @@ public class Differential implements Subsystem {
                     .setInit(() -> {
                         if(Robot.getCurrentIntakeState() == Robot.State.INTAKE_GROUND){
                             wrist = Math.min(Math.max(wrist + (direction == Direction.CLOCKWISE? 0.25 : -0.25), 0), 1);
+                            setPositions();
                         }
                     });
         }
