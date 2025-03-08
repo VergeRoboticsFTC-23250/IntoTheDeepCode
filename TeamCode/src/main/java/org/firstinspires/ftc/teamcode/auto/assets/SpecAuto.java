@@ -29,24 +29,32 @@ public class SpecAuto {
 
     static Util.Scale curveToWallScalar = new Util.Scale(0, outtakePose.getX() - intakePose.getX());
 
-    public static BezierCurve curveToWall = new BezierCurve(
-            outtakePose,
-            new Pose(outtakePose.getX() - curveToWallScalar.scale(curveToWallAmount), outtakePose.getY(), 0),
-            new Pose(intakePose.getX() + curveToWallScalar.scale(curveToWallAmount), intakePose.getY(), 0),
-            intakePose
-    );
+    public static BezierCurve curveToWall(int i){
+        Pose pose = outtakePose.copy();
+        pose.add(new Pose(0, offsets[i], 0));
+        return new BezierCurve(
+                pose,
+                new Pose(outtakePose.getX() - curveToWallScalar.scale(curveToWallAmount), outtakePose.getY(), 0),
+                new Pose(intakePose.getX() + curveToWallScalar.scale(curveToWallAmount), intakePose.getY(), 0),
+                intakePose
+        );
+    }
     static Util.Scale curveToTrussScalar = new Util.Scale(0, outtakePose.getX() - intakePose.getX());
-    public static BezierCurve curveToTruss = new BezierCurve(
-            intakePose,
-            new Pose(intakePose.getX() + curveToTrussScalar.scale(curveToTrussAmount), intakePose.getY(), 0),
-            new Pose(outtakePose.getX() - curveToTrussScalar.scale(curveToTrussAmount), outtakePose.getY(), 0),
-            outtakePose
-    );
+    public static BezierCurve curveToTruss(int i){
+        Pose pose = outtakePose.copy();
+        pose.add(new Pose(0, offsets[i], 0));
+        return new BezierCurve(
+                intakePose,
+                new Pose(intakePose.getX() + curveToTrussScalar.scale(curveToTrussAmount), intakePose.getY(), 0),
+                new Pose(outtakePose.getX() - curveToTrussScalar.scale(curveToTrussAmount), outtakePose.getY(), 0),
+                pose
+        );
+    }
     public SpecAuto(HardwareMap hardwareMap, boolean plus1, boolean park){
         this.plus1 = plus1;
         this.park = park;
         this.hardwareMap = hardwareMap;
-        intakePoseOffset.add(new Pose(8, 0, 0));
+        intakePoseOffset.add(new Pose(4, 0, 0));
     }
     Command OuttakePreload(){
         return new Sequential(
@@ -57,18 +65,18 @@ public class SpecAuto {
                 OuttakeClaw.open()
         );
     }
-    Command Outtake(){
+    Command Outtake(int i){
         return new Sequential(
-                Chassis.followBezierCurve(SpecAuto.curveToTruss).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
+                Chassis.followBezierCurve(SpecAuto.curveToTruss(i)).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
                 Chassis.setConstantDrivePower(outtakePushPower),
                 OuttakeSlides.score(duringOuttakeDelay),
                 Chassis.releaseConstantDrivePower(),
                 OuttakeClaw.open()
         );
     }
-    Command Intake(){
+    Command Intake(int i){
         return new Sequential(
-                Chassis.followBezierCurve(SpecAuto.curveToWall).with(Robot.setState(Robot.State.INTAKE_BACK)),
+                Chassis.followBezierCurve(SpecAuto.curveToWall(i)).with(Robot.setState(Robot.State.INTAKE_BACK)),
                 Chassis.setConstantDrivePower(-intakePushPower),
                 new Wait(preIntakeDelay),
                 OuttakeClaw.closeFirm().with(Chassis.releaseConstantDrivePower()),
@@ -85,14 +93,10 @@ public class SpecAuto {
         );
     }
 
-    Command Cycle(){
-        return Cycle(false);
-    }
-
-    Command Cycle(boolean isFirst){
+    Command Cycle(int i){
         return new Sequential(
-                new IfElse(() -> isFirst, IntakeFirst(), Intake()),
-                Outtake()
+                new IfElse(() -> i == 0, IntakeFirst(), Intake(i)),
+                Outtake(i+1)
         );
     }
 
@@ -114,11 +118,11 @@ public class SpecAuto {
     public void start() {
         new Sequential(
                 PreCycle,
-                Cycle(true),
-                Cycle(),
-                Cycle(),
-                Cycle(),
-                Intake()
+                Cycle(0),
+                Cycle(1),
+                Cycle(2),
+                Cycle(3),
+                Intake(4)
         ).schedule();
     }
 

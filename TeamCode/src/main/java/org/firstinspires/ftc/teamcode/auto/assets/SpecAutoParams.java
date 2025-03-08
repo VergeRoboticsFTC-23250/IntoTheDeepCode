@@ -7,42 +7,22 @@ import org.firstinspires.ftc.teamcode.util.BezierCurve;
 
 public class SpecAutoParams {
     static double releaseSpecAt = 1;
+    static double[] offsets = {8, 6, 4, 2, 0};
     static double curveToWallAmount = 0.35;
     static double curveToTrussAmount = 0.35;
-    public static Pose outtakePose = new Pose(39, 70, 0);
-    public static Pose intakePose = new Pose(8, 34, 0);
+    public static Pose outtakePose = new Pose(39, 66, 0);
+    public static Pose intakePose = new Pose(8, 38, 0);
     public static double intakePushPower = 1;
     public static double outtakePushPower = 0.5;
     public static double preIntakeDelay = 0.25;
     public static double postIntakeDelay = 0;
-    public static double preOuttakeDelay = 0;
     public static long duringOuttakeDelay = 375;
-    public static double postOuttakeDelay = 0;
 
     public static Pose bucketPose = new Pose(16, 110, Math.toRadians(90));
     public static Pose parkPose = new Pose(0, 0, 0);
-    static double pushTo = 18;
-    static double upTo = 60;
-    static double distBetween = 12;
-    static double closeToSamp = 36;
-
-    public static Pose[] pushSampPoses = new Pose[]{
-            new Pose(28, closeToSamp, 0),
-            new Pose(upTo, closeToSamp, 0),
-            new Pose(upTo, closeToSamp -distBetween, 0),
-            new Pose(pushTo, closeToSamp -distBetween, 0),
-            new Pose(upTo, closeToSamp - 10, 0),
-            new Pose(upTo, closeToSamp -distBetween - 10, 0),
-            new Pose(pushTo, closeToSamp -distBetween - 10, 0),
-            new Pose(upTo, closeToSamp - 17, 0),
-            new Pose(upTo, closeToSamp -distBetween - 17, 0),
-            new Pose(pushTo, closeToSamp -distBetween - 17, 0),
-            new Pose(18, 34, 0)
-    };
-
-    public static Pose samp1 = new Pose(15.000, 22.500, 0);
-    public static Pose samp2 = new Pose(15.000, 12.500, 0);
-    public static Pose samp3 = new Pose(15.000, 9.000, 0);
+    public static Pose samp1 = new Pose(21, 22.500, 0);
+    public static Pose samp2 = new Pose(21, 12.500, 0);
+    public static Pose samp3 = new Pose(21, 9.000, 0);
 
     public static double offsetCurve = 6;
 
