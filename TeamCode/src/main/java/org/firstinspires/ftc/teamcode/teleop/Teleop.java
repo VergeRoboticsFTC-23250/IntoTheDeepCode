@@ -85,6 +85,9 @@ public class Teleop extends OpMode {
 
         arvind.dpadUp().onTrue(Robot.setIntakeState(Robot.State.OUTTAKE_FRONT_AUTO));
         arvind.dpadRight().onTrue(Robot.setIntakeState(Robot.State.OUTTAKE_FRONT_SECONDARY_AUTO));
+
+        tejas.dpadRight().onTrue(OuttakeSlides.score(375));
+        tejas.dpadLeft().onTrue(Robot.setState(Robot.State.OUTTAKE_FRONT));
     }
 
     @Override

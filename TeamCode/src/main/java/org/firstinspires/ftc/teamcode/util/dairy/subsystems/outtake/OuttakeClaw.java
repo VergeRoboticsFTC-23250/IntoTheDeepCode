@@ -24,8 +24,8 @@ public class OuttakeClaw implements Subsystem {
     public static final OuttakeClaw INSTANCE = new OuttakeClaw();
     public static Servo gripper;
     public static double open = 0.875;
-    public static double closeFirm = 0.2;
-    public static double closeLoose = 0.2;
+    public static double closeFirm = 0.275;
+    public static double closeLoose = closeFirm;
     public static boolean isOpen = false;
 
     public OuttakeClaw() {}
