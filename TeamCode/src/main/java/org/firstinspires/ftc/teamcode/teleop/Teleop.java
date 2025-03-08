@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.util.dairy.Robot;
 import org.firstinspires.ftc.teamcode.util.dairy.features.LoopTimes;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.Chassis;
@@ -16,6 +14,7 @@ import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeArm;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeClaw;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakePivot;
 import org.firstinspires.ftc.teamcode.util.dairy.subsystems.outtake.OuttakeSlides;
+import org.firstinspires.ftc.teamcode.util.opencv.VisionPipeline;
 
 import dev.frozenmilk.dairy.core.FeatureRegistrar;
 import dev.frozenmilk.dairy.core.util.features.BulkRead;
@@ -64,7 +63,14 @@ public class Teleop extends OpMode {
                         Robot.setIntakeState(Robot.State.HOME)
                 )
         );
-        tejas.triangle().onTrue(Robot.setOuttakeState(Robot.State.BUCKET));
+        tejas.triangle().onTrue(new Sequential(
+                Robot.setState(Robot.State.TELEOP_TRANSFER),
+                new Wait(.25),
+                IntakeClaw.open(),
+                OuttakeClaw.closeLoose(),
+                new Wait(.125),
+                Robot.setOuttakeState(Robot.State.BUCKET)
+        ));
         tejas.dpadDown().onTrue(Robot.setOuttakeState(Robot.State.PUSH_SAMPLE));
 
         arvind.square().onTrue(new IfElse(
@@ -83,11 +89,9 @@ public class Teleop extends OpMode {
         arvind.leftBumper().onTrue(Differential.IntakeWrist.increment(Differential.IntakeWrist.Direction.CLOCKWISE));
         arvind.dpadLeft().onTrue(IntakeClaw.open());
 
-        arvind.dpadUp().onTrue(Robot.setIntakeState(Robot.State.OUTTAKE_FRONT_AUTO));
-        arvind.dpadRight().onTrue(Robot.setIntakeState(Robot.State.OUTTAKE_FRONT_SECONDARY_AUTO));
-
-        tejas.dpadRight().onTrue(OuttakeSlides.score(375));
-        tejas.dpadLeft().onTrue(Robot.setState(Robot.State.OUTTAKE_FRONT));
+        arvind.share().onTrue(Robot.vision.setColor(VisionPipeline.SampleColor.RED));
+        arvind.options().onTrue(Robot.vision.setColor(VisionPipeline.SampleColor.BLUE));
+        arvind.dpadUp().onTrue(Robot.vision.setColor(VisionPipeline.SampleColor.YELLOW));
     }
 
     @Override

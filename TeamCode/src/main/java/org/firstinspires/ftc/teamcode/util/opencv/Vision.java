@@ -10,6 +10,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+import dev.frozenmilk.mercurial.commands.Lambda;
+
 public class Vision {
     OpenCvWebcam webcam;
     VisionPipeline pipeline;
@@ -58,5 +60,9 @@ public class Vision {
 
     public double getErrorAngle(){
         return Math.atan2(pipeline.getX(), pipeline.getY());
+    }
+
+    public Lambda setColor(VisionPipeline.SampleColor color){
+        return new Lambda("set-vision-color").setInit(() -> pipeline.setColor(color));
     }
 }

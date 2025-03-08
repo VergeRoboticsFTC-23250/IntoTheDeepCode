@@ -410,6 +410,8 @@ public class Robot {
                         OuttakeClaw.open().schedule();
                     }else if(Robot.getCurrentOuttakeState() == State.INTAKE_BACK){
                         Robot.setOuttakeState(State.OUTTAKE_FRONT_AUTO).schedule();
+                    }else if(Robot.getCurrentOuttakeState() == State.BUCKET){
+                        OuttakeClaw.open().schedule();
                     }
                 });
     }

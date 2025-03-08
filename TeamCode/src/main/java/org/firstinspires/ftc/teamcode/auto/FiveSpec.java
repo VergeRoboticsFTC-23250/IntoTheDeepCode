@@ -39,7 +39,6 @@ public class FiveSpec extends OpMode {
         Robot.init(hardwareMap);
         Paths.init();
         fiveSpec = new SpecAuto(hardwareMap, false, false);
-        Chassis.follower.setStartingPose(Chassis.startingPose);
     }
 
     @Override

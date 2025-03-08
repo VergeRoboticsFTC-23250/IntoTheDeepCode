@@ -40,7 +40,7 @@ public class OuttakeSlides implements Subsystem {
     public static int minPos = 0;
     public static int maxPos = 71000;
     public static int scoreOffset = 20000;
-    public static int outtakeFront = 13000;
+    public static int outtakeFront = 14500;
     public static int outtakeFrontAuto = 23000;
     public static int outtakeFrontSecondaryAuto = 11000;
     public static int outtakeBack = 10000;
