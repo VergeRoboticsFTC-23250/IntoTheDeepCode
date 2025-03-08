@@ -45,6 +45,7 @@ public class Teleop extends OpMode {
     @Override
     public void init() {
         Robot.init(hardwareMap);
+        Chassis.holdPoint = false;
 
         tejas = Mercurial.gamepad1();
         arvind = Mercurial.gamepad2();
