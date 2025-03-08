@@ -57,8 +57,10 @@ public class SpecAuto {
         intakePoseOffset.add(new Pose(4, 0, 0));
     }
     Command OuttakePreload(){
+        Pose pose = outtakePose.copy();
+        pose.add(new Pose(0, offsets[0], 0));
         return new Sequential(
-                Chassis.driveToPoint(outtakePose).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
+                Chassis.driveToPoint(pose).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
                 Chassis.setConstantDrivePower(outtakePushPower),
                 OuttakeSlides.score(duringOuttakeDelay),
                 Chassis.releaseConstantDrivePower(),
@@ -67,7 +69,7 @@ public class SpecAuto {
     }
     Command Outtake(int i){
         return new Sequential(
-                Chassis.followBezierCurve(SpecAuto.curveToTruss(i)).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
+                Chassis.followBezierCurve(SpecAuto.curveToTruss(i+1)).with(Robot.setState(Robot.State.OUTTAKE_FRONT)),
                 Chassis.setConstantDrivePower(outtakePushPower),
                 OuttakeSlides.score(duringOuttakeDelay),
                 Chassis.releaseConstantDrivePower(),
@@ -96,7 +98,7 @@ public class SpecAuto {
     Command Cycle(int i){
         return new Sequential(
                 new IfElse(() -> i == 0, IntakeFirst(), Intake(i)),
-                Outtake(i+1)
+                Outtake(i)
         );
     }
 
@@ -122,7 +124,7 @@ public class SpecAuto {
                 Cycle(1),
                 Cycle(2),
                 Cycle(3),
-                Intake(4)
+                Intake(3)
         ).schedule();
     }
 
